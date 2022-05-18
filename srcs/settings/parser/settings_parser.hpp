@@ -10,6 +10,9 @@ namespace ws {
 class SettingsParser {
 	public:
 		SettingsParser(std::string settings_file);
+		Settings parse();
+
+	private:
 		bool check_tokens_validity(const std::vector<Token> &tokens);
 		Settings generate_settings(const std::vector<Token> &tokens);
 		void check_semicolon();
@@ -26,11 +29,9 @@ class SettingsParser {
 		size_t resolve_client_max_body_size();
 		ErrorPage resolve_error_page();
 		Location resolve_location_block();
-		Settings parse();
 		void advance();
 		void back();
 
-	private:
 		std::string settings_file_;
 		std::vector<Token> tokens_;
 		size_t n_tokens_;
