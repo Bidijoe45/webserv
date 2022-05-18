@@ -1,0 +1,12 @@
+services:
+  nginx:
+    build: .
+    container_name: tester_nginx
+    image: nginx
+    ports:
+      - 3000:80
+    volumes:
+      - ./container_vol/nginx/conf.d:/etc/nginx/conf.d/
+      - ./container_vol/nginx/sites-available/:/etc/nginx/sites-available/
+      - ./container_vol/nginx/sites-enabled/:/etc/nginx/sites-enabled/
+      - ./container_vol/www:/var/www/
