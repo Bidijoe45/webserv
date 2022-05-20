@@ -7,7 +7,7 @@ TEST_SRCS = $(shell find ./tester -name "*.cpp")
 TEST_OBJS = $(TEST_SRCS:.cpp=.o)
 
 server: $(OBJS)
-	$(CXX) $(SRCS) -o $@
+	$(CXX) $(SRCS) -o $@ -fsanitize=address
 
 test: $(OBJS) $(TEST_OBJS)
 	$(CXX) $(OBJS) $(TEST_OBJS) -o $@ -fsanitize=address
