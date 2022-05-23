@@ -19,13 +19,7 @@
 namespace ws
 {
 
-	size_t Connection::send(char *buff, size_t buff_size) {
-		
-	}
-	
-	Server::Server(int port) : port_(port){
-
-	}
+	Server::Server(int port) : port_(port) { }
 
 	Connection Server::accept_new_connection() {
 		Connection new_conn;
@@ -81,13 +75,55 @@ namespace ws
 		return 0;
 	}
 
+	int Server::poll_connections() {
+		
+		struct pollfd server_poll;
+		server_poll.fd = this->server_socket_;
+		server_poll.events = POLLIN;
+		this->poll_fds_.push_back(server_poll);
+		char *buff[1024];
+
+		for (;;) {
+			int poll_count = poll(&this->poll_fds_[0], this->poll_fds_.size(), -1);
+
+			if (poll_count == -1) {
+				std::cout << "Error: polling failed" << std::endl;
+			}
+
+			for (int i=0; i < this->poll_fds_.size(); i++) {
+
+				if (this->poll_fds_[i].revents & POLLIN) {
+
+					if (this->poll_fds_[i].fd == this->server_socket_) {
+						Connection new_conn = this->accept_new_connection();
+						struct pollfd new_pollfd;
+
+						if (new_conn.socket == -1) {
+							std::cout << "Connection: cannot accept new client connection" << std::endl;
+							exit(1);
+						}
+
+						this->connections_.push_back(new_conn);
+						new_pollfd.fd = new_conn.socket;
+						new_pollfd.events = POLLIN;
+						this->poll_fds_.push_back(new_pollfd);
+					}
+					else {
+						int bytes_read = recv(this->poll_fds_[i].fd, buff, 1024, 0);
+
+						if (bytes_read == 0)
+					}
+
+				}
+
+			}
+		}
+	}
+
 	void Server::run() {
 		this->listen_on(this->port_);
 
-		Connection client_conn = accept_new_connection();
-
-		char buff[1024];
-		size_t bytes_sent = client_conn.send(buff, 1024);
+		this->poll_connections();
 
 	}
 
