@@ -7,6 +7,7 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <netdb.h>
+#include <fcntl.h>
 
 #include <iostream>
 #include <cstring>
@@ -52,6 +53,7 @@ namespace ws
 			}
 			
 			setsockopt(this->server_socket_, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(int));
+			fcntl(this->server_socket_, F_SETFL,O_NONBLOCK);
 
 			if (bind(this->server_socket_, p->ai_addr, p->ai_addrlen) < 0) {
 				close(this->server_socket_);
@@ -75,43 +77,60 @@ namespace ws
 		return 0;
 	}
 
-	int Server::poll_connections() {
+	void Server::on_new_connection(Connection connection) {
 		
-		struct pollfd server_poll;
+	}
+
+	int Server::poll_connections() {
+
+		struct pollfd server_poll;	
 		server_poll.fd = this->server_socket_;
 		server_poll.events = POLLIN;
-		this->poll_fds_.push_back(server_poll);
-		char *buff[1024];
+		char buff[1024];
+
+		this->poll_.push_back(server_poll);
 
 		for (;;) {
-			int poll_count = poll(&this->poll_fds_[0], this->poll_fds_.size(), -1);
+			int poll_count = poll(&this->poll_[0], this->poll_.size(), -1);
 
 			if (poll_count == -1) {
 				std::cout << "Error: polling failed" << std::endl;
 			}
 
-			for (int i=0; i < this->poll_fds_.size(); i++) {
+			for (int i=0; i < this->poll_.size(); i++) {
+				
+				memset(buff, 0, 1024);
 
-				if (this->poll_fds_[i].revents & POLLIN) {
+				if (this->poll_[i].revents & POLLIN) {
 
-					if (this->poll_fds_[i].fd == this->server_socket_) {
+					if (this->poll_[i].fd == this->server_socket_) {
 						Connection new_conn = this->accept_new_connection();
-						struct pollfd new_pollfd;
+						this->add_to_poll(new_conn);
 
 						if (new_conn.socket == -1) {
 							std::cout << "Connection: cannot accept new client connection" << std::endl;
-							exit(1);
+							continue;
 						}
 
-						this->connections_.push_back(new_conn);
-						new_pollfd.fd = new_conn.socket;
-						new_pollfd.events = POLLIN;
-						this->poll_fds_.push_back(new_pollfd);
+						std::cout << "Connection: new connection" << std::endl;
 					}
 					else {
-						int bytes_read = recv(this->poll_fds_[i].fd, buff, 1024, 0);
+						Connection conn = this->connections_[this->poll_[i].fd];
+						int bytes_read = conn.recv_data(buff, 1024);
+						std::cout << "Bytes read: " << bytes_read << std::endl;
+						if (bytes_read <= 0) {
+							std::cout << "Connection: socket closed by client" << std::endl;
+							delete_from_poll(i, conn);
+							continue ;
+						}
 
-						if (bytes_read == 0)
+						std::cout << "-- Message by client --" << std::endl;
+						std::cout << buff << std::endl;
+						std::cout << "-----------------------" << std::endl;
+
+						char buff_tmp[4];
+						memcpy(buff_tmp, "Msg!", 4);
+						conn.send_data(buff_tmp, 4);
 					}
 
 				}
@@ -120,11 +139,26 @@ namespace ws
 		}
 	}
 
+	void Server::add_to_poll(Connection new_connection)
+	{
+		struct pollfd new_poll;
+		new_poll.fd = new_connection.socket;
+		new_poll.events = POLLIN;
+
+		this->poll_.push_back(new_poll);
+		this->connections_.insert(std::make_pair(new_connection.socket, new_connection));
+	}
+
+	void Server::delete_from_poll(size_t index, Connection connection)
+	{
+		this->connections_.erase(connection.socket);
+		this->poll_[index] = this->poll_[this->poll_.size() - 1];
+		this->poll_.erase(this->poll_.end() - 1);
+	}
+
 	void Server::run() {
 		this->listen_on(this->port_);
-
 		this->poll_connections();
-
 	}
 
 
