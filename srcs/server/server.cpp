@@ -77,16 +77,11 @@ namespace ws
 		return 0;
 	}
 
-	void Server::on_new_connection(Connection connection) {
-		
-	}
-
 	int Server::poll_connections() {
 
 		struct pollfd server_poll;	
 		server_poll.fd = this->server_socket_;
 		server_poll.events = POLLIN;
-		char buff[1024];
 
 		this->poll_.push_back(server_poll);
 
@@ -97,10 +92,9 @@ namespace ws
 				std::cout << "Error: polling failed" << std::endl;
 			}
 
+			std::cout << "poll_count: " << poll_count << std::endl;
 			for (int i=0; i < this->poll_.size(); i++) {
 				
-				memset(buff, 0, 1024);
-
 				if (this->poll_[i].revents & POLLIN) {
 
 					if (this->poll_[i].fd == this->server_socket_) {
@@ -112,31 +106,38 @@ namespace ws
 							continue;
 						}
 
-						std::cout << "Connection: new connection" << std::endl;
+						std::cout << "new connection" << std::endl;
 					}
 					else {
 						Connection conn = this->connections_[this->poll_[i].fd];
-						int bytes_read = conn.recv_data(buff, 1024);
-						std::cout << "Bytes read: " << bytes_read << std::endl;
+						int bytes_read = conn.recv_data();
+						std::cout << "bytes_read: " << bytes_read << std::endl;
 						if (bytes_read <= 0) {
 							std::cout << "Connection: socket closed by client" << std::endl;
 							delete_from_poll(i, conn);
 							continue ;
 						}
 
-						std::cout << "-- Message by client --" << std::endl;
-						std::cout << buff << std::endl;
-						std::cout << "-----------------------" << std::endl;
-
-						char buff_tmp[4];
-						memcpy(buff_tmp, "Msg!", 4);
-						conn.send_data(buff_tmp, 4);
+						this->on_new_request(conn);
 					}
 
 				}
 
 			}
 		}
+	}
+
+	void Server::on_new_request(Connection &connection) {
+		std::cout << "-- Message by client --" << std::endl;
+		write(1, connection.buff.data, connection.buff.size);
+		std::cout << std::endl;
+		std::cout << "-----------------------" << std::endl;
+
+		connection.buff.clear();
+		connection.buff.append("Message from server\n", 20);
+		connection.send_data();
+		connection.buff.clear();
+
 	}
 
 	void Server::add_to_poll(Connection new_connection)
@@ -151,13 +152,15 @@ namespace ws
 
 	void Server::delete_from_poll(size_t index, Connection connection)
 	{
-		this->connections_.erase(connection.socket);
+		close(this->poll_[index].fd);
 		this->poll_[index] = this->poll_[this->poll_.size() - 1];
 		this->poll_.erase(this->poll_.end() - 1);
+		this->connections_.erase(connection.socket);
 	}
 
 	void Server::run() {
 		this->listen_on(this->port_);
+		std::cout << "Server listening on " << this->port_ << std::endl;
 		this->poll_connections();
 	}
 

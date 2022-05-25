@@ -16,7 +16,7 @@ namespace ws
 			Connection accept_new_connection();
 			void run();
 			int poll_connections();
-			void on_new_connection(Connection connection);
+			void on_new_request(Connection &connection);
 			void add_to_poll(Connection new_connection);
 			void delete_from_poll(size_t index, Connection connection);
 
