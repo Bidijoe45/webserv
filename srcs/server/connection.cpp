@@ -33,21 +33,27 @@ namespace ws
 
 	void ConnectionBuffer::append(const char *buff, size_t buff_size) {
 		size_t new_size = this->size + buff_size;
-
-		std::cout << "buff_size: " << buff_size << std::endl;
-		std::cout << "new_size: " << new_size << std::endl;
-
 		char *new_data = this->allocator_.allocate(new_size);	
 
-		for (size_t i=0; i < this->size; i++) {
-			new_data[i] = this->data[i];
+		std::cout << "Hola" << std::endl;
+
+		if (this->data != NULL) {
+			for (size_t i=0; i < this->size; i++) {
+				new_data[i] = this->data[i];
+			}
 		}
 
+		std::cout << "Hola 2" << std::endl;
+		
+		size_t i = this->size; 
 		size_t buff_i = 0;
-		for (size_t i=this->size; i < new_size; i++) {
+		while (i < new_size) {
 			new_data[i] = buff[buff_i];
 			buff_i++;
+			i++;
 		}
+
+		std::cout << "Hola 3" << std::endl;
 		
 		if (this->data != NULL)
 			this->allocator_.deallocate(this->data, this->size);
@@ -97,8 +103,6 @@ namespace ws
 			if (read > 0)
 				this->buff.append(buff, read);
 		}	
-
-		std::cout << "last read: " << read << std::endl;
 
 		return (read == -1 ? -1 : total_read);
 	}

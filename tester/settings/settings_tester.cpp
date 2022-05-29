@@ -13,10 +13,12 @@ namespace ws_tester
 	void SettingsTester::test() {
 		bool ret = false;
 
+		//conf_file1.conf
 		ret = settings_test_1(1, false);
 		print_test_result(1, ret);
 
-		ret = settings_test_2(2, false);
+		//conf_file2.conf
+		ret = settings_test_2(2, true);
 		print_test_result(2, ret);
 	}
 
