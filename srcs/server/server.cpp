@@ -13,6 +13,8 @@
 #include <cstring>
 
 #include "server.hpp"
+#include "../http/http_parser.hpp"
+#include "../http/http_request.hpp"
 
 #define PORT "3000"
 #define MAX_LISTENING_QUEUE_N 5
@@ -133,11 +135,18 @@ namespace ws
 		std::cout << std::endl;
 		std::cout << "-----------------------" << std::endl;
 
-		connection.buff.clear();
-		connection.buff.append("Message from server\n", 20);
-		connection.send_data();
+		HttpParser http_parser(connection.buff);
+		HttpRequest http_request = http_parser.parse();
+		
 		connection.buff.clear();
 
+		//aqui interpretar la request y prepara la respuesta http
+		connection.buff.append("HTTP/1.1 200 OK\r\nContent-Length: 13\r\nContent-Type: text/html\r\n\r\nHello World!", 77);
+
+		//aqui se envia todo
+		connection.send_data();
+
+		connection.buff.clear();
 	}
 
 	void Server::add_to_poll(Connection new_connection)
