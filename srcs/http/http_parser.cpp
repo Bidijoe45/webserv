@@ -6,7 +6,7 @@
 namespace ws
 {
 
-	HttpParser::HttpParser(ConnectionBuffer &buff) {
+	HttpParser::HttpParser(DataBuffer &buff) {
 
 	}
 

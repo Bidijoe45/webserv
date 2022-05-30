@@ -7,7 +7,7 @@ namespace ws
 {
 	class HttpParser {
 		public:
-			HttpParser(ConnectionBuffer &buff);
+			HttpParser(DataBuffer &buff);
 			HttpRequest parse();
 		private:
 
