@@ -6,36 +6,6 @@
 namespace ws
 {
 
-	void DataBuffer::append(const char *buff, size_t buff_size) {
-		size_t new_size = this->size + buff_size;
-		char *new_data = this->allocator_.allocate(new_size);	
-
-		std::cout << "Hola" << std::endl;
-
-		if (this->data != NULL) {
-			for (size_t i=0; i < this->size; i++) {
-				new_data[i] = this->data[i];
-			}
-		}
-
-		std::cout << "Hola 2" << std::endl;
-		
-		size_t i = this->size; 
-		size_t buff_i = 0;
-		while (i < new_size) {
-			new_data[i] = buff[buff_i];
-			buff_i++;
-			i++;
-		}
-
-		std::cout << "Hola 3" << std::endl;
-		
-		if (this->data != NULL)
-			this->allocator_.deallocate(this->data, this->size);
-		this->size = new_size;
-		this->data = new_data;
-	}
-
 	int Connection::send_data()
 	{
 		int total = 0;
