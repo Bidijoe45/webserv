@@ -15,7 +15,7 @@ struct HttpRequest {
 	std::string url;
 	std::string version;
 	std::map<std::string, std::string> headers;
-	//TODO: definir como se va a guardar el body de la peticion
+	
 };
 
 } // namespace ws
