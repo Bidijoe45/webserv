@@ -5,33 +5,8 @@
 
 namespace ws
 {
-	ConnectionBuffer::ConnectionBuffer() {
-		this->data = NULL;
-		this->size = 0;
-	}
 
-	ConnectionBuffer::ConnectionBuffer(const ConnectionBuffer &buff) {
-		this->size = buff.size;
-
-		if (buff.data == NULL) {
-			this->data = NULL;
-			return;	
-		}
-
-		this->data = this->allocator_.allocate(buff.size);
-		for (size_t i=0; i < buff.size; i++) {
-			this->data[i] = buff.data[i];
-		}
-	}
-
-	ConnectionBuffer::~ConnectionBuffer() {
-		this->clear();
-	}
-
-	void Connection() {
-	}
-
-	void ConnectionBuffer::append(const char *buff, size_t buff_size) {
+	void DataBuffer::append(const char *buff, size_t buff_size) {
 		size_t new_size = this->size + buff_size;
 		char *new_data = this->allocator_.allocate(new_size);	
 
@@ -59,13 +34,6 @@ namespace ws
 			this->allocator_.deallocate(this->data, this->size);
 		this->size = new_size;
 		this->data = new_data;
-	}
-
-	void ConnectionBuffer::clear() {
-		if (this->data != NULL)
-			this->allocator_.deallocate(this->data, this->size);
-		this->data = NULL;
-		this->size = 0;
 	}
 
 	int Connection::send_data()
