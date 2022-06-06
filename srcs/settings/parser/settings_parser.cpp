@@ -5,8 +5,6 @@
 #include "../lexer/settings_lexer.hpp"
 #include "../lexer/token.hpp"
 
-#include "../../../tester/lexer/tests/lexer_tests_utils.hpp"
-
 namespace ws {
 
 	SettingsParser::SettingsParser(std::string settings_file) : settings_file_(settings_file) {

@@ -94,7 +94,6 @@ namespace ws
 				std::cout << "Error: polling failed" << std::endl;
 			}
 
-			std::cout << "poll_count: " << poll_count << std::endl;
 			for (int i=0; i < this->poll_.size(); i++) {
 				
 				if (this->poll_[i].revents & POLLIN) {
@@ -108,7 +107,7 @@ namespace ws
 							continue;
 						}
 
-						std::cout << "new connection" << std::endl;
+						std::cout << "New connection" << std::endl;
 					}
 					else {
 						Connection conn = this->connections_[this->poll_[i].fd];
@@ -130,20 +129,22 @@ namespace ws
 	}
 
 	void Server::on_new_request(Connection &connection) {
-		std::cout << "-- Message by client --" << std::endl;
+		std::cout << "-- Raw Message by client --" << std::endl;
 		write(1, connection.buff.data, connection.buff.size);
 		std::cout << std::endl;
 		std::cout << "-----------------------" << std::endl;
 
 		HttpParser http_parser(connection.buff);
 		HttpRequest http_request = http_parser.parse();
+
+		if (http_parser.request_is_valid() == false) {
+			std::cout << "HTTP parser request invalid" << std::endl;
+		}
 		
 		connection.buff.clear();
 
-		//aqui interpretar la request y prepara la respuesta http
 		connection.buff.append("HTTP/1.1 200 OK\r\nContent-Length: 13\r\nContent-Type: text/html\r\n\r\nHello World!", 77);
 
-		//aqui se envia todo
 		connection.send_data();
 
 		connection.buff.clear();
