@@ -12,13 +12,19 @@ namespace ws
 		public:
 			HttpParser(DataBuffer &buff);
 			HttpRequest parse();
+			bool request_is_valid();
+
 		private:
-			void parse_first_line();
 			std::string next_line();
-			DataBuffer &buff_;
+			void parse_first_line();
+			void parse_headers();
+			void parse_body();
+			std::vector<std::string> split_line(std::string line, char delimiter);
+			HTTP_METHOD resolve_request_method(std::string str);
+			std::string resolve_request_url(std::string str);
+
+			std::string raw_request_;
 			HttpRequest request_;
-			size_t buffer_index_;
-
-
+			bool valid_request_;
 	};
 } // namespace ws

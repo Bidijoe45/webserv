@@ -1,7 +1,8 @@
 #include <iostream>
 
-#include "settings/settings_tester.hpp"
-#include "lexer/lexer_tester.hpp"
+#include "settings_parser/settings_tester.hpp"
+#include "settings_lexer/lexer_tester.hpp"
+#include "http_parser/http_parser_tester.hpp"
 
 int main(int argc, char **argv) {
 
@@ -25,6 +26,12 @@ int main(int argc, char **argv) {
 	if (arg == "all" || arg == "settings") {
 		std::cout << "SETTINGS" << std::endl;
 		ws_tester::SettingsTester::test();
+	}
+	std::cout << std::endl;
+
+	if (arg == "all" || arg == "http_parser") {
+		std::cout << "HTTP PARSER" << std::endl;
+		ws_tester::HttpParserTester::test();
 	}
 	std::cout << std::endl;
 

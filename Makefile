@@ -3,14 +3,18 @@ CXX = clang++
 SRCS = $(shell find ./srcs -name "*.cpp" ! -name "main.cpp")
 OBJS = $(SRCS:.cpp=.o)
 
+SERVER_MAIN = srcs/main.cpp
+
 TEST_SRCS = $(shell find ./tester -name "*.cpp" ! -name "main.cpp")
 TEST_OBJS = $(TEST_SRCS:.cpp=.o)
 
-server: $(OBJS)
-	$(CXX) $(SRCS) ./srcs/main.cpp -o $@ -fsanitize=address
+TESTER_MAIN = tester/main.cpp
 
-test: $(OBJS) $(TEST_OBJS)
-	$(CXX) $(OBJS) $(TEST_OBJS) ./tester/main.cpp -o $@ -fsanitize=address
+server: $(OBJS) $(SERVER_MAIN)
+	$(CXX) $(SRCS) ./srcs/main.cpp -o $@ -I ./srcs -fsanitize=address 
+
+test: $(OBJS) $(TEST_OBJS) $(TESTER_MAIN)
+	$(CXX) $(OBJS) $(TEST_OBJS) ./tester/main.cpp -o $@ -I ./srcs -fsanitize=address
 
 all: server
 

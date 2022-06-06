@@ -122,7 +122,7 @@ static std::vector<ws::Token> prepare_tokens() {
 bool lexer_test2(size_t test_n, bool print) {
 	std::vector<ws::Token> prepared_tokens = prepare_tokens();
 
-	ws::SettingsLexer lexer = ws::SettingsLexer("tester/settings/test_files/conf_file2.conf");
+	ws::SettingsLexer lexer = ws::SettingsLexer("tester/settings_parser/test_files/conf_file2.conf");
 	std::vector<ws::Token> tokens = lexer.make_tokens();
 
 	if (print) {

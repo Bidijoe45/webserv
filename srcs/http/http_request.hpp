@@ -9,15 +9,16 @@ namespace ws
 {
 
 enum HTTP_METHOD {
-	GET, POST, DELETE
+	GET, POST, DELETE, INVALID_METHOD
 };
 
 struct HttpRequest {
+	typedef std::map<std::string, std::string>::iterator headers_iterator;
+
 	HTTP_METHOD method;
 	std::string url;
-	std::string version;
 	std::map<std::string, std::string> headers;
-	DataBuffer body;
+	std::string body;
 };
 
 } // namespace ws
