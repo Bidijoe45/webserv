@@ -1,4 +1,5 @@
 #include <string>
+#include <exception>
 
 #include "settings_parser.hpp"
 #include "../settings.hpp"
@@ -13,6 +14,7 @@ namespace ws {
 		this->n_tokens_ = this->tokens_.size();
 		this->pos_ = 0;
 		this->current_token_ = this->tokens_[this->pos_];
+		this->valid_file_ = true;
 	}
 
 	void SettingsParser::advance() {
@@ -33,8 +35,7 @@ namespace ws {
 	void SettingsParser::check_semicolon() {
 	
 		if (this->current_token_.type != TT_SEMICOLON){
-			std::cout << "Settings Parser: Missing semicolon" << std::endl;
-			exit(1);
+			throw std::runtime_error(std::string("Missing semicolon"));
 		}
 
 		this->advance();
@@ -43,8 +44,7 @@ namespace ws {
 	void SettingsParser::check_left_bracket() {
 		
 		if (this->current_token_.type != TT_LBRACKET){
-			std::cout << "Settings Parser: Missing left bracket" << std::endl;
-			exit(1);
+			throw std::runtime_error(std::string("Missing left bracket"));
 		}
 
 		this->advance();
@@ -52,8 +52,7 @@ namespace ws {
 
 	void SettingsParser::check_right_bracket() {
 		if (this->current_token_.type != TT_RBRACKET){
-			std::cout << "Settings Parser: Missing right bracket" << std::endl;
-			exit(1);
+			throw std::runtime_error(std::string("Missing right bracket"));
 		}
 
 		this->advance();
@@ -65,8 +64,7 @@ namespace ws {
 		if (this->current_token_.type != TT_VALUE
 			&& this->current_token_.value.find_first_not_of("0123456789") != std::string::npos)
 		{
-			std::cout << "Settings Parser: Invalid listen argument" << std::endl;
-			exit(1);
+			throw std::runtime_error(std::string("Invalid listen argument"));
 		}
 
 		port_n = std::atoll(this->current_token_.value.c_str());
@@ -81,8 +79,7 @@ namespace ws {
 
 		if (this->current_token_.type != TT_VALUE)
 		{
-			std::cout << "Settings Parser: Invalid server_name argument" << std::endl;
-			exit(1);
+			throw std::runtime_error(std::string("Invalid server_name argument"));
 		}
 
 		server_name = this->current_token_.value;
@@ -96,8 +93,7 @@ namespace ws {
 
 		if (this->current_token_.type != TT_VALUE
 			&& this->current_token_.value.find_first_not_of("0123456789") == std::string::npos) {
-			std::cout << "Settings Parser: Invalid client_max_body_size argument" << std::endl;
-			exit(1);
+			throw std::runtime_error(std::string("Invalid client_max_body_size argument"));
 		}
 
 		client_max_body_size = std::atoll(this->current_token_.value.c_str());
@@ -113,8 +109,7 @@ namespace ws {
 		if (this->current_token_.type != TT_VALUE
 			&& this->current_token_.value.find_first_not_of("0123456789") == std::string::npos)
 		{
-			std::cout << "Settings Parser: Invalid first error_page argument" << std::endl;
-			exit(1);
+			throw std::runtime_error(std::string("Invalid first error_page argument"));
 		}
 
 		error_page.code = std::strtoul(this->current_token_.value.c_str(), &end_ptr, 10);
@@ -123,8 +118,7 @@ namespace ws {
 
 		if (this->current_token_.type != TT_VALUE)
 		{
-			std::cout << "Settings Parser: Invalid second error_page argument" << std::endl;
-			exit(1);
+			throw std::runtime_error(std::string("Invalid second error_page argument"));
 		}
 
 		error_page.path = this->current_token_.value;
@@ -139,8 +133,7 @@ namespace ws {
 
 		if (this->current_token_.type != TT_VALUE)
 		{
-			std::cout << "Settings Parser: Invalid root arggument" << std::endl;
-			exit(1);
+			throw std::runtime_error(std::string("Invalid root arggument"));
 		}
 		
 		root = this->current_token_.value;
@@ -154,8 +147,7 @@ namespace ws {
 
 		if (this->current_token_.type != TT_VALUE)
 		{
-			std::cout << "Settings Parser: Invalid index arggument" << std::endl;
-			exit(1);
+			throw std::runtime_error(std::string("Invalid index argument"));
 		}
 		
 		index = this->current_token_.value;
@@ -170,8 +162,7 @@ namespace ws {
 		if (this->current_token_.type != TT_VALUE 
 			&& (this->current_token_.value != "on" || this->current_token_.value != "off"))
 		{
-			std::cout << "Settings Parser: Invalid index arggument" << std::endl;
-			exit(1);
+			throw std::runtime_error(std::string("Invalid index arggument"));
 		}
 		
 		if (this->current_token_.value == "on")
@@ -193,16 +184,14 @@ namespace ws {
 			} else if (this->current_token_.type == TT_VALUE && this->current_token_.value == "DELETE") {
 				methods.push_back(DELETE);
 			} else {
-				std::cout << "Settings Parser: Invalid element in accept" << std::endl;
-				exit(1);
+				throw std::runtime_error(std::string("Invalid element in accept"));
 			}
 
 			this->advance();
 		}
 
 		if (methods.size() == 0) {
-			std::cout << "Settings Parser: No parguments in accept element" << std::endl;
-			exit(1);
+			throw std::runtime_error(std::string("No arguments in accept element"));
 		}
 
 		return methods;
@@ -212,8 +201,7 @@ namespace ws {
 		Rewrite rewrite;
 
 		if (this->current_token_.type != TT_VALUE) {
-			std::cout << "Settings Parser: No valid rewrite first argument" << std::endl;
-			exit(1);
+			throw std::runtime_error(std::string("No valid rewrite first argument"));
 		}
 
 		rewrite.from = this->current_token_.value;
@@ -221,8 +209,7 @@ namespace ws {
 		this->advance();
 
 		if (this->current_token_.type != TT_VALUE) {
-			std::cout << "Settings Parser: No valid rewrite second argument" << std::endl;
-			exit(1);
+			throw std::runtime_error(std::string("No valid rewrite second argument"));
 		}
 
 		rewrite.to = this->current_token_.value;
@@ -230,8 +217,7 @@ namespace ws {
 		this->advance();
 
 		if (this->current_token_.type != TT_VALUE && this->current_token_.value != "permanent") {
-			std::cout << "Settings Parser: No valid rewrite third argument" << std::endl;
-			exit(1);
+			throw std::runtime_error(std::string("No valid rewrite third argument"));
 		}
 
 		rewrite.permanent = true;
@@ -244,8 +230,7 @@ namespace ws {
 		Location location;
 		
 		if (current_token_.type != TT_VALUE) {
-			std::cout << "Settings Parser: Invalid location argument" << std::endl;
-			exit(1);
+			throw std::runtime_error(std::string("Invalid location argument"));
 		}
 
 		location.path = current_token_.value;
@@ -278,8 +263,7 @@ namespace ws {
 				this->check_semicolon();
 			}
 			else {
-				std::cout << "Settings Parser: Invalid location block element" << std::endl;
-				exit(1);
+				throw std::runtime_error(std::string("Invalid location block element"));
 			}
 
 		}
@@ -314,30 +298,41 @@ namespace ws {
 				this->advance();
 				server_settings.locations.push_back(this->resolve_location_block());
 			} else {
-				std::cout << "Settings Parser: Invalid server block element" << std::endl;
-				exit(1);
+				throw std::runtime_error(std::string("Invalid server block element"));
 			}
 		}
 
 		return server_settings;
 	}
 
+	bool SettingsParser::is_valid() {
+		return this->valid_file_;
+	}
+
+	std::string SettingsParser::get_error_msg() {
+		return this->error_msg_;
+	}
+
 	Settings SettingsParser::parse() {
 
-		if (current_token_.type != TT_SERVER) {
-			std::cout << "Settings Parser: no server block" << std::endl;
-			exit(1);
-		}
-
-		while (this->pos_ != -1) {
-			if (this->current_token_.type == TT_SERVER) {
-				this->advance();
-				this->check_left_bracket();
-				this->settings_.servers.push_back(this->resolve_server_block());
-				this->check_right_bracket();
+		try {
+			if (current_token_.type != TT_SERVER) {
+				throw std::runtime_error(std::string("Invalid server block element"));
 			}
-		}
 
+			while (this->pos_ != -1) {
+				if (this->current_token_.type == TT_SERVER) {
+					this->advance();
+					this->check_left_bracket();
+					this->settings_.servers.push_back(this->resolve_server_block());
+					this->check_right_bracket();
+				}
+			}
+		} catch (std::runtime_error &e) {
+			this->error_msg_ = std::string(e.what());
+			this->valid_file_ = false;
+		}
+		
 		return this->settings_;
 	}
 
