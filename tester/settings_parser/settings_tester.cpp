@@ -22,8 +22,8 @@ namespace ws_tester
 		print_test_result(2, ret);
 
 		//conf_file4.conf
-		ret = settings_test_3(2, true);
-		print_test_result(2, ret);
+		ret = settings_test_3(3, false);
+		print_test_result(3, ret);
 
 	}
 

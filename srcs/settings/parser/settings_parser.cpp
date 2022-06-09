@@ -277,6 +277,9 @@ namespace ws {
 
 		ServerSettings server_settings;
 
+		//FIXME: crear una funcion donde poner a default los ajustes del servidor
+		server_settings.client_max_body_size = 0;
+
 		while (this->current_token_.type != TT_RBRACKET && this->pos_ != -1) {
 			if (this->current_token_.type == TT_LISTEN) {
 				this->advance();
