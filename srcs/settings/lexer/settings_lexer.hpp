@@ -14,6 +14,8 @@ class SettingsLexer {
 public:
     SettingsLexer(std::string file_name);
 	std::vector<Token> make_tokens();
+	bool file_is_valid();
+	std::string get_error_msg();
 
 private:
 	std::map<std::string, TOKEN_TYPE> valid_value_types_;
@@ -25,6 +27,8 @@ private:
 	size_t str_len_;
 	size_t pos_;
 	char current_char_;
+	bool valid_file_;
+	std::string error_msg_;
 
 };
 
