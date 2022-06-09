@@ -17,13 +17,13 @@ int main(int argc, char **argv) {
 		return 1;
 	}
 
-	if (arg == "all" || arg == "lexer") {
+	if (arg == "all" || arg == "settings_lexer") {
 		std::cout << "LEXER" << std::endl;
 		ws_tester::LexerTester::test();
 	}
 	std::cout << std::endl;
 
-	if (arg == "all" || arg == "settings") {
+	if (arg == "all" || arg == "settings_parser") {
 		std::cout << "SETTINGS" << std::endl;
 		ws_tester::SettingsTester::test();
 	}

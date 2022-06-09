@@ -13,14 +13,19 @@
 namespace ws_tester
 {
 
+/**
 
+Al archivo conf_file4.conf le falta un punto y coma
+
+*/
 bool settings_test_3(size_t test_n, bool print) {
 	
-	ws::SettingsParser settings_parser("./tester/settings_parser/test_files/conf_file2.conf");
+	ws::SettingsParser settings_parser("./tester/settings_parser/test_files/conf_file4.conf");
 	ws::Settings parsed_settings = settings_parser.parse();
 
 	if (print) {
-		std::cout << "Erro msg: " << settings_parser.get_error_msg() << std::endl;
+		std::cout << "Error msg should be: Missing semicolon" << std::endl;
+		std::cout << "Error msg: " << settings_parser.get_error_msg() << std::endl;
 	}
 	
 	return !settings_parser.is_valid();
