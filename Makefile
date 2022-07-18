@@ -10,13 +10,13 @@ TEST_OBJS = $(TEST_SRCS:.cpp=.o)
 
 TESTER_MAIN = tester/main.cpp
 
-server: $(OBJS) $(SERVER_MAIN)
+webserv: $(OBJS) $(SERVER_MAIN)
 	$(CXX) $(SRCS) ./srcs/main.cpp -o $@ -I ./srcs -fsanitize=address 
 
 test: $(OBJS) $(TEST_OBJS) $(TESTER_MAIN)
 	$(CXX) $(OBJS) $(TEST_OBJS) ./tester/main.cpp -o $@ -I ./srcs -fsanitize=address
 
-all: server
+all: webserv
 
 clean:
 	rm -rf $(OBJS)
