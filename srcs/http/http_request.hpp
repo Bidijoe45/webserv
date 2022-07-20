@@ -17,8 +17,12 @@ struct HttpRequest {
 
 	HTTP_METHOD method;
 	std::string url;
+	std::string http_version;
 	std::map<std::string, std::string> headers;
 	std::string body;
+
+	void set_method(const std::string &str);
 };
+
 
 } // namespace ws
