@@ -1,34 +1,47 @@
-CXX = clang++
+NAME		:= webserv
 
-SRCS = $(shell find ./srcs -name "*.cpp" ! -name "main.cpp")
-OBJS = $(SRCS:.cpp=.o)
+#OBJS_DIR	:= ./objs
 
-SERVER_MAIN = srcs/main.cpp
+SRCS		:= $(shell find ./srcs -name "*.cpp" ! -name "main.cpp")
+SRCS_TEST	:= $(shell find ./tester -name "*.cpp" ! -name "main.cpp")
 
-TEST_SRCS = $(shell find ./tester -name "*.cpp" ! -name "main.cpp")
-TEST_OBJS = $(TEST_SRCS:.cpp=.o)
+SERVER_MAIN := srcs/main.cpp
+TESTER_MAIN := tester/main.cpp
 
-TESTER_MAIN = tester/main.cpp
+#OBJS	:= $(shell echo $(SRCS:.cpp=.o) | rev | cut -d "/" -f 1 | rev)
+OBJS	:= $(SRCS:.cpp=.o)
+OBJS_TEST := $(SRCS_TEST:.cpp=.o)
 
-webserv: $(OBJS) $(SERVER_MAIN)
-	$(CXX) $(SRCS) ./srcs/main.cpp -o $@ -I ./srcs -fsanitize=address 
+RM			= rm -rf
 
-test: $(OBJS) $(TEST_OBJS) $(TESTER_MAIN)
-	$(CXX) $(OBJS) $(TEST_OBJS) ./tester/main.cpp -o $@ -I ./srcs -fsanitize=address
+CXX			= clang++
 
-all: webserv
+COMMON		=
+CXXFLAGS	?= -std=c++98 $(COMMON)
+LDFLAGS		?= $(COMMON)
+SANITIZE	= -g3 -fsanitize=address
+
+$(NAME): $(OBJS) $(SERVER_MAIN)
+	$(CXX) $(LDFLAGS) $^ -o $@
+
+test: $(OBJS) $(OBJS_TEST) $(TESTER_MAIN)
+	$(CXX) $(LDFLAGS) $^ -o $@
+
+debug:	COMMON += $(SANITIZE)
+debug:	re
+
+tdebug: COMMON += $(SANITIZE)
+tdebug: fclean test
+
+all: $(NAME)
 
 clean:
-	rm -rf $(OBJS)
+	$(RM) $(OBJS) $(TEST_OBJS)
 
 fclean: clean
+	$(RM) $(NAME)
+	$(RM) test
 
 re: fclean all
 
-tclean: fclean
-	rm -rf $(TEST_OBJS)
-
-tfclean: tclean
-	rm -f test
-
-tre: tfclean test 
+.PHONY: all clean fclean re debug tdebug
