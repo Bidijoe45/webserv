@@ -36,7 +36,7 @@ tdebug: fclean test
 all: $(NAME)
 
 clean:
-	$(RM) $(OBJS) $(TEST_OBJS)
+	$(RM) $(OBJS) $(OBJS_TEST)
 
 fclean: clean
 	$(RM) $(NAME)
