@@ -4,7 +4,7 @@
 #include <vector>
 
 #include "./http_request.hpp"
-#include "../server/connection.hpp"
+#include "../server/data_buffer.hpp"
 
 namespace ws
 {
@@ -24,4 +24,5 @@ namespace ws
 			std::string line_;
 			HttpRequest request_;
 	};
+	
 } // namespace ws

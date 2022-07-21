@@ -4,8 +4,9 @@
 #include <iostream>
 #include <exception>
 
-#include "../server/connection.hpp"
 #include "./http_request.hpp"
+#include "../server/data_buffer.hpp"
+#include "../utils/string_utils.hpp"
 
 namespace ws
 {
@@ -33,12 +34,14 @@ namespace ws
 		size_t i = 0;
 		std::string	element;
 
+		if (!is_string_printable(this->line_, this->line_.size()))
+			throw std::runtime_error("Request: error in first line");
 		while (element_i < 2)
 		{
 			sp_pos = this->line_.find_first_of(' ', i);
 			if (sp_pos == std::string::npos)
 				throw std::runtime_error("Request: error in first line");
-			element = this->line_.substr(i, sp_pos);
+			element = this->line_.substr(i, sp_pos - i);
 			if (element_i == 0)
 				this->request_.set_method(element);
 			else
@@ -48,23 +51,28 @@ namespace ws
 				throw std::runtime_error("Request: error in first line");
 			element_i++;
 		}
+		if (this->line_.find_first_of(' ', i) != std::string::npos)
+			throw std::runtime_error("Request: error in first line");
 		this->request_.http_version = this->line_.substr(i);
 	}
 
 	HttpRequest HttpParser::parse()
 	{
 		this->line_ = this->get_next_line();
-
+		this->valid_request_ = true;
 		try
 		{
 			this->parse_first_line();
-			this->parse_headers();
-			this->parse_body();
+			//this->parse_headers();
+			//this->parse_body();
 		}
 		catch(const std::runtime_error& e)
 		{
-			valid_request_ = false;
+			this->valid_request_ = false;
+			std::cout << e.what() << std::endl;
 		}
+
+		return this->request_;
 	}
 
 	bool HttpParser::request_is_valid()

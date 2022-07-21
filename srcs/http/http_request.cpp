@@ -5,13 +5,13 @@ namespace ws
 	void HttpRequest::set_method(const std::string &str)
 	{
 		if (str == "GET")
-			this->method = HTTP_METHOD::GET;
+			this->method = GET;
 		else if (str == "POST")
-			this->method = HTTP_METHOD::POST;
+			this->method = POST;
 		else if (str == "DELETE")
-			this->method = HTTP_METHOD::DELETE;
+			this->method = DELETE;
 		else
-			this->method = HTTP_METHOD::INVALID_METHOD;
+			this->method = INVALID_METHOD;
 	}
 } // namespace ws
 
