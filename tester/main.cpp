@@ -20,20 +20,20 @@ int main(int argc, char **argv) {
 	if (arg == "all" || arg == "settings_lexer") {
 		std::cout << "LEXER" << std::endl;
 		ws_tester::LexerTester::test();
+		std::cout << std::endl;
 	}
-	std::cout << std::endl;
 
 	if (arg == "all" || arg == "settings_parser") {
 		std::cout << "SETTINGS" << std::endl;
 		ws_tester::SettingsTester::test();
+		std::cout << std::endl;
 	}
-	std::cout << std::endl;
 
 	if (arg == "all" || arg == "http_parser") {
 		std::cout << "HTTP PARSER" << std::endl;
 		ws_tester::HttpParserTester::test();
+		std::cout << std::endl;
 	}
-	std::cout << std::endl;
 
 	return 0;
 }
