@@ -256,6 +256,9 @@ bool lexer_test3(size_t test_n, bool print) {
 		print_lexer_tokens(prepared_tokens);
 
 		std::cout << "---Output---" << std::endl;
+		if (!lexer.file_is_valid()) {
+			std::cout << "Error msg: " << lexer.get_error_msg() << std::endl;
+		}
 		print_lexer_tokens(tokens);
 	}
 

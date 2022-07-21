@@ -1,6 +1,8 @@
 #pragma once
 
 #include <string>
+#include <iostream>
+#include <exception>
 
 #include "../settings.hpp"
 #include "../lexer/token.hpp"
@@ -11,6 +13,8 @@ class SettingsParser {
 	public:
 		SettingsParser(std::string settings_file);
 		Settings parse();
+		bool is_valid();
+		std::string get_error_msg();
 
 	private:
 		bool check_tokens_validity(const std::vector<Token> &tokens);
@@ -38,6 +42,8 @@ class SettingsParser {
 		int pos_;
 		Token current_token_;
 		Settings settings_;
+		bool valid_file_;
+		std::string error_msg_;
 };
 
 }

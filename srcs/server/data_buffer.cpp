@@ -14,7 +14,6 @@ namespace ws {
 	{
 		if (this == &buff)
 			return *this;
-
 		this->data = buff.data;
 
 		return *this;
@@ -45,7 +44,8 @@ namespace ws {
 		return this->data.find(str);
 	}
 
-	size_t DataBuffer::size() const {
+	size_t DataBuffer::size() const
+	{
 		return this->data.size();
 	}
 

@@ -49,7 +49,7 @@ bool settings_test_1(size_t test_n, bool print) {
 		print_settings(prepared_settings);
 	}
 
-	ws::SettingsParser settings_parser("./tester/settings/test_files/conf_file1.conf");
+	ws::SettingsParser settings_parser("./tester/settings_parser/test_files/conf_file1.conf");
 	ws::Settings parsed_settings = settings_parser.parse();
 
 	if (print) {
