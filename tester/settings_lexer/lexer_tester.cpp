@@ -24,6 +24,9 @@ namespace ws_tester
 		ret = lexer_test3(3, false);
 		print_test_result(3, ret);
 
+		ret = lexer_test4(4, false);
+		print_test_result(4, ret);
+
 	}
 
 } // namespace ws_tester

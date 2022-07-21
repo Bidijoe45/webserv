@@ -14,8 +14,9 @@ namespace ws
 		std::string file_str;
 
 		if (!file || !file.is_open()) {
-			std::cout << "Lexer: Could not open settings file" << std::endl;
-			exit(1);
+			this->valid_file_ = false;
+			this->error_msg_ = "Could not open the file";
+			return ;
 		}
 
 		while (std::getline(file, file_str)) {
@@ -25,6 +26,15 @@ namespace ws
 		this->pos_ = -1;
 		this->current_char_ = 0;
 		this->str_len_ = this->str_.length();
+		this->valid_file_ = true;
+	}
+
+	bool SettingsLexer::file_is_valid() {
+		return this->valid_file_;
+	}
+
+	std::string SettingsLexer::get_error_msg() {
+		return this->error_msg_;
 	}
 
 	void SettingsLexer::advance() {

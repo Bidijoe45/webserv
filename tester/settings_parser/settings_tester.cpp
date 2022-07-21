@@ -18,8 +18,13 @@ namespace ws_tester
 		print_test_result(1, ret);
 
 		//conf_file2.conf
-		ret = settings_test_2(2, true);
+		ret = settings_test_2(2, false);
 		print_test_result(2, ret);
+
+		//conf_file4.conf
+		ret = settings_test_3(3, false);
+		print_test_result(3, ret);
+
 	}
 
 } // namespace ws_tester

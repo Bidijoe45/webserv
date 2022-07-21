@@ -45,6 +45,7 @@ static ws::Settings prepare_settings() {
 	location1.autoindex = true;
 
 	server_settings1.locations.push_back(location1);
+	server_settings1.client_max_body_size = 0;
 
 	settings.servers.push_back(server_settings1);
 
@@ -60,15 +61,18 @@ bool settings_test_2(size_t test_n, bool print) {
 		print_settings(prepared_settings);
 	}
 
-	ws::SettingsParser settings_parser("./tester/settings/test_files/conf_file2.conf");
+	ws::SettingsParser settings_parser("./tester/settings_parser/test_files/conf_file2.conf");
 	ws::Settings parsed_settings = settings_parser.parse();
+
+	bool file_is_valid = settings_parser.is_valid();
 
 	if (print) {
 		std::cout << "-- Parsed settings --" << std::endl;
+		std::cout << "File is valid: " << ( (file_is_valid) ? "true" : "false" ) << std::endl;
 		print_settings(parsed_settings);
 	}
 
-	return prepared_settings == parsed_settings;
+	return (prepared_settings == parsed_settings && file_is_valid == true);
 }
 
 }
