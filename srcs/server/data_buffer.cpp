@@ -26,6 +26,11 @@ namespace ws {
 		this->data.append(buff, buff_size);
 	}
 
+	void DataBuffer::append(const std::string &str)
+	{
+		this->data.append(str);
+	}
+
 	void DataBuffer::clear()
 	{
 		this->data.clear();
