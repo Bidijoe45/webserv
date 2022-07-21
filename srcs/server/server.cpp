@@ -13,6 +13,7 @@
 #include <cstring>
 
 #include "server.hpp"
+#include "connection.hpp"
 #include "../http/http_parser.hpp"
 #include "../http/http_request.hpp"
 
@@ -130,8 +131,7 @@ namespace ws
 
 	void Server::on_new_request(Connection &connection) {
 		std::cout << "-- Raw Message by client --" << std::endl;
-		write(1, connection.buff.data, connection.buff.size);
-		std::cout << std::endl;
+		std::cout << connection.buff.data << std::endl;
 		std::cout << "-----------------------" << std::endl;
 
 		HttpParser http_parser(connection.buff);
@@ -140,6 +140,8 @@ namespace ws
 		if (http_parser.request_is_valid() == false) {
 			std::cout << "HTTP parser request invalid" << std::endl;
 		}
+
+
 		
 		connection.buff.clear();
 
