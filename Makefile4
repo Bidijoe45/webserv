@@ -1,0 +1,79 @@
+PROJDIR := $(realpath $(CURDIR))
+SOURCEDIR := $(PROJDIR)/srcs
+SOURCEDIR_TESTER := $(PROJDIR)/tester
+BUILDDIR := $(PROJDIR)/build
+
+NAME := webserv
+NAME_TESTER := webserv_test
+
+VERBOSE = TRUE
+
+SOURCEDIRS := $(shell find $(SOURCEDIR) -type d)
+TARGETDIRS = $(subst $(SOURCEDIR),$(BUILDDIR), $(SOURCEDIRS))
+SOURCEDIRS_TESTER := $(shell find $(SOURCEDIR) -mindepth 1 -type d) $(shell find $(SOURCEDIR_TESTER) -type d)
+TARGETDIRS_TESTER := $(subst $(SOURCEDIR),$(BUILDDIR), $(filter $(SOURCEDIR)%, $(SOURCEDIRS_TESTER))) $(subst $(SOURCEDIR_TESTER),$(BUILDDIR), $(filter $(SOURCEDIR_TESTER)%, $(SOURCEDIRS_TESTER)))
+
+INCLUDES = $(foreach dir, $(SOURCEDIRS), $(addprefix -I, $(dir)))
+
+VPATH := $(SOURCEDIR_TESTER) $(SOURCEDIR)
+
+SRCS := $(foreach dir,$(SOURCEDIRS),$(wildcard $(dir)/*.cpp))
+OBJS := $(subst $(SOURCEDIR),$(BUILDDIR),$(SRCS:.cpp=.o))
+
+SRCS_TESTER := $(foreach dir,$(SOURCEDIRS_TESTER),$(wildcard $(dir)/*.cpp))
+OBJS_TESTER := $(subst $(SOURCEDIR),$(BUILDDIR), $(filter $(SOURCEDIR)%, $(SRCS_TESTER:.cpp=.o))) $(subst $(SOURCEDIR_TESTER),$(BUILDDIR), $(filter $(SOURCEDIR_TESTER)%, $(SRCS_TESTER:.cpp=.o)))
+
+DEPS = $(OBJS:.o=.d)
+
+CXX = clang++
+
+RM = rm -rf
+MKDIR = mkdir -p
+ERRIGNORE = 2>/dev/null
+
+ifeq ($(VERBOSE),TRUE)
+	HIDE =  
+else
+	HIDE = @
+endif
+
+all: directories $(NAME)
+
+test: INCLUDES = $(foreach dir, $(SOURCEDIRS_TESTER), $(addprefix -I, $(dir)))
+test: DEPS += $(OBJS_TESTER:.o=.d)
+test: TARGETDIRS := $(TARGETDIRS_TESTER)
+test: directories $(NAME_TESTER)
+#test: dummy
+#	@echo $(PRUEBA) > aa	
+#dummy:
+
+$(NAME_TESTER): $(OBJS_TESTER)
+	@echo Linking $@
+	$(HIDE)$(CXX) $^ -o $@
+
+$(NAME): $(OBJS)
+	@echo Linking $@
+	$(HIDE)$(CXX) $^ -o $@
+
+-include $(DEPS)
+
+define generateRules
+$(1)/%.o: %.cpp
+	@echo Building $$@
+	$(HIDE)$(CXX) -c $$(INCLUDES) -o $$@ $$< -MMD
+endef
+
+$(foreach targetdir, $(TARGETDIRS), $(eval $(call generateRules, $(targetdir))))
+
+directories:
+	$(MKDIR) $(TARGETDIRS) $(ERRIGNORE)
+
+clean:
+	$(HIDE)$(RM) $(BUILDDIR) $(NAME) $(ERRIGNORE)
+
+fclean: clean
+	$(RM) $(NAME) $(NAME_TESTER) $(ERRIGNORE)
+
+re: fclean all
+
+.PHONY: all clean fclean re directories
