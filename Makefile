@@ -1,47 +1,80 @@
-NAME		:= webserv
+PROJDIR := $(realpath $(CURDIR))
+BUILDDIR := $(PROJDIR)/build
+VERBOSE := FALSE
 
-#OBJS_DIR	:= ./objs
+ifneq ($(MAKECMDGOALS),test)
+NAME := webserv
+SOURCEDIR := $(PROJDIR)/srcs
+VPATH := $(SOURCEDIR)
+SOURCEDIRS := $(shell find $(SOURCEDIR) -type d)
+TARGETDIRS := $(subst $(SOURCEDIR),$(BUILDDIR),$(SOURCEDIRS))
+SRCS := $(foreach dir,$(SOURCEDIRS),$(wildcard $(dir)/*.cpp))
+OBJS := $(subst $(SOURCEDIR),$(BUILDDIR),$(SRCS:.cpp=.o))
+else
+NAME := webserv_test	
+SOURCEDIR := $(PROJDIR)/tester
+VPATH := $(SOURCEDIR) $(PROJDIR)/srcs
+SOURCEDIRS := $(shell find $(PROJDIR)/srcs -mindepth 1 -type d) $(shell find $(SOURCEDIR) -type d)
+TARGETDIRS := $(subst $(PROJDIR)/srcs,$(BUILDDIR),$(filter $(PROJDIR)/srcs%,$(SOURCEDIRS))) $(subst $(SOURCEDIR),$(BUILDDIR),$(filter $(SOURCEDIR)%,$(SOURCEDIRS)))
+SRCS := $(foreach dir,$(SOURCEDIRS),$(wildcard $(dir)/*.cpp))	
+OBJS := $(subst $(PROJDIR)/srcs,$(BUILDDIR),$(filter $(PROJDIR)/srcs%,$(SRCS:.cpp=.o))) $(subst $(SOURCEDIR),$(BUILDDIR),$(filter $(SOURCEDIR)%,$(SRCS:.cpp=.o)))
+endif
 
-SRCS		:= $(shell find ./srcs -name "*.cpp" ! -name "main.cpp")
-SRCS_TEST	:= $(shell find ./tester -name "*.cpp" ! -name "main.cpp")
+INCLUDES := $(foreach dir,$(SOURCEDIRS),$(addprefix -I,$(dir)))
 
-SERVER_MAIN := srcs/main.cpp
-TESTER_MAIN := tester/main.cpp
+DEPS = $(OBJS:.o=.d)
 
-#OBJS	:= $(shell echo $(SRCS:.cpp=.o) | rev | cut -d "/" -f 1 | rev)
-OBJS	:= $(SRCS:.cpp=.o)
-OBJS_TEST := $(SRCS_TEST:.cpp=.o)
+CXX = clang++
 
-RM			= rm -rf
-
-CXX			= clang++
+RM = rm -rf
+MKDIR = mkdir -p
+ERRIGNORE = 2>/dev/null
 
 COMMON		=
-CXXFLAGS	?= -std=c++98 $(COMMON)
+CXXFLAGS	?= $(INCLUDES) -std=c++98 $(COMMON)
 LDFLAGS		?= $(COMMON)
 SANITIZE	= -g3 -fsanitize=address
 
-$(NAME): $(OBJS) $(SERVER_MAIN)
-	$(CXX) $(LDFLAGS) $^ -o $@
+ifeq ($(VERBOSE),TRUE)
+HIDE =  
+else
+HIDE = @
+endif
 
-test: $(OBJS) $(OBJS_TEST) $(TESTER_MAIN)
-	$(CXX) $(LDFLAGS) $^ -o $@
+all: directories $(NAME)
 
-debug:	COMMON += $(SANITIZE)
-debug:	re
+test: re
 
-tdebug: COMMON += $(SANITIZE)
-tdebug: fclean test
+debug: COMMON += $(SANITIZE)
+debug: re
 
-all: $(NAME)
+$(NAME): $(OBJS)
+	@echo Linking $@
+	$(HIDE)$(CXX) $(LDFLAGS) $^ -o $@
+
+ifneq ($(MAKECMDGOALS),clean)
+-include $(DEPS)
+endif
+
+define generateRules
+$(1)/%.o: %.cpp
+	@echo Building $$@
+	$(HIDE)$(CXX) -c $$(CXXFLAGS) -o $$@ $$< -MMD
+endef
+
+$(foreach targetdir, $(TARGETDIRS), $(eval $(call generateRules, $(targetdir))))
+
+directories:
+	$(HIDE)$(MKDIR) $(TARGETDIRS) $(ERRIGNORE)
 
 clean:
-	$(RM) $(OBJS) $(OBJS_TEST)
+	$(HIDE)$(RM) $(BUILDDIR) $(ERRIGNORE)
+	@echo cleaning done!
 
 fclean: clean
-	$(RM) $(NAME)
-	$(RM) test
+	$(HIDE)$(RM) webserv_test webserv $(ERRIGNORE)
+	@echo fcleaning done!
 
 re: fclean all
 
-.PHONY: all clean fclean re debug tdebug
+.PHONY: all clean fclean re directories
