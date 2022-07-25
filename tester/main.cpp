@@ -3,6 +3,7 @@
 #include "settings_parser/settings_tester.hpp"
 #include "settings_lexer/lexer_tester.hpp"
 #include "http_parser/http_parser_tester.hpp"
+#include "http_request/http_request_tester.hpp"
 
 int main(int argc, char **argv) {
 
@@ -32,6 +33,12 @@ int main(int argc, char **argv) {
 	if (arg == "all" || arg == "http_parser") {
 		std::cout << "HTTP PARSER" << std::endl;
 		ws_tester::HttpParserTester::test();
+		std::cout << std::endl;
+	}
+
+	if (arg == "all" || arg == "http_request") {
+		std::cout << "HTTP REQUEST" << std::endl;
+		ws_tester::HttpRequestTester::test();
 		std::cout << std::endl;
 	}
 
