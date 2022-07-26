@@ -5,7 +5,7 @@
 namespace ws_tester
 {
 	
-bool http_request_test1(size_t test_n, bool print);
+bool module_test1(size_t test_n, bool print);
 
 } // namespace ws_tester
 
