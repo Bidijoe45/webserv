@@ -43,7 +43,7 @@ endif
 
 all: directories $(NAME)
 
-test: re
+test: all
 
 debug: COMMON += $(SANITIZE)
 debug: re

@@ -12,15 +12,15 @@ namespace ws_tester
 		
 		switch (method)
 		{
-			case ws::GET:
+			case ws::HTTP_METHOD_GET:
 				resolved_method = "GET";
 				break;
 
-			case ws::POST:
+			case ws::HTTP_METHOD_POST:
 				resolved_method = "POST";
 				break;
 
-			case ws::DELETE:
+			case ws::HTTP_METHOD_DELETE:
 				resolved_method = "DELETE";
 				break;
 			
@@ -32,11 +32,18 @@ namespace ws_tester
 		return resolved_method;
 	}
 
+	void print_http_uri(ws::HttpUri uri)
+	{
+		std::cout << "-- Uri --" << std::endl;
+		std::cout << "host: " << uri.host << std::endl;
+		std::cout << "-- --" << std::endl;
+	}
+
 	void print_http_request(ws::HttpRequest request)
 	{	
 		std::cout << "-- HttpRequest --" << std::endl;
 		std::cout << "method: " << resolve_http_method(request.method) << std::endl;
-		std::cout << "url: " << request.url << std::endl;
+		print_http_uri(request.uri);
 		std::cout << "http_version: " << request.http_version << std::endl;
 		
 		std::cout << "headers: -- " << std::endl;
@@ -52,7 +59,7 @@ namespace ws_tester
 
 	bool compare_requests(ws::HttpRequest r1, ws::HttpRequest r2)
 	{
-		if (r1.method == r2.method && r1.url == r2.url && r1.headers == r2.headers
+		if (r1.method == r2.method && r1.uri == r2.uri && r1.headers == r2.headers
 			&& r1.body == r2.body)
 		{
 			return true;
