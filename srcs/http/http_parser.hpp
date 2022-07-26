@@ -16,13 +16,21 @@ namespace ws
 
 		private:
 			std::string get_next_line();
+			void parse_method();
+			void parse_uri();
+			void parse_version();
+			void check_space();
 			void parse_first_line();
 			void parse_headers();
 			void parse_body();
+			void advance(size_t n);
+
 			bool valid_request_;
 			DataBuffer &buff_;
+			size_t line_pos_;
 			std::string line_;
 			HttpRequest request_;
+
 	};
 	
 } // namespace ws
