@@ -1,0 +1,13 @@
+#include "module_tester.hpp"
+#include "tests/module_tests.hpp"
+
+namespace ws_tester
+{
+	ModuleTester::ModuleTester() {}
+
+	void ModuleTester::test() {
+		bool ret = false;
+
+		ret = module_test1(1, true);
+	}
+} // namespace ws_tester

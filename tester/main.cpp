@@ -36,12 +36,6 @@ int main(int argc, char **argv) {
 		std::cout << std::endl;
 	}
 
-	if (arg == "all" || arg == "http_request") {
-		std::cout << "HTTP REQUEST" << std::endl;
-		ws_tester::HttpRequestTester::test();
-		std::cout << std::endl;
-	}
-
 	return 0;
 }
 
