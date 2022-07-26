@@ -6,7 +6,7 @@
 
 namespace ws
 {
-    HttpUriParser::HttpUriParser(const std::string &uri) : line_(uri) {}
+    HttpUriParser::HttpUriParser(const std::string &uri) : line_(uri), error_(HTTP_URI_VALID) {}
 
     HttpUri HttpUriParser::parse()
     {

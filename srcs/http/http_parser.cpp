@@ -46,7 +46,7 @@ namespace ws
 	void HttpParser::parse_method()
 	{
 		size_t space_pos = this->line_.find_first_of(' ', this->line_pos_);
-		std::string method = this->line_.substr(this->line_pos_, space_pos - 1);
+		std::string method = this->line_.substr(this->line_pos_, space_pos);
 
 		if (method == "GET")
 			this->request_.method = HTTP_METHOD_GET;
@@ -65,7 +65,7 @@ namespace ws
 	void HttpParser::parse_uri()
 	{
 		size_t space_pos = this->line_.find_first_of(' ', this->line_pos_);
-		std::string uri = this->line_.substr(this->line_pos_, space_pos - 1);
+		std::string uri = this->line_.substr(this->line_pos_, space_pos - line_pos_);
 
 		HttpUriParser uri_parser(uri);
 		HttpUri parsed_uri = uri_parser.parse();
@@ -75,7 +75,7 @@ namespace ws
 			this->request_.error = HTTP_REQUEST_INVALID_URI;
 			throw std::runtime_error("Request: invalid URI");
 		}
-
+		this->request_.uri = parsed_uri;
 		this->advance(uri.size());
 	}
 
@@ -88,6 +88,8 @@ namespace ws
 			this->request_.error = HTTP_REQUEST_INVALID_VERSION;
 			throw std::runtime_error("Request: invalid version");
 		}
+
+		this->request_.http_version = version;
 	}
 
 	void HttpParser::parse_first_line()
@@ -100,6 +102,7 @@ namespace ws
 		this->parse_uri();
 		this->check_space();
 		this->parse_version();
+		this->line_pos_ = 0;
 	}
 
 	HttpRequest HttpParser::parse()

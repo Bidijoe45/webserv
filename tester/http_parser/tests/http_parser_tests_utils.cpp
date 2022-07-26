@@ -32,11 +32,18 @@ namespace ws_tester
 		return resolved_method;
 	}
 
+	void print_http_uri(ws::HttpUri uri)
+	{
+		std::cout << "-- Uri --" << std::endl;
+		std::cout << "host: " << uri.host << std::endl;
+		std::cout << "-- --" << std::endl;
+	}
+
 	void print_http_request(ws::HttpRequest request)
 	{	
 		std::cout << "-- HttpRequest --" << std::endl;
 		std::cout << "method: " << resolve_http_method(request.method) << std::endl;
-		//std::cout << "url: " << request.url << std::endl;
+		print_http_uri(request.uri);
 		std::cout << "http_version: " << request.http_version << std::endl;
 		
 		std::cout << "headers: -- " << std::endl;
