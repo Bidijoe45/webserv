@@ -3,7 +3,6 @@
 #include "settings_parser/settings_tester.hpp"
 #include "settings_lexer/lexer_tester.hpp"
 #include "http_parser/http_parser_tester.hpp"
-#include "http_request/http_request_tester.hpp"
 
 int main(int argc, char **argv) {
 
