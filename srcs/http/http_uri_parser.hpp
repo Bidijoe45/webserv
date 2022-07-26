@@ -1,0 +1,26 @@
+#pragma once
+
+#include "http_uri.hpp"
+
+namespace ws
+{
+    enum HTTP_URI_ERROR {
+        HTTP_URI_VALID,
+        HTTP_URI_BAD_PORT
+    };
+
+    class HttpUriParser
+    {
+        public:
+            HttpUriParser(const std::string &uri);
+            HttpUri parse();
+            HTTP_URI_ERROR get_error();
+            bool uri_is_valid();
+
+        private:
+            HTTP_URI_ERROR error_;
+            HttpUri uri_;
+            std::string line_;
+
+    };
+}

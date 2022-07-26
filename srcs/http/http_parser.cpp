@@ -7,11 +7,13 @@
 #include "./http_request.hpp"
 #include "../server/data_buffer.hpp"
 #include "../utils/string_utils.hpp"
+#include "http_uri.hpp"
+#include "http_uri_parser.hpp"
 
 namespace ws
 {
 
-	HttpParser::HttpParser(DataBuffer &buff) : buff_(buff) {}
+	HttpParser::HttpParser(DataBuffer &buff) : buff_(buff), line_pos_(0){}
 
 	std::string HttpParser::get_next_line()
 	{
@@ -27,33 +29,80 @@ namespace ws
 		return line;
 	}
 
+	void HttpParser::advance(size_t n = 1)
+	{
+		this->line_pos_ += n;
+	}
+
+	void HttpParser::check_space()
+	{
+		if (this->line_[this->line_pos_] != ' ')
+			throw std::runtime_error("Request: <Space> was expected");
+		if (this->line_[this->line_pos_ + 1] == ' ')
+			throw std::runtime_error("Request: <LWR> space found");
+		this->advance();
+	}
+
+	void HttpParser::parse_method()
+	{
+		size_t space_pos = this->line_.find_first_of(' ', this->line_pos_);
+		std::string method = this->line_.substr(this->line_pos_, space_pos);
+
+		if (method == "GET")
+			this->request_.method = HTTP_METHOD_GET;
+		else if (method == "POST")
+			this->request_.method = HTTP_METHOD_POST;
+		else if (method == "DELETE")
+			this->request_.method = HTTP_METHOD_DELETE;
+		else {
+			this->request_.error = HTTP_REQUEST_INVALID_METHOD;
+			throw std::runtime_error("Request: invalid method");
+		}
+
+		this->advance(method.size());
+	}
+
+	void HttpParser::parse_uri()
+	{
+		size_t space_pos = this->line_.find_first_of(' ', this->line_pos_);
+		std::string uri = this->line_.substr(this->line_pos_, space_pos - line_pos_);
+
+		HttpUriParser uri_parser(uri);
+		HttpUri parsed_uri = uri_parser.parse();
+
+		if (!uri_parser.uri_is_valid())
+		{
+			this->request_.error = HTTP_REQUEST_INVALID_URI;
+			throw std::runtime_error("Request: invalid URI");
+		}
+		this->request_.uri = parsed_uri;
+		this->advance(uri.size());
+	}
+
+	void HttpParser::parse_version()
+	{
+		std::string version = this->line_.substr(this->line_pos_);
+
+		if (version != "HTTP/1.1")
+		{
+			this->request_.error = HTTP_REQUEST_INVALID_VERSION;
+			throw std::runtime_error("Request: invalid version");
+		}
+
+		this->request_.http_version = version;
+	}
+
 	void HttpParser::parse_first_line()
 	{
-		size_t element_i = 0;
-		size_t sp_pos = 0;
-		size_t i = 0;
-		std::string	element;
-
 		if (!is_string_printable(this->line_, this->line_.size()))
-			throw std::runtime_error("Request: error in first line");
-		while (element_i < 2)
-		{
-			sp_pos = this->line_.find_first_of(' ', i);
-			if (sp_pos == std::string::npos)
-				throw std::runtime_error("Request: error in first line");
-			element = this->line_.substr(i, sp_pos - i);
-			if (element_i == 0)
-				this->request_.set_method(element);
-			else
-				this->request_.url = element;
-			i = sp_pos + 1;
-			if (line_[i] == ' ')
-				throw std::runtime_error("Request: error in first line");
-			element_i++;
-		}
-		if (this->line_.find_first_of(' ', i) != std::string::npos)
-			throw std::runtime_error("Request: error in first line");
-		this->request_.http_version = this->line_.substr(i);
+			throw std::runtime_error("Request: no printable characters in first line");
+
+		this->parse_method();
+		this->check_space();
+		this->parse_uri();
+		this->check_space();
+		this->parse_version();
+		this->line_pos_ = 0;
 	}
 
 	HttpRequest HttpParser::parse()

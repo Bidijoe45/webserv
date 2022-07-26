@@ -7,6 +7,7 @@
 #include "../../../srcs/server/data_buffer.hpp"
 #include "../../../srcs/http/http_parser.hpp"
 #include "../../../srcs/http/http_request.hpp"
+#include "../../../srcs/http/http_uri.hpp"
 
 namespace ws_tester
 {
@@ -14,8 +15,8 @@ namespace ws_tester
 	static ws::HttpRequest prepare_request_case() {
 		ws::HttpRequest request;
 
-		request.method = ws::GET;
-		request.url = "/";
+		request.method = ws::HTTP_METHOD_GET;
+		request.uri = ws::HttpUri(); 
 		request.headers.insert(std::make_pair("Host", "webserv.com"));
 
 		return request;
