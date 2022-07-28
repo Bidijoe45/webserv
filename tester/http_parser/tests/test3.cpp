@@ -1,4 +1,3 @@
-
 #include <typeinfo>
 #include <iostream>
 
@@ -12,7 +11,7 @@
 namespace ws_tester
 {
 
-	static ws::HttpRequest prepare_request_case() {
+	/*static ws::HttpRequest prepare_request_case() {
 		ws::HttpRequest request;
 
 		request.method = ws::HTTP_METHOD_POST;
@@ -24,16 +23,17 @@ namespace ws_tester
 		request.body = "key1=value1&ke2=value2";
 
 		return request;
-	}
+	}*/
 
 	static ws::DataBuffer prepare_data_buffer()
 	{
 		ws::DataBuffer buff;
 
 		buff.append("POST / HTTP/1.1\r\n");
-		buff.append("Host: webserv.com\r\n");
+		buff.append("Host:  \twebserv.com\t\t \r\n");
 		buff.append("Content-Type: application/x-www-form-urlencoded\r\n");
 		buff.append("Content-Length: 22\r\n");
+		buff.append("Accept: text/*, text/plain, text/plain;format=flowed, */*\r\n");
 		buff.append("\r\n");
 		buff.append("key1=value1&key2=value2");
 

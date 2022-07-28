@@ -32,10 +32,49 @@ namespace ws_tester
 		return resolved_method;
 	}
 
+	std::string resolve_http_header_type(ws::HTTP_HEADER_TYPE header_type)
+	{
+		std::string resolved_header_type;
+
+		switch (header_type)
+		{
+			case ws::HTTP_HEADER_UNKNOWN:
+				resolved_header_type = "HTTP_HEADER_UNKNOWN";
+				break;
+
+			case ws::HTTP_HEADER_HOST:
+				resolved_header_type = "HTTP_HEADER_HOST";
+				break;
+
+			case ws::HTTP_HEADER_ACCEPT:
+				resolved_header_type = "HTTP_HEADER_ACCEPT";
+				break;
+			
+			default:
+				resolved_header_type = "WTF";
+				break;
+		}
+
+		return resolved_header_type;
+	}
+
 	void print_http_uri(ws::HttpUri uri)
 	{
 		std::cout << "-- Uri --" << std::endl;
 		std::cout << "host: " << uri.host << std::endl;
+		std::cout << "-- --" << std::endl;
+	}
+
+	void print_headers(std::map<std::string, ws::HttpHeader*> headers)
+	{
+		std::string header_type;
+		ws::HttpRequest::headers_iterator headers_it = headers.begin();
+
+		for (; headers_it != headers.end(); headers_it++)
+		{
+			header_type = resolve_http_header_type((*headers_it).second->type);
+			std::cout << (*headers_it).first << " = " << header_type << std::endl;
+		}
 		std::cout << "-- --" << std::endl;
 	}
 
@@ -46,11 +85,8 @@ namespace ws_tester
 		print_http_uri(request.uri);
 		std::cout << "http_version: " << request.http_version << std::endl;
 		
-		std::cout << "headers: -- " << std::endl;
-		ws::HttpRequest::headers_iterator headers_it = request.headers.begin();
-		for (; headers_it != request.headers.end(); headers_it++)
-			std::cout << (*headers_it).first << " = " << (*headers_it).second << std::endl;
-		std::cout << "-- --" << std::endl;
+		std::cout << "-- headers: -- " << std::endl;
+		print_headers(request.headers);
 
 		std::cout << "body: --" << std::endl;
 		std::cout << "|" << request.body << "|" << std::endl;
