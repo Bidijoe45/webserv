@@ -1,14 +1,48 @@
 #include "string_utils.hpp"
+#include <cctype>
+#include <string>
+
+#include <iostream>
 
 namespace ws
 {
-	bool is_string_printable(std::string str, size_t len)
+	bool is_string_printable(const std::string &str, size_t len)
 	{
-		for (int i = 0; i < len; i++)
+		for (int i = 0; (str[i] && i < len); i++)
 		{
 			if (!std::isprint(str[i]))
 				return false;
 		}
 		return true;
+	}
+
+	std::string string_to_lower(const std::string &str, size_t len)
+	{
+		std::string	new_str;
+
+		new_str.resize(str.size());
+		for (int i = 0; (str[i] && i < len); i++)
+			new_str[i] = tolower(str[i]);
+		return new_str;
+	}
+
+	bool is_token(const std::string &str)
+	{
+		std::string allowed_chars = "!#$%&'*+-.^_`|~";
+
+		for (size_t i = 0; str[i]; i++)
+		{
+			if (!isalpha(str[i]) && !isdigit(str[i]) && allowed_chars.find(str[i]) == std::string::npos)
+				return false;
+		}
+		return true;
+	}
+
+	bool is_obstext(const unsigned char &c)
+	{
+		if (c >= 128)
+			return true;
+			std::cout << "AAAA" << std::endl;
+		return false;
 	}
 }
