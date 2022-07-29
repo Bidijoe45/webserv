@@ -4,6 +4,11 @@
 #include "settings_lexer/lexer_tester.hpp"
 #include "http_parser/http_parser_tester.hpp"
 
+void f()
+{
+	system("leaks webserv_test");
+}
+
 int main(int argc, char **argv) {
 
 	std::string arg;
@@ -34,6 +39,8 @@ int main(int argc, char **argv) {
 		ws_tester::HttpParserTester::test();
 		std::cout << std::endl;
 	}
+
+	//atexit(&f);
 
 	return 0;
 }

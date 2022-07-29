@@ -4,6 +4,8 @@ namespace ws
 {
 	HttpRequest::HttpRequest() : error(HTTP_REQUEST_NO_ERROR) {}
 
+	HttpRequest::~HttpRequest() {}
+
 	bool HttpRequest::is_valid()
 	{
 		return this->error == HTTP_REQUEST_NO_ERROR;

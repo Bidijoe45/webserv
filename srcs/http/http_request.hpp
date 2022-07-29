@@ -6,6 +6,7 @@
 #include "../server/data_buffer.hpp"
 #include "http_uri.hpp"
 #include "http_header.hpp"
+#include "http_header_map.hpp"
 
 namespace ws
 {
@@ -30,13 +31,13 @@ struct HttpRequest {
 		typedef std::map<std::string, HttpHeader*>::iterator headers_iterator;
 
 		HttpRequest();
+		~HttpRequest();
 		bool is_valid();
 
 		HTTP_METHOD method;
 		HttpUri uri;
 		std::string http_version;
-	//TODO: tengo que liberar la memoria de los HttpHeader* del map!! (alocados con new)
-		std::map<std::string, HttpHeader*> headers;
+		HttpHeaderMap headers;
 		std::string body;
 		HTTP_REQUEST_ERROR error;
 };
