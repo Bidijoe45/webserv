@@ -156,7 +156,6 @@ namespace ws
 		std::string			header_value;
 		HttpHeaderParser	header_line_parser;
 		HttpHeader			*parsed_header;
-		std::pair<std::string, HttpHeader*>	parsed_header_pair;
 
 		this->line_ = this->get_next_line();
 		while (this->line_.size() != 0)
@@ -165,10 +164,8 @@ namespace ws
 			header_name = get_header_name();
 			this->skipOWS();
 			header_value = get_header_value();
-			std::cout << "HEADER NAME: |" << header_name << "|, HEADER VALUE: |" << header_value << "|" << std::endl;
 			parsed_header = header_line_parser.parse(header_name, header_value);
-			parsed_header_pair = std::make_pair(header_name, parsed_header);
-			this->request_.headers.insert(parsed_header_pair);
+			this->request_.headers.insert(header_name, parsed_header);
 			this->line_ = this->get_next_line();
 		}	
 	}

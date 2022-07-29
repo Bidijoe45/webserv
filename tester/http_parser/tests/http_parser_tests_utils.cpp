@@ -3,6 +3,7 @@
 #include <iostream>
 
 #include "../../../srcs/http/http_request.hpp"
+#include <http_header_map.hpp>
 
 namespace ws_tester
 {
@@ -65,20 +66,20 @@ namespace ws_tester
 		std::cout << "-- --" << std::endl;
 	}
 
-	void print_headers(std::map<std::string, ws::HttpHeader*> headers)
+	void print_headers(ws::HttpHeaderMap headers)
 	{
 		std::string header_type;
-		ws::HttpRequest::headers_iterator headers_it = headers.begin();
-
-		for (; headers_it != headers.end(); headers_it++)
+		ws::HttpRequest::headers_iterator it;
+		
+		for (it = headers.begin(); it != headers.end(); it++)
 		{
-			header_type = resolve_http_header_type((*headers_it).second->type);
-			std::cout << (*headers_it).first << " = " << header_type << std::endl;
+			header_type = resolve_http_header_type(it->second->type);
+			std::cout << it->first << " = |" << it->second->get_header_value_string() << "| header type: " << header_type << std::endl;
 		}
 		std::cout << "-- --" << std::endl;
 	}
 
-	void print_http_request(ws::HttpRequest request)
+	void print_http_request(const ws::HttpRequest &request)
 	{	
 		std::cout << "-- HttpRequest --" << std::endl;
 		std::cout << "method: " << resolve_http_method(request.method) << std::endl;

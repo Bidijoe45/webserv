@@ -1,8 +1,6 @@
 #include "string_utils.hpp"
 #include <cctype>
-#include <string>
-
-#include <iostream>
+#include <string>s
 
 namespace ws
 {
@@ -42,7 +40,6 @@ namespace ws
 	{
 		if (c >= 128)
 			return true;
-			std::cout << "AAAA" << std::endl;
 		return false;
 	}
 }
