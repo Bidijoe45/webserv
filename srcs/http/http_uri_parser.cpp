@@ -6,7 +6,7 @@
 
 #include "http_uri_parser.hpp"
 #include "http_uri.hpp"
-#include "../utils/string_utils.hpp"
+#include "string_utils.hpp"
 
 namespace ws
 {

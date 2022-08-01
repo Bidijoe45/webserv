@@ -22,44 +22,4 @@ namespace ws
 			str.append(*it);
 		return str;
 	}
-
-	HttpHeaderUnknown::HttpHeaderUnknown()
-	{
-		this->type = HTTP_HEADER_UNKNOWN;
-	}
-
-	HttpHeaderUnknown::~HttpHeaderUnknown() {}
-
-	HttpHeaderUnknown::HttpHeaderUnknown(const HttpHeaderUnknown &src)
-	{
-		this->type = src.type;
-		this->value = src.value;
-	}
-
-	HttpHeaderAccept::HttpHeaderAccept()
-	{
-		this->type = HTTP_HEADER_ACCEPT;
-	}
-
-	HttpHeaderAccept::~HttpHeaderAccept() {}
-
-	HttpHeaderAccept::HttpHeaderAccept(const HttpHeaderAccept &src)
-	{
-		this->type = src.type;
-		this->list = src.list;
-	}
-
-	HttpHeaderHost::HttpHeaderHost()
-	{
-		this->type = HTTP_HEADER_HOST;
-	}
-
-	HttpHeaderHost::~HttpHeaderHost() {}
-	
-	HttpHeaderHost::HttpHeaderHost(const HttpHeaderHost &src)
-	{
-		this->type = src.type;
-		this->value = src.value;
-	}
-
 }

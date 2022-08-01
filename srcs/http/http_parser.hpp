@@ -3,8 +3,8 @@
 #include <string>
 #include <vector>
 
-#include "./http_request.hpp"
-#include "../server/data_buffer.hpp"
+#include "http_request.hpp"
+#include "data_buffer.hpp"
 
 namespace ws
 {

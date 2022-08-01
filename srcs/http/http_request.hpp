@@ -3,7 +3,7 @@
 #include <string>
 #include <map>
 
-#include "../server/data_buffer.hpp"
+#include "data_buffer.hpp"
 #include "http_uri.hpp"
 #include "http_header.hpp"
 #include "http_header_map.hpp"
