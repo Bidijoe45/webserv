@@ -50,41 +50,62 @@ namespace ws
 	{
 		HttpHeaderMap::iterator it;
 
-		for (it = this->_headers.begin(); it != this->_headers.end(); it++)
+		for (it = this->headers_.begin(); it != this->headers_.end(); it++)
 			delete it->second;
+	}
+
+	HttpHeaderMap::iterator HttpHeaderMap::find(const std::string &key)
+	{
+		return this->headers_.find(key);
+	}
+
+	HttpHeaderMap::const_iterator HttpHeaderMap::find(const std::string &key) const
+	{
+		return this->headers_.find(key);
 	}
 
 	std::pair<HttpHeaderMap::iterator,bool> HttpHeaderMap::insert(std::string header_name, HttpHeader *header)
 	{
 		std::pair<std::string, HttpHeader*>	header_pair;
 		header_pair = std::make_pair(header_name, header);
+		
+		return this->headers_.insert(header_pair);
+	}
 
-		return this->_headers.insert(header_pair);
+	void HttpHeaderMap::combine_value(HttpHeaderMap::iterator found_header, std::string header_value)
+	{
+		HttpHeaderListBased *list_based_header;
+
+		list_based_header = dynamic_cast<HttpHeaderListBased *>(found_header->second);
+		if (!list_based_header)
+			throw std::runtime_error("Request: found more than one singleton header with the same name");
+		list_based_header->list[0].append(", ");
+		list_based_header->list[0].append(header_value);
 	}
 
 	HttpHeaderMap::iterator HttpHeaderMap::begin()
 	{
-		return this->_headers.begin();
+		return this->headers_.begin();
 	}
 
 	HttpHeaderMap::const_iterator HttpHeaderMap::begin() const
 	{
-		return this->_headers.begin();
+		return this->headers_.begin();
 	}
 
 	HttpHeaderMap::iterator HttpHeaderMap::end()
 	{
-		return this->_headers.end();
+		return this->headers_.end();
 	}
 
 	HttpHeaderMap::const_iterator HttpHeaderMap::end() const
 	{
-		return this->_headers.end();
+		return this->headers_.end();
 	}
 
 	const std::map<std::string, HttpHeader*> &HttpHeaderMap::get_headers() const
 	{
-		return this->_headers;
+		return this->headers_;
 	}
 
 	bool operator==(const HttpHeaderMap &lhs, const HttpHeaderMap &rhs)

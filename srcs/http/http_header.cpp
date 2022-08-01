@@ -4,32 +4,16 @@ namespace ws
 {
 	HttpHeader::~HttpHeader() {}
 
-	HttpHeaderUnknown::HttpHeaderUnknown() {}
+	HttpHeaderSingleton::~HttpHeaderSingleton() {}
 
-	HttpHeaderUnknown::~HttpHeaderUnknown() {}
+	HttpHeaderListBased::~HttpHeaderListBased() {}
 
-	HttpHeaderUnknown::HttpHeaderUnknown(const HttpHeaderUnknown &src)
-	{
-		this->type = src.type;
-		this->value = src.value;
-	}
-
-	const std::string HttpHeaderUnknown::get_header_value_string() const
+	const std::string HttpHeaderSingleton::get_header_value_string() const
 	{
 		return this->value;
 	}
 
-	HttpHeaderAccept::HttpHeaderAccept() {}
-
-	HttpHeaderAccept::~HttpHeaderAccept() {}
-
-	HttpHeaderAccept::HttpHeaderAccept(const HttpHeaderAccept &src)
-	{
-		this->type = src.type;
-		this->list = src.list;
-	}
-
-	const std::string HttpHeaderAccept::get_header_value_string() const
+	const std::string HttpHeaderListBased::get_header_value_string() const
 	{
 		std::string str;
 		std::vector<std::string>::const_iterator it;
@@ -39,7 +23,36 @@ namespace ws
 		return str;
 	}
 
-	HttpHeaderHost::HttpHeaderHost() {}
+	HttpHeaderUnknown::HttpHeaderUnknown()
+	{
+		this->type = HTTP_HEADER_UNKNOWN;
+	}
+
+	HttpHeaderUnknown::~HttpHeaderUnknown() {}
+
+	HttpHeaderUnknown::HttpHeaderUnknown(const HttpHeaderUnknown &src)
+	{
+		this->type = src.type;
+		this->value = src.value;
+	}
+
+	HttpHeaderAccept::HttpHeaderAccept()
+	{
+		this->type = HTTP_HEADER_ACCEPT;
+	}
+
+	HttpHeaderAccept::~HttpHeaderAccept() {}
+
+	HttpHeaderAccept::HttpHeaderAccept(const HttpHeaderAccept &src)
+	{
+		this->type = src.type;
+		this->list = src.list;
+	}
+
+	HttpHeaderHost::HttpHeaderHost()
+	{
+		this->type = HTTP_HEADER_HOST;
+	}
 
 	HttpHeaderHost::~HttpHeaderHost() {}
 	
@@ -47,11 +60,6 @@ namespace ws
 	{
 		this->type = src.type;
 		this->value = src.value;
-	}
-
-	const std::string HttpHeaderHost::get_header_value_string() const
-	{
-		return this->value;
 	}
 
 }
