@@ -1,9 +1,9 @@
 #include <string>
 #include <vector>
-
-#include "string_utils.hpp"
 #include <cctype>
 #include <string>
+
+#include "string_utils.hpp"
 
 namespace ws
 {

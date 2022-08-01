@@ -34,6 +34,7 @@ namespace ws_tester
 		buff.append("Content-Type: application/x-www-form-urlencoded\r\n");
 		buff.append("Content-Length: 22\r\n");
 		buff.append("Accept: text/*, text/plain, text/plain;format=flowed, */*\r\n");
+		buff.append("Accept: mascosasdeaccept\r\n");
 		buff.append("\r\n");
 		buff.append("key1=value1&key2=value2");
 

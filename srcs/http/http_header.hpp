@@ -17,33 +17,44 @@ namespace ws
 	{
 		virtual ~HttpHeader();
 		virtual const std::string get_header_value_string() const = 0;
-		HTTP_HEADER_TYPE type;
+
+		HTTP_HEADER_TYPE	type;
 	};
 
-	struct HttpHeaderUnknown : public HttpHeader
+	struct HttpHeaderSingleton : public HttpHeader
+	{
+		virtual ~HttpHeaderSingleton();
+		const std::string get_header_value_string() const;
+
+		std::string value;
+	};
+
+	struct HttpHeaderListBased : public HttpHeader
+	{
+		virtual ~HttpHeaderListBased();
+		const std::string get_header_value_string() const;
+
+		std::vector<std::string> list;
+	};
+
+	struct HttpHeaderUnknown : public HttpHeaderSingleton
 	{
 		HttpHeaderUnknown();
 		~HttpHeaderUnknown();
 		HttpHeaderUnknown(const HttpHeaderUnknown &src);
-		const std::string get_header_value_string() const;
-		std::string value;
 	};
 
-	struct HttpHeaderAccept : public HttpHeader
+	struct HttpHeaderAccept : public HttpHeaderListBased
 	{
 		HttpHeaderAccept();
 		~HttpHeaderAccept();
 		HttpHeaderAccept(const HttpHeaderAccept &src);
-		const std::string get_header_value_string() const;
-		std::vector<std::string> list;
 	};
 
-	struct HttpHeaderHost : public HttpHeader
+	struct HttpHeaderHost : public HttpHeaderSingleton
 	{
 		HttpHeaderHost();
 		~HttpHeaderHost();
 		HttpHeaderHost(const HttpHeaderHost &src);
-		const std::string get_header_value_string() const;
-		std::string value;
 	};
 }

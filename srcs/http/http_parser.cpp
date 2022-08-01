@@ -12,11 +12,12 @@
 #include "http_uri_parser.hpp"
 #include "http_header.hpp"
 #include "http_header_parser.hpp"
+#include "http_header_map.hpp"
 
 namespace ws
 {
 
-	HttpParser::HttpParser(DataBuffer &buff) : buff_(buff), line_pos_(0){}
+	HttpParser::HttpParser(DataBuffer &buff) : buff_(buff), line_pos_(0) {}
 
 	std::string HttpParser::get_next_line()
 	{
@@ -103,6 +104,8 @@ namespace ws
 	void HttpParser::parse_first_line()
 	{
 		this->line_ = this->get_next_line();
+		if (this->line_.size() == 0)
+			this->line_ = this->get_next_line();
 		if (!is_string_printable(this->line_, this->line_.size()))
 			throw std::runtime_error("Request: non-printable characters in first line");
 
@@ -152,10 +155,11 @@ namespace ws
 
 	void HttpParser::parse_headers()
 	{
-		std::string			header_name;
-		std::string			header_value;
-		HttpHeaderParser	header_line_parser;
-		HttpHeader			*parsed_header;
+		std::string				header_name;
+		std::string				header_value;
+		HttpHeaderParser		header_line_parser;
+		HttpHeader				*parsed_header;
+		HttpHeaderMap::iterator	found_header;
 
 		this->line_ = this->get_next_line();
 		while (this->line_.size() != 0)
@@ -164,8 +168,14 @@ namespace ws
 			header_name = get_header_name();
 			this->skipOWS();
 			header_value = get_header_value();
-			parsed_header = header_line_parser.parse(header_name, header_value);
-			this->request_.headers.insert(header_name, parsed_header);
+			found_header = this->request_.headers.find(header_name);
+			if (found_header != this->request_.headers.end())
+				this->request_.headers.combine_value(found_header, header_value);
+			else
+			{
+				parsed_header = header_line_parser.parse(header_name, header_value);
+				this->request_.headers.insert(header_name, parsed_header);
+			}
 			this->line_ = this->get_next_line();
 		}	
 	}
@@ -177,6 +187,7 @@ namespace ws
 		{
 			this->parse_first_line();
 			this->parse_headers();
+			// utilizar los datos parseados para determinar si se espera un body o no
 			//this->parse_body();
 		}
 		catch(const std::runtime_error& e)
