@@ -9,18 +9,25 @@ namespace ws
         HTTP_URI_BAD_PORT
     };
 
-    class HttpUriParser
+class HttpUriParser
     {
         public:
             HttpUriParser(const std::string &uri);
+            void parse_scheme();
+            void parse_host();
+            void parse_port();
+            void parse_path();
+            void parse_query();
             HttpUri parse();
             HTTP_URI_ERROR get_error();
             bool uri_is_valid();
+            bool is_abs();
 
         private:
             HTTP_URI_ERROR error_;
             HttpUri uri_;
             std::string line_;
+            size_t line_pos_;
 
     };
 }

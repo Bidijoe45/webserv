@@ -6,6 +6,8 @@
 #include "server/connection.hpp"
 #include "server/data_buffer.hpp"
 
+#include "utils/string_utils.hpp"
+
 void atExit() {
 	system("leaks server");
 }
@@ -16,6 +18,5 @@ int main() {
 	ws::Server server(3000);
 
 	server.run();
-
 
 }

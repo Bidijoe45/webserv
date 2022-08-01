@@ -65,7 +65,7 @@ namespace ws
 	void HttpParser::parse_uri()
 	{
 		size_t space_pos = this->line_.find_first_of(' ', this->line_pos_);
-		std::string uri = this->line_.substr(this->line_pos_, space_pos - line_pos_);
+		std::string uri = this->line_.substr(this->line_pos_, space_pos - this->line_pos_);
 
 		HttpUriParser uri_parser(uri);
 		HttpUri parsed_uri = uri_parser.parse();
