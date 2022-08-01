@@ -3,6 +3,7 @@
 #include "settings_parser/settings_tester.hpp"
 #include "settings_lexer/lexer_tester.hpp"
 #include "http_parser/http_parser_tester.hpp"
+#include "http_uri_parser/http_uri_parser_tester.hpp"
 
 int main(int argc, char **argv) {
 
@@ -26,6 +27,12 @@ int main(int argc, char **argv) {
 	if (arg == "all" || arg == "settings_parser") {
 		std::cout << "SETTINGS" << std::endl;
 		ws_tester::SettingsTester::test();
+		std::cout << std::endl;
+	}
+
+	if (arg == "all" || arg == "http_uri_parser") {
+		std::cout << "HTTP URI PARSER" << std::endl;
+		ws_tester::HttpUriParserTester::test();
 		std::cout << std::endl;
 	}
 
