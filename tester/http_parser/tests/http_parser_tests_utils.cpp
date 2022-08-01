@@ -3,6 +3,7 @@
 #include <iostream>
 
 #include "../../../srcs/http/http_request.hpp"
+#include <http_header_map.hpp>
 
 namespace ws_tester
 {
@@ -32,6 +33,32 @@ namespace ws_tester
 		return resolved_method;
 	}
 
+	std::string resolve_http_header_type(ws::HTTP_HEADER_TYPE header_type)
+	{
+		std::string resolved_header_type;
+
+		switch (header_type)
+		{
+			case ws::HTTP_HEADER_UNKNOWN:
+				resolved_header_type = "HTTP_HEADER_UNKNOWN";
+				break;
+
+			case ws::HTTP_HEADER_HOST:
+				resolved_header_type = "HTTP_HEADER_HOST";
+				break;
+
+			case ws::HTTP_HEADER_ACCEPT:
+				resolved_header_type = "HTTP_HEADER_ACCEPT";
+				break;
+			
+			default:
+				resolved_header_type = "WTF";
+				break;
+		}
+
+		return resolved_header_type;
+	}
+
 	void print_http_uri(ws::HttpUri uri)
 	{
 		std::cout << "-- Uri --" << std::endl;
@@ -39,18 +66,28 @@ namespace ws_tester
 		std::cout << "-- --" << std::endl;
 	}
 
-	void print_http_request(ws::HttpRequest request)
+	void print_headers(ws::HttpHeaderMap headers)
+	{
+		std::string header_type;
+		ws::HttpRequest::headers_iterator it;
+		
+		for (it = headers.begin(); it != headers.end(); it++)
+		{
+			header_type = resolve_http_header_type(it->second->type);
+			std::cout << it->first << " = |" << it->second->get_header_value_string() << "| header type: " << header_type << std::endl;
+		}
+		std::cout << "-- --" << std::endl;
+	}
+
+	void print_http_request(const ws::HttpRequest &request)
 	{	
 		std::cout << "-- HttpRequest --" << std::endl;
 		std::cout << "method: " << resolve_http_method(request.method) << std::endl;
 		print_http_uri(request.uri);
 		std::cout << "http_version: " << request.http_version << std::endl;
 		
-		std::cout << "headers: -- " << std::endl;
-		ws::HttpRequest::headers_iterator headers_it = request.headers.begin();
-		for (; headers_it != request.headers.end(); headers_it++)
-			std::cout << (*headers_it).first << " = " << (*headers_it).second << std::endl;
-		std::cout << "-- --" << std::endl;
+		std::cout << "-- headers: -- " << std::endl;
+		print_headers(request.headers);
 
 		std::cout << "body: --" << std::endl;
 		std::cout << "|" << request.body << "|" << std::endl;
