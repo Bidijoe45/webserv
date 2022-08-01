@@ -5,6 +5,8 @@
 
 #include "../server/data_buffer.hpp"
 #include "http_uri.hpp"
+#include "http_header.hpp"
+#include "http_header_map.hpp"
 
 namespace ws
 {
@@ -26,15 +28,16 @@ enum HTTP_REQUEST_ERROR {
 
 struct HttpRequest {
 	public:
-		typedef std::map<std::string, std::string>::iterator headers_iterator;
+		typedef std::map<std::string, HttpHeader*>::iterator headers_iterator;
 
 		HttpRequest();
+		~HttpRequest();
 		bool is_valid();
 
 		HTTP_METHOD method;
 		HttpUri uri;
 		std::string http_version;
-		std::map<std::string, std::string> headers;
+		HttpHeaderMap headers;
 		std::string body;
 		HTTP_REQUEST_ERROR error;
 };

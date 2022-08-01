@@ -24,6 +24,9 @@ namespace ws
 			void parse_headers();
 			void parse_body();
 			void advance(size_t n);
+			void skipOWS();
+			std::string get_header_name();
+			std::string get_header_value();
 
 			bool valid_request_;
 			DataBuffer &buff_;

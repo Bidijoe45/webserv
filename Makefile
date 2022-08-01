@@ -52,7 +52,7 @@ $(NAME): $(OBJS)
 	@echo Linking $@
 	$(HIDE)$(CXX) $(LDFLAGS) $^ -o $@
 
-ifneq ($(MAKECMDGOALS),clean)
+ifeq (,$(filter clean fclean,$(MAKECMDGOALS)))
 -include $(DEPS)
 endif
 
