@@ -15,7 +15,7 @@ namespace ws
 
 	struct HttpHeader
 	{
-		virtual ~HttpHeader();
+		virtual ~HttpHeader() = 0;
 		virtual const std::string get_header_value_string() const = 0;
 
 		HTTP_HEADER_TYPE	type;
@@ -23,7 +23,7 @@ namespace ws
 
 	struct HttpHeaderSingleton : public HttpHeader
 	{
-		virtual ~HttpHeaderSingleton();
+		virtual ~HttpHeaderSingleton() = 0;
 		const std::string get_header_value_string() const;
 
 		std::string value;
@@ -31,7 +31,7 @@ namespace ws
 
 	struct HttpHeaderListBased : public HttpHeader
 	{
-		virtual ~HttpHeaderListBased();
+		virtual ~HttpHeaderListBased() = 0;
 		const std::string get_header_value_string() const;
 
 		std::vector<std::string> list;
