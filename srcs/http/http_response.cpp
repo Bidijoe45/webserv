@@ -3,4 +3,10 @@
 namespace ws
 {
 
+    std::string HttpResponse::to_string()
+    {
+
+        return "";
+    }
+
 }

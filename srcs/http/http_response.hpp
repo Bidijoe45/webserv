@@ -12,6 +12,7 @@ namespace ws
         std::string status_msg;
         HttpHeaderMap headers;
         std::string body;
+        std::string to_string();
     };
     
 }
