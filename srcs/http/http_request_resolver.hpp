@@ -10,10 +10,9 @@ namespace ws
     {
         public: 
             HttpRequestResolver(const HttpRequest &request);
-            std::string to_string();
+            void resolve();
 
         private:
-            void resolve();
             HttpRequest request_;
             HttpResponse response_;
 
