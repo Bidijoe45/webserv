@@ -3,7 +3,7 @@
 #include <string>
 #include <vector>
 
-#include "http_methods.hpp"
+#include "../http/http_request.hpp"
 #include "rewrite.hpp"
 
 namespace ws {

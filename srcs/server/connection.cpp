@@ -1,10 +1,13 @@
 #include <sys/socket.h>
+#include <unistd.h>
 #include <iostream>
 
 #include "connection.hpp"
 
 namespace ws
 {
+
+	Connection::~Connection() {}
 
 	int Connection::send_data()
 	{
