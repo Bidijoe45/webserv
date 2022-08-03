@@ -106,8 +106,12 @@ namespace ws
 		this->line_ = this->get_next_line();
 		if (this->line_.size() == 0)
 			this->line_ = this->get_next_line();
+
+		std::cout << "|" << this->line_ << "|" << std::endl;
+
 		if (!is_string_printable(this->line_, this->line_.size()))
 			throw std::runtime_error("Request: non-printable characters in first line");
+
 
 		this->parse_method();
 		this->check_space();

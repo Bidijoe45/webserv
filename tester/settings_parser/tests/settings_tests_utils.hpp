@@ -2,11 +2,11 @@
 
 #include <iostream>
 
+#include "../../../srcs/http/http_request.hpp"
 #include "../../../srcs/settings/server_settings.hpp"
 #include "../../../srcs/settings/settings.hpp"
 #include "../../../srcs/settings/error_page.hpp"
 #include "../../../srcs/settings/location.hpp"
-#include "../../../srcs/settings/http_methods.hpp"
 #include "../../../srcs/settings/rewrite.hpp"
 
 

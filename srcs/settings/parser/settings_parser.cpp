@@ -178,11 +178,11 @@ namespace ws {
 		while (this->pos_ != -1 && this->current_token_.type != TT_SEMICOLON) {
 
 			if (this->current_token_.type == TT_VALUE && this->current_token_.value == "GET") {
-				methods.push_back(GET);
+				methods.push_back(HTTP_METHOD_GET);
 			} else if (this->current_token_.type == TT_VALUE && this->current_token_.value == "POST") {
-				methods.push_back(POST);
+				methods.push_back(HTTP_METHOD_POST);
 			} else if (this->current_token_.type == TT_VALUE && this->current_token_.value == "DELETE") {
-				methods.push_back(DELETE);
+				methods.push_back(HTTP_METHOD_DELETE);
 			} else {
 				throw std::runtime_error(std::string("Invalid element in accept"));
 			}

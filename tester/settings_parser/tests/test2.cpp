@@ -2,11 +2,11 @@
 
 #include "settings_tests_utils.hpp"
 
+#include "../../../srcs/http/http_request.hpp"
 #include "../../../srcs/settings/server_settings.hpp"
 #include "../../../srcs/settings/settings.hpp"
 #include "../../../srcs/settings/error_page.hpp"
 #include "../../../srcs/settings/location.hpp"
-#include "../../../srcs/settings/http_methods.hpp"
 #include "../../../srcs/settings/rewrite.hpp"
 #include "../../../srcs/settings/parser/settings_parser.hpp"
 
@@ -30,8 +30,8 @@ static ws::Settings prepare_settings() {
 	location1.path = "/";
 	location1.root = "/www/html/mi_web";
 	location1.index = "index.html";
-	location1.methods.push_back(ws::POST);
-	location1.methods.push_back(ws::DELETE);
+	location1.methods.push_back(ws::HTTP_METHOD_POST);
+	location1.methods.push_back(ws::HTTP_METHOD_DELETE);
 
 	//Rewrite
 	ws::Rewrite rw1;
