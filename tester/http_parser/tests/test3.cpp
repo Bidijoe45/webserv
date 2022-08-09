@@ -30,7 +30,7 @@ namespace ws_tester
 		ws::DataBuffer buff;
 
 		buff.append("POST / HTTP/1.1\r\n");
-		buff.append("Host:  \twe\"bserv\".com\t\t \r\n");
+		buff.append("Host:  \twebserv.com\t\t \r\n");
 		buff.append("Content-Type: application/x-www-form-urlencoded\r\n");
 		buff.append("Content-Length: 22\r\n");
 		buff.append("Accept: text/*, text/plain, text/plain;format=flowed, */*\r\n");
