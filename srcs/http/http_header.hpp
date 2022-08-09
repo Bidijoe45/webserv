@@ -56,5 +56,9 @@ namespace ws
 		HttpHeaderHost();
 		~HttpHeaderHost();
 		HttpHeaderHost(const HttpHeaderHost &src);
+
+		void parse_header_value();
+		std::string host_uri;
+		size_t		port;
 	};
 }
