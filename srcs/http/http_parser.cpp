@@ -6,8 +6,8 @@
 #include <utility>
 
 #include "http_request.hpp"
-#include "data_buffer.hpp"
-#include "string_utils.hpp"
+#include "../server/data_buffer.hpp"
+#include "../utils/string_utils.hpp"
 #include "http_uri.hpp"
 #include "http_uri_parser.hpp"
 #include "http_header.hpp"
