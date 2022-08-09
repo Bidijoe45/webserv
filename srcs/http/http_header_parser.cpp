@@ -12,7 +12,7 @@ namespace ws
 		if (name == "host")
 		{
 			HttpHeaderHost	*host = new HttpHeaderHost();
-			host->value = value;
+			host->set_value(value);
 			parsed_header = static_cast<HttpHeader *>(host);
 		}
 		else if (name == "accept")
