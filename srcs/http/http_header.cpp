@@ -4,6 +4,18 @@ namespace ws
 {
 	HttpHeader::~HttpHeader() {}
 
+	/*HTTP_HEADER_TYPE HttpHeader::resolve_header_name(const std::string &name)
+	{
+		if (name == "host")
+			return HTTP_HEADER_HOST;
+		else if (name == "accept")
+			return HTTP_HEADER_ACCEPT;
+		else if (name == "content-length")
+			return HTTP_HEADER_CONTENT_LENGTH;
+		else
+			return HTTP_HEADER_UNKNOWN;
+	}*/
+
 	HttpHeaderSingleton::~HttpHeaderSingleton() {}
 
 	HttpHeaderListBased::~HttpHeaderListBased() {}

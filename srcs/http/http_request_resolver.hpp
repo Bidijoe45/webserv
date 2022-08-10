@@ -2,7 +2,7 @@
 
 #include "http_request.hpp"
 #include "http_response.hpp"
-#include "../settings/server_settings.hpp"
+#include "../settings/settings.hpp"
 
 namespace ws
 {
@@ -14,10 +14,10 @@ namespace ws
             HttpResponse resolve();
 
         private:
+            Location resolve_location();
             HttpRequest request_;
             HttpResponse response_;
             ServerSettings settings_;
-
     };
     
 }

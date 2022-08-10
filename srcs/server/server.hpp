@@ -6,9 +6,11 @@
 
 #include "connection.hpp"
 #include "../settings/settings.hpp"
+#include "server_socket.hpp"
 
 namespace ws
 {
+
 	class Server {
 
 		public:
@@ -17,7 +19,7 @@ namespace ws
 
 			Server();
 			~Server();
-			Connection accept_new_connection(int socket);
+			Connection accept_new_connection(int socket, int port);
 			void run();
 			void poll_connections();
 			void on_new_request(Connection &connection);
@@ -26,13 +28,13 @@ namespace ws
 
 		private:
 			int listen_on(int port);
-			bool is_server_socket(int socket);
 			void set_server_sockets_to_poll();
 			void delete_connection(const Connection &connection);
 			void delete_from_poll(size_t index);
+			std::vector<ServerSocket>::iterator get_server_socket(int socket);
 			
 			std::map<int, Connection> connections_;
-			std::vector<int> server_sockets_;
+			std::vector<ServerSocket> server_sockets_;
 			std::vector<int> ports_;
 			std::vector<struct pollfd> poll_;
 			Settings settings_;

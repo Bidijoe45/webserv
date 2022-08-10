@@ -20,6 +20,7 @@ namespace ws
 			HttpHeaderMap &operator=(const HttpHeaderMap &src);
 
 			std::pair<iterator,bool> insert(std::string header_name, HttpHeader *header);
+			std::pair<iterator,bool> insert(HttpHeader *header);
 			void combine_value(iterator found_header, std::string header_value);
 			iterator begin();
 			const_iterator begin() const;
@@ -30,7 +31,9 @@ namespace ws
 			const std::map<std::string, HttpHeader*> &get_headers() const;
 
 		private:
+			HttpHeader *alloc_new_header(HttpHeader *header_type);
 			void deallocate_header_items();
+			std::string header_type_to_string(HTTP_HEADER_TYPE type);
 			std::map<std::string, HttpHeader*> headers_;
 	};
 

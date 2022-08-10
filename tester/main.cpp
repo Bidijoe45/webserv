@@ -4,6 +4,7 @@
 #include "settings_lexer/lexer_tester.hpp"
 #include "http_parser/http_parser_tester.hpp"
 #include "http_uri_parser/http_uri_parser_tester.hpp"
+#include "http_request_resolver/http_request_resolver_tester.hpp"
 
 void f()
 {
@@ -44,6 +45,12 @@ int main(int argc, char **argv) {
 	if (arg == "all" || arg == "http_parser") {
 		std::cout << "HTTP PARSER" << std::endl;
 		ws_tester::HttpParserTester::test();
+		std::cout << std::endl;
+	}
+
+	if (arg == "all" || arg == "http_request_resolver") {
+		std::cout << "HTTP REQUEST RESOLVER" << std::endl;
+		ws_tester::HttpRequestResolverTester::test();
 		std::cout << std::endl;
 	}
 
