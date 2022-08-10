@@ -21,6 +21,12 @@ namespace ws
 			accept->list.push_back(value);
 			parsed_header = static_cast<HttpHeader *>(accept);
 		}
+		else if (name == "content-length")
+		{
+			HttpHeaderContentLength *content_length = new HttpHeaderContentLength();
+			content_length->set_value(value);
+			parsed_header = static_cast<HttpHeader *>(content_length);
+		}
 		else
 		{
 			HttpHeaderUnknown *unknown_header = new HttpHeaderUnknown();

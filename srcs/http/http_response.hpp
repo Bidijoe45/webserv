@@ -9,7 +9,7 @@ namespace ws
     struct HttpResponse
     {
         std::string version;
-        size_t status_code;
+        int status_code;
         std::string status_msg;
         HttpHeaderMap headers;
         std::string body;

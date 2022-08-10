@@ -14,4 +14,8 @@ namespace ws
 		this->type = src.type;
 		this->value = src.value;
 	}
+
+	void HttpHeaderUnknown::set_value(const std::string &value) {}
+
+	void HttpHeaderUnknown::parse_value() {}
 }

@@ -12,7 +12,6 @@ namespace ws
 	{
 		for (int i = 0; (str[i] && i < len); i++)
 		{
-			std::cout << "is_print: " << int(str[i]) << std::endl;
 			if (!std::isprint(str[i]))
 				return false;
 		}

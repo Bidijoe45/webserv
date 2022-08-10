@@ -8,6 +8,9 @@
 
 namespace ws {
 struct ServerSettings {
+    typedef std::vector<Location>::iterator locations_it;
+    typedef std::vector<Location>::const_iterator locations_cit;
+
     size_t port;
     std::string server_name;
     size_t client_max_body_size;

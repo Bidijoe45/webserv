@@ -19,6 +19,7 @@
 #include "../http/http_request.hpp"
 #include "../http/http_request_resolver.hpp"
 #include "../settings/parser/settings_parser.hpp"
+#include "server_socket.hpp"
 
 namespace ws
 {
@@ -32,11 +33,12 @@ namespace ws
 		//TODO: cerrar los sockets de las conexiones tambien jeje
 	}
 
-	Connection Server::accept_new_connection(int socket) {
+	Connection Server::accept_new_connection(int socket, int port) {
 		Connection new_conn;
 
 		new_conn.addr_len = sizeof(struct sockaddr_storage);
 		new_conn.socket = accept(socket, (struct sockaddr *)&new_conn.addr, &new_conn.addr_len);
+		new_conn.port = port;
 		this->connections_.insert(std::make_pair(new_conn.socket, new_conn));
 
 		return new_conn;
@@ -46,9 +48,10 @@ namespace ws
 		int yes=1;        
 		int rv;
 		char port_str[5];
-		int server_socket;
+		ServerSocket server_socket;
 		struct addrinfo hints, *ai, *p;
 
+		server_socket.port = port;
 		sprintf(port_str, "%d", port);
 		memset(&hints, 0, sizeof hints);
 
@@ -61,16 +64,16 @@ namespace ws
 		}
 		
 		for(p = ai; p != NULL; p = p->ai_next) {
-			server_socket = socket(p->ai_family, p->ai_socktype, p->ai_protocol);
-			if (server_socket < 0) { 
+			server_socket.socket = socket(p->ai_family, p->ai_socktype, p->ai_protocol);
+			if (server_socket.socket < 0) { 
 				continue;
 			}
 
-			setsockopt(server_socket, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(int));
-			fcntl(server_socket, F_SETFL,O_NONBLOCK);
+			setsockopt(server_socket.socket, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(int));
+			fcntl(server_socket.socket, F_SETFL,O_NONBLOCK);
 
-			if (bind(server_socket, p->ai_addr, p->ai_addrlen) < 0) {
-				close(server_socket);
+			if (bind(server_socket.socket, p->ai_addr, p->ai_addrlen) < 0) {
+				close(server_socket.socket);
 				continue;
 			}
 
@@ -83,7 +86,7 @@ namespace ws
 
 		freeaddrinfo(ai);
 
-		if (listen(server_socket, 10) == -1) {
+		if (listen(server_socket.socket, 10) == -1) {
 			return -1;
 		}
 
@@ -92,29 +95,28 @@ namespace ws
 		return 0;
 	}
 
-	bool Server::is_server_socket(int socket)
+	std::vector<ServerSocket>::iterator Server::get_server_socket(int socket)
 	{
-		std::vector<int>::iterator it = this->server_sockets_.begin();
-		std::vector<int>::iterator ite = this->server_sockets_.end();
+		std::vector<ServerSocket>::iterator it = this->server_sockets_.begin();
+		std::vector<ServerSocket>::iterator ite = this->server_sockets_.end();
 
 		for (; it!=ite; it++)
 		{
-			if (*it == socket)
-				return true;
+			if ((*it).socket == socket)
+				return it;
 		}
 
-		return false;
+		return this->server_sockets_.end();
 	}
 
 	void Server::set_server_sockets_to_poll()
 	{
-		std::vector<int>::iterator server_sockets_it = this->server_sockets_.begin();
-		std::vector<int>::iterator server_sockets_ite = this->server_sockets_.end();
+		std::vector<ServerSocket>::iterator server_sockets_it = this->server_sockets_.begin();
+		std::vector<ServerSocket>::iterator server_sockets_ite = this->server_sockets_.end();
 		for (; server_sockets_it != server_sockets_ite; server_sockets_it++)
 		{
-			std::cout << "Set server sockets to poll: " << *server_sockets_it << std::endl;
 			struct pollfd server_poll;	
-			server_poll.fd = *server_sockets_it;
+			server_poll.fd = (*server_sockets_it).socket;
 			server_poll.events = POLLIN;
 
 			this->poll_.push_back(server_poll);
@@ -123,7 +125,6 @@ namespace ws
 
 	void Server::poll_connections()
 	{
-
 		this->set_server_sockets_to_poll();
 
 		while (running)
@@ -137,9 +138,10 @@ namespace ws
 			{
 				if (this->poll_[i].revents & POLLIN)
 				{
-					if (this->is_server_socket(this->poll_[i].fd))
+					std::vector<ServerSocket>::iterator ss_it = this->get_server_socket(this->poll_[i].fd);
+					if (ss_it != this->server_sockets_.end())
 					{
-						Connection new_conn = this->accept_new_connection(this->poll_[i].fd);
+						Connection new_conn = this->accept_new_connection(this->poll_[i].fd, (*ss_it).port);
 						this->add_to_poll(new_conn);
 
 						if (new_conn.socket == -1)
@@ -176,24 +178,22 @@ namespace ws
 		std::cout << connection.buff.data << std::endl;
 		std::cout << "-----------------------" << std::endl;
 
-		//HttpParser http_parser(connection.buff);
-		//HttpRequest http_request = http_parser.parse();
-//
+		HttpParser http_parser(connection.buff);
+		HttpRequest http_request = http_parser.parse();
+
 		//if (http_parser.request_is_valid() == false) {
 		//	std::cout << "HTTP parser request invalid" << std::endl;
 		//}
 
 		connection.buff.clear();
 
-		//ServerSettings server_settings = this->settings_.resolve_settings(http_request);
-		//HttpRequestResolver request_resolver(http_request, server_settings);
-		//HttpResponse response = request_resolver.resolve();
+		ServerSettings server_settings = this->settings_.resolve_settings_hostname(http_request, connection.port);
+		HttpRequestResolver request_resolver(http_request, server_settings);
+		HttpResponse response = request_resolver.resolve();
 
-		//connection.buff.append(response.to_string());
-		connection.buff.append("HTTP/1.1 200 OK\r\nContent-Length: 13\r\nContent-Type: text/html\r\n\r\nHello World!", 77);
+		connection.buff.append(response.to_string());
 
 		connection.send_data();
-
 		connection.buff.clear();
 	}
 
@@ -219,14 +219,14 @@ namespace ws
 
 	void Server::run() {
 		running = true;
-		// SettingsParser settings_parser("./server.conf");
-		// this->settings_ = settings_parser.parse();
-		//
-		// if (!settings_parser.is_valid())
-		// {
-		// 	std::cout << "Server config file invalid: " << settings_parser.get_error_msg() << std::endl;
-		// 	return;
-		// }
+		SettingsParser settings_parser("./server.conf");
+
+		this->settings_ = settings_parser.parse();
+
+		if (!settings_parser.is_valid()) {
+			std::cout << "server config file invalid: " << settings_parser.get_error_msg() << std::endl;
+			return;
+		}
 
 		std::vector<int> ports;
 		ports.push_back(3000);
