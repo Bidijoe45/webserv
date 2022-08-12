@@ -9,6 +9,7 @@
 #include <netdb.h>
 #include <fcntl.h>
 #include <cstdio>
+#include <fstream>
 
 #include <iostream>
 #include <cstring>
@@ -174,16 +175,18 @@ namespace ws
 	}
 
 	void Server::on_new_request(Connection &connection) {
+
 		std::cout << "-- Raw Message by client --" << std::endl;
+		std::fstream log_file("./log_file");
 		std::cout << connection.buff.data << std::endl;
 		std::cout << "-----------------------" << std::endl;
 
 		HttpParser http_parser(connection.buff);
 		HttpRequest http_request = http_parser.parse();
 
-		//if (http_parser.request_is_valid() == false) {
-		//	std::cout << "HTTP parser request invalid" << std::endl;
-		//}
+		if (http_parser.request_is_valid() == false) {
+			std::cout << "HTTP parser request invalid" << std::endl;
+		}
 
 		connection.buff.clear();
 

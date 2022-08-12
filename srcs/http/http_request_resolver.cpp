@@ -20,7 +20,6 @@ namespace ws
         Location location;
         int last_score;
         HttpUri request_uri = this->request_.uri;
-
         ServerSettings::locations_cit location_it = this->settings_.locations.begin(); 
         ServerSettings::locations_cit location_ite = this->settings_.locations.end(); 
 
@@ -31,7 +30,6 @@ namespace ws
         for (; location_it != location_ite; location_it++)
         {
             int score = request_.uri.path.compare((*location_it).path);
-
             if (score >= last_score)
                 location = *location_it;
         }
@@ -39,36 +37,102 @@ namespace ws
         return location;
     }
 
+	std::string HttpRequestResolver::resolve_status_code()
+	{
+		switch (this->response_.status_code)
+		{
+			case 200:
+				return "OK";
+			case 400:
+				return "BAD REQUEST";
+			case 404:
+				return "NOT FOUND";
+			default:
+				return "";
+		}
+	}
+
+	void HttpRequestResolver::apply_method()
+	{
+		switch (this->request_.method)
+		{
+			case HTTP_METHOD_GET:
+				this->apply_get_method();
+				break;
+			case HTTP_METHOD_POST:
+				this->apply_post_method();
+				break;
+			case HTTP_METHOD_DELETE:
+				this->apply_delete_method();
+				break;
+			default:
+				this->response_.status_code = 501;
+				break;
+		}
+	}
+
+	void HttpRequestResolver::apply_get_method()
+	{
+		std::cout << "File path: " << this->file_path_ << std::endl;
+		std::ifstream in(this->file_path_);
+
+		if (!in.is_open())
+		{
+			this->response_.status_code = 404;
+			return;
+		}
+
+		std::string file_content((std::istreambuf_iterator<char>(in)), 
+    		std::istreambuf_iterator<char>());
+
+		this->response_.body = file_content;
+
+		HttpHeaderContentLength *content_length_header = new HttpHeaderContentLength();
+		content_length_header->set_value(file_content.size());
+		this->response_.headers.insert(content_length_header);
+
+		//TODO: agregar el tipo del archivo tambien
+
+		this->response_.status_code = 200;
+	}
+
+	void HttpRequestResolver::apply_post_method()
+	{
+
+	}
+
+	void HttpRequestResolver::apply_delete_method()
+	{
+
+	}
 
     HttpResponse HttpRequestResolver::resolve()
     {
-        HttpResponse response;
-		// rellenar response.version
-		// is request valid ?
-		// is request version http1.1 ?
-        Location location = this->resolve_location();
-        std::string file_path = location.root + this->request_.uri.path;
+		this->response_.http_version = "HTTP/1.1";
 
-		//Aplicar metodo de la request al target (y comprobar si es valido)
-		
-		// si el status_code es de error, sustituir el file_path por la pagina de error
-		// rellenar response body si hace falta
-		// rellenar header content-length e insertar en el mapa de la response
-	
-		// resolve status_code to find the status_msg of the response
-	
+		//comprobar si la request es valida
+		if (this->request_.is_valid() == false)
+		{
+			this->response_.status_code = 400;
+		}
+		else
+		{
+			this->location_ = this->resolve_location();
+			this->file_path_ = this->location_.root + this->request_.uri.path;
+			this->apply_method();
+		}
 
+		this->response_.status_msg = this->resolve_status_code();
+		//buscar si se ha definido un archivo para ese codigo y rellenear el body con ello
+		if (this->response_.status_code >= 400)
+		{
+			this->response_.body = "error";
+			HttpHeaderContentLength *content_length_header = new HttpHeaderContentLength();
+			content_length_header->set_value(this->response_.body.size());
+			this->response_.headers.insert(content_length_header);
+		}
 
-        response.version = "HTTP/1.1";
-        response.status_code = 200;
-        response.status_msg = "OK";
-
-        response.body = "Hello Worla!";
-		HttpHeaderContentLength *content_length = new HttpHeaderContentLength();
-		content_length->set_value(response.body.size());
-		this->response_.headers.insert(content_length);
-
-        return response;
+        return this->response_;
     }
     
 }
