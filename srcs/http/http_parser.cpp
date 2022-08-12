@@ -109,6 +109,7 @@ namespace ws
 
 		std::cout << "|" << this->line_ << "|" << std::endl;
 
+		//FIXME: da problemas con el is printable con nc
 		if (!is_string_printable(this->line_, this->line_.size()))
 			throw std::runtime_error("Request: non-printable characters in first line");
 
@@ -166,6 +167,7 @@ namespace ws
 		HttpHeaderMap::iterator	found_header;
 
 		this->line_ = this->get_next_line();
+
 		while (this->line_.size() != 0)
 		{
 			this->line_pos_ = 0;
@@ -181,7 +183,7 @@ namespace ws
 				this->request_.headers.insert(header_name, parsed_header);
 			}
 			this->line_ = this->get_next_line();
-		}	
+		}
 	}
 
 	HttpRequest HttpParser::parse()
@@ -198,6 +200,8 @@ namespace ws
 		{
 			this->valid_request_ = false;
 			std::cout << e.what() << std::endl;
+			if (this->request_.error == HTTP_REQUEST_NO_ERROR)
+				this->request_.error = HTTP_REQUEST_OTHER_SYNTAX_ERROR; //TODO: add errores mas concretos
 		}
 
 		return this->request_;
