@@ -8,7 +8,7 @@ namespace ws
 
     struct HttpResponse
     {
-        std::string version;
+        std::string http_version;
         int status_code;
         std::string status_msg;
         HttpHeaderMap headers;

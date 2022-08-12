@@ -10,7 +10,7 @@ namespace ws
         std::string response;
         char status_code_str[4];
 
-        response.append(this->version);
+        response.append(this->http_version);
         response.append(" ");
         sprintf(status_code_str, "%d", this->status_code);
         response.append(status_code_str);
@@ -18,13 +18,21 @@ namespace ws
         response.append(this->status_msg);
         response.append("\r\n");
 
-        //TODO: hacer bucle para meter todos lo header
-        response.append("Server: Webserv\r\n");
-        response.append("Content-Length: 12\r\n");
-        response.append("Content-Type: text/html\r\n");
+		HttpHeaderMap::const_iterator cit = this->headers.begin();
+		HttpHeaderMap::const_iterator cite = this->headers.end();
 
+		for (; cit != cite; cit++)
+		{
+			response.append(cit->first);
+			response.append(": ");
+			response.append(cit->second->get_header_value_string());
+			response.append("\r\n");
+		}
+		
         response.append("\r\n");
-        response.append(this->body);
+
+		if (this->body.size() > 0)
+        	response.append(this->body);
 
         return response;
     }
