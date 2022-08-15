@@ -3,6 +3,7 @@
 #include <cctype>
 #include <string>
 #include <iostream>
+#include <sstream>
 
 #include "string_utils.hpp"
 
@@ -71,5 +72,14 @@ namespace ws
 		}
 
 		return new_str;
+	}
+
+	std::string int_to_string(const int n)
+	{
+		std::ostringstream s;
+		s << n;
+		std::string str = s.str();
+
+		return str;
 	}
 }
