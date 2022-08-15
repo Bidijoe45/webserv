@@ -11,4 +11,5 @@ namespace ws
 	bool is_obstext(const unsigned char &c);
 	std::vector<std::string> string_split(const std::string &str, const std::string &delim);
 	std::string compress_slash(const std::string &str);
+	std::string int_to_string(const int n);
 }

@@ -10,6 +10,8 @@ namespace ws {
 struct ServerSettings {
     typedef std::vector<Location>::iterator locations_it;
     typedef std::vector<Location>::const_iterator locations_cit;
+    typedef std::vector<ErrorPage>::iterator error_pages_it;
+    typedef std::vector<ErrorPage>::const_iterator error_pages_cit;
 
     size_t port;
     std::string server_name;
