@@ -58,4 +58,18 @@ namespace ws
 			return true;
 		return false;
 	}
+
+	std::string compress_slash(const std::string &str)
+	{
+		std::string new_str;
+
+		for (size_t i=0; i < str.size(); i++)
+		{
+			if (str[i] == '/' && str[i + 1] == '/' && i < str.size())
+				continue ;
+			new_str.push_back(str[i]);
+		}
+
+		return new_str;
+	}
 }
