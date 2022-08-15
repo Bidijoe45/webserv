@@ -109,8 +109,8 @@ namespace ws
 
 	std::string HttpRequestResolver::find_error_page()
 	{
-		ServerSettings::error_pages_cit cit;
-		ServerSettings::error_pages_cit cite;
+		ServerSettings::error_pages_cit cit = this->settings_.error_pages.begin();
+		ServerSettings::error_pages_cit cite = this->settings_.error_pages.end();
 
 		while (cit != cite)
 		{
@@ -123,10 +123,23 @@ namespace ws
 
 	std::string HttpRequestResolver::create_default_error_page()
 	{
-		// create default error page, creating a string from the html template
+		std::string error_page;
+		std::string error_code = int_to_string(this->response_.status_code);
+
+		error_page.append("<!DOCTYPE html><html lang=\"en\"><head><title>");
+		error_page.append(error_code);
+		error_page.append(" ");
+		error_page.append(this->response_.status_msg);
+		error_page.append("</title></head><body><h1>");
+		error_page.append(error_code);
+		error_page.append(" ");
+		error_page.append(this->response_.status_msg);
+		error_page.append("</h1><p>Oops!</p></body></html>");
+
+		return error_page;
 	}
 
-	std::string HttpRequestResolver::resolve_custom_error_page(std::string error_page_path)
+	std::string HttpRequestResolver::resolve_custom_error_page(const std::string error_page_path)
 	{
 		// get content of the custom error page and return to body
 	}
@@ -149,7 +162,6 @@ namespace ws
     {
 		this->response_.http_version = "HTTP/1.1";
 
-		//comprobar si la request es valida
 		if (this->request_.is_valid() == false)
 		{
 			this->response_.status_code = 400;
@@ -163,7 +175,6 @@ namespace ws
 
 		this->response_.status_msg = this->resolve_status_code();
 
-		//buscar si se ha definido un archivo para ese codigo y rellenear el body con ello
 		if (this->response_.status_code >= 400)
 			this->set_error_body();
 
