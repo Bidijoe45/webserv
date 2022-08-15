@@ -1,10 +1,12 @@
 #include <fstream>
 #include <iostream>
 
+#include "../utils/string_utils.hpp"
 #include "http_request_resolver.hpp"
 #include "http_request.hpp"
 #include "http_response.hpp"
 #include "http_uri.hpp" 
+#include "../server/file_system.hpp"
 
 namespace ws
 {
@@ -74,21 +76,18 @@ namespace ws
 	void HttpRequestResolver::apply_get_method()
 	{
 		std::cout << "File path: " << this->file_path_ << std::endl;
-		std::ifstream in(this->file_path_);
+		FileSystem file(this->file_path_);
 
-		if (!in.is_open())
+		if (!file.is_valid())
 		{
 			this->response_.status_code = 404;
 			return;
 		}
 
-		std::string file_content((std::istreambuf_iterator<char>(in)), 
-    		std::istreambuf_iterator<char>());
-
-		this->response_.body = file_content;
+		this->response_.body = file.get_content();
 
 		HttpHeaderContentLength *content_length_header = new HttpHeaderContentLength();
-		content_length_header->set_value(file_content.size());
+		content_length_header->set_value(this->response_.body.size());
 		this->response_.headers.insert(content_length_header);
 
 		//TODO: agregar el tipo del archivo tambien
@@ -118,7 +117,7 @@ namespace ws
 		else
 		{
 			this->location_ = this->resolve_location();
-			this->file_path_ = this->location_.root + this->request_.uri.path;
+			this->file_path_ = compress_slash(this->location_.root + this->request_.uri.path);
 			this->apply_method();
 		}
 

@@ -10,4 +10,5 @@ namespace ws
 	bool is_token(const std::string &str);
 	bool is_obstext(const unsigned char &c);
 	std::vector<std::string> string_split(const std::string &str, const std::string &delim);
+	std::string compress_slash(const std::string &str);
 }
