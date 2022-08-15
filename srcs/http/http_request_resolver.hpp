@@ -23,6 +23,10 @@ namespace ws
 			void apply_post_method();
 			void apply_delete_method();
             std::string generate_autoindex(const FileSystem &file);
+            void set_error_body();
+            std::string find_error_page();
+            std::string create_default_error_page();
+            std::string resolve_custom_error_page(const std::string error_page_path);
             HttpRequest request_;
             HttpResponse response_;
             ServerSettings settings_;

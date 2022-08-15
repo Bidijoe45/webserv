@@ -1,6 +1,7 @@
 
 
 #include "http_response.hpp"
+#include "string_utils.hpp"
 
 namespace ws
 {
@@ -8,12 +9,10 @@ namespace ws
     std::string HttpResponse::to_string()
     {
         std::string response;
-        char status_code_str[4];
 
         response.append(this->http_version);
         response.append(" ");
-        sprintf(status_code_str, "%d", this->status_code);
-        response.append(status_code_str);
+        response.append(int_to_string(this->status_code));
         response.append(" ");
         response.append(this->status_msg);
         response.append("\r\n");

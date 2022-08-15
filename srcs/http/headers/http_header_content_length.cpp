@@ -1,6 +1,7 @@
 #include <string>
 
 #include "http_header.hpp"
+#include "string_utils.hpp"
 
 namespace ws
 {
@@ -30,9 +31,7 @@ namespace ws
 
 	void HttpHeaderContentLength::set_value(const size_t &value)
 	{
-		char str_length[10];
-		sprintf(str_length, "%lu", value);
-		this->value = str_length;
+		this->value = int_to_string(value);
 		this->content_length = value;
 	}
 

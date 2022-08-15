@@ -5,7 +5,9 @@
 #include "http_request_resolver.hpp"
 #include "http_request.hpp"
 #include "http_response.hpp"
-#include "http_uri.hpp" 
+#include "http_uri.hpp"
+#include "error_page.hpp"
+#include "server_settings.hpp"
 #include "../server/file_system.hpp"
 
 namespace ws
@@ -149,11 +151,62 @@ namespace ws
         return autoindex_html;
     }
 
+	std::string HttpRequestResolver::find_error_page()
+	{
+		ServerSettings::error_pages_it it = this->settings_.error_pages.begin();
+		ServerSettings::error_pages_it ite = this->settings_.error_pages.end();
+
+		while (it != ite)
+		{
+			if (it->code == this->response_.status_code)
+				return it->path;
+			it++;
+		}
+		return "";
+	}
+
+	std::string HttpRequestResolver::create_default_error_page()
+	{
+		std::string error_page;
+		std::string error = int_to_string(this->response_.status_code) + " " + this->response_.status_msg;
+
+		error_page.append("<!DOCTYPE html><html lang=\"en\"><head><title>");
+		error_page.append(error);
+		error_page.append("</title></head><body><h1>");
+		error_page.append(error);
+		error_page.append("</h1><p>Oops!</p></body></html>");
+
+		return error_page;
+	}
+
+	std::string HttpRequestResolver::resolve_custom_error_page(const std::string error_page_path)
+	{
+		FileSystem file(error_page_path);
+
+		if (!file.is_valid())
+			return this->create_default_error_page();
+
+		return file.get_content();
+	}
+
+	void HttpRequestResolver::set_error_body()
+	{
+		std::string error_page_path = this->find_error_page();
+
+		if (error_page_path == "")
+			this->response_.body = this->create_default_error_page();
+		else
+			this->response_.body = resolve_custom_error_page(error_page_path);
+
+		HttpHeaderContentLength *content_length_header = new HttpHeaderContentLength();
+		content_length_header->set_value(this->response_.body.size());
+		this->response_.headers.insert(content_length_header);
+	}
+
     HttpResponse HttpRequestResolver::resolve()
     {
 		this->response_.http_version = "HTTP/1.1";
 
-		//comprobar si la request es valida
 		if (this->request_.is_valid() == false)
 		{
 			this->response_.status_code = 400;
@@ -166,14 +219,9 @@ namespace ws
 		}
 
 		this->response_.status_msg = this->resolve_status_code();
-		//buscar si se ha definido un archivo para ese codigo y rellenear el body con ello
+
 		if (this->response_.status_code >= 400)
-		{
-			this->response_.body = "error";
-			HttpHeaderContentLength *content_length_header = new HttpHeaderContentLength();
-			content_length_header->set_value(this->response_.body.size());
-			this->response_.headers.insert(content_length_header);
-		}
+			this->set_error_body();
 
         return this->response_;
     }
