@@ -2,6 +2,7 @@
 
 #include <sys/stat.h>
 #include <string>
+#include <vector>
 #include <fstream>
 
 namespace ws
@@ -13,11 +14,12 @@ namespace ws
             FileSystem(const std::string &file_path);
             ~FileSystem();
             void open(const std::string &file_path);
-            bool is_valid();
-            bool is_open();
-            bool is_dir();
-            std::string get_path();
+            bool is_valid() const;
+            bool is_open() const;
+            bool is_dir() const;
+            std::string get_path() const;
             std::string get_content();
+            std::vector<std::string> read_dir() const;
         
         private:
             std::string path_;

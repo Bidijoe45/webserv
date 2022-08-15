@@ -1,4 +1,6 @@
 #include <sys/stat.h>
+#include <dirent.h>
+#include <iostream>
 
 #include "file_system.hpp"
 
@@ -21,6 +23,8 @@ namespace ws
     {
         this->path_ = file_path;
 
+        std::cout << this->path_ << std::endl;
+
         if (lstat(this->path_.c_str(), &this->stat_) != 0)
             return;
 
@@ -35,24 +39,50 @@ namespace ws
         this->is_valid_ = true;
     }
 
-    bool FileSystem::is_open()
+    bool FileSystem::is_open() const
     {
         return this->file_.is_open();
     }
 
-    bool FileSystem::is_dir()
+    bool FileSystem::is_dir() const
     {
         return this->path_is_dir_;
     }
 
-    bool FileSystem::is_valid()
+    bool FileSystem::is_valid() const
     {
         return this->is_valid_;
     }
 
-    std::string FileSystem::get_content()
+    std::string FileSystem::get_content() 
     {
 		return std::string((std::istreambuf_iterator<char>(this->file_)), std::istreambuf_iterator<char>());
     }
 
+    std::string FileSystem::get_path() const
+    {
+        return this->path_;
+    }
+
+    std::vector<std::string> FileSystem::read_dir() const
+    {
+        std::vector<std::string> dir_files;
+        DIR *dir_fd;
+        struct dirent* dir_file;
+        
+        if ((dir_fd = opendir(this->path_.c_str())) == NULL) 
+            return std::vector<std::string>();
+
+        while ((dir_file = readdir(dir_fd))) 
+        {
+            if (!strcmp (dir_file->d_name, "."))
+                continue;
+            if (dir_file->d_type == DT_DIR)
+                dir_files.push_back(std::string(dir_file->d_name) + "/");
+            else
+                dir_files.push_back(std::string(dir_file->d_name));
+        }
+
+        return dir_files;
+    }
 }
