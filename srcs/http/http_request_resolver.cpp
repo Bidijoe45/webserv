@@ -109,14 +109,14 @@ namespace ws
 
 	std::string HttpRequestResolver::find_error_page()
 	{
-		ServerSettings::error_pages_cit cit = this->settings_.error_pages.begin();
-		ServerSettings::error_pages_cit cite = this->settings_.error_pages.end();
+		ServerSettings::error_pages_it it = this->settings_.error_pages.begin();
+		ServerSettings::error_pages_it ite = this->settings_.error_pages.end();
 
-		while (cit != cite)
+		while (it != ite)
 		{
-			if (cit->code == this->response_.status_code)
-				return cit->path;
-			cit++;
+			if (it->code == this->response_.status_code)
+				return it->path;
+			it++;
 		}
 		return "";
 	}
@@ -124,16 +124,12 @@ namespace ws
 	std::string HttpRequestResolver::create_default_error_page()
 	{
 		std::string error_page;
-		std::string error_code = int_to_string(this->response_.status_code);
+		std::string error = int_to_string(this->response_.status_code) + " " + this->response_.status_msg;
 
 		error_page.append("<!DOCTYPE html><html lang=\"en\"><head><title>");
-		error_page.append(error_code);
-		error_page.append(" ");
-		error_page.append(this->response_.status_msg);
+		error_page.append(error);
 		error_page.append("</title></head><body><h1>");
-		error_page.append(error_code);
-		error_page.append(" ");
-		error_page.append(this->response_.status_msg);
+		error_page.append(error);
 		error_page.append("</h1><p>Oops!</p></body></html>");
 
 		return error_page;
@@ -141,7 +137,12 @@ namespace ws
 
 	std::string HttpRequestResolver::resolve_custom_error_page(const std::string error_page_path)
 	{
-		// get content of the custom error page and return to body
+		FileSystem file(error_page_path);
+
+		if (!file.is_valid())
+			return this->create_default_error_page();
+
+		return file.get_content();
 	}
 
 	void HttpRequestResolver::set_error_body()
