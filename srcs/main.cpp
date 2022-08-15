@@ -10,6 +10,8 @@
 
 #include "utils/string_utils.hpp"
 
+#include "server/file_system.hpp"
+
 void atExit() {
 	system("leaks webserv");
 }
