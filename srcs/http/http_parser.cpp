@@ -32,7 +32,10 @@ namespace ws
 			this->buff_.flush(2);
 		}
 		if (line.find('\r') != std::string::npos)
+		{
+			this->request_.error = HTTP_REQUEST_INVALID_CHARS;
 			throw (std::runtime_error("get_next_line: invalid line because lonely CR found"));
+		}
 
 		return line;
 	}
@@ -45,9 +48,15 @@ namespace ws
 	void HttpParser::check_space()
 	{
 		if (this->line_[this->line_pos_] != ' ')
+		{
+			this->request_.error = HTTP_REQUEST_INVALID_CHARS;
 			throw std::runtime_error("Request: <Space> was expected");
+		}
 		if (this->line_[this->line_pos_ + 1] == ' ')
+		{
+			this->request_.error = HTTP_REQUEST_INVALID_CHARS;
 			throw std::runtime_error("Request: <LWR> space found");
+		}
 		this->advance();
 	}
 
@@ -107,11 +116,11 @@ namespace ws
 		if (this->line_.size() == 0)
 			this->line_ = this->get_next_line();
 
-		std::cout << "|" << this->line_ << "|" << std::endl;
-
 		if (!is_string_printable(this->line_, this->line_.size()))
+		{
+			this->request_.error = HTTP_REQUEST_INVALID_CHARS;
 			throw std::runtime_error("Request: non-printable characters in first line");
-
+		}
 
 		this->parse_method();
 		this->check_space();
@@ -135,7 +144,10 @@ namespace ws
 		header_name = string_to_lower(header_name, header_name.size());
 
 		if (!is_token(header_name))
+		{
+			this->request_.error = HTTP_REQUEST_INVALID_HEADER;
 			throw std::runtime_error("Request: invalid header name characters");
+		}
 
 		this->advance(colon_pos + 1);
 		return header_name;
@@ -152,7 +164,10 @@ namespace ws
 			if (!std::isprint(header_value[i])
 				&& header_value[i] != ' ' && header_value[i] != '\t'
 				&& !is_obstext(header_value[i]))
+			{
+				this->request_.error = HTTP_REQUEST_INVALID_HEADER;
 				throw std::runtime_error("Request: invalid header value characters");
+			}
 		}
 		return header_value;
 	}
@@ -166,6 +181,7 @@ namespace ws
 		HttpHeaderMap::iterator	found_header;
 
 		this->line_ = this->get_next_line();
+
 		while (this->line_.size() != 0)
 		{
 			this->line_pos_ = 0;
@@ -181,7 +197,7 @@ namespace ws
 				this->request_.headers.insert(header_name, parsed_header);
 			}
 			this->line_ = this->get_next_line();
-		}	
+		}
 	}
 
 	HttpRequest HttpParser::parse()
@@ -198,6 +214,8 @@ namespace ws
 		{
 			this->valid_request_ = false;
 			std::cout << e.what() << std::endl;
+			if (this->request_.error == HTTP_REQUEST_NO_ERROR)
+				this->request_.error = HTTP_REQUEST_OTHER_SYNTAX_ERROR;
 		}
 
 		return this->request_;

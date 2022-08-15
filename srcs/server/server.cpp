@@ -184,13 +184,10 @@ namespace ws
 		HttpParser http_parser(connection.buff);
 		HttpRequest http_request = http_parser.parse();
 
-		if (http_parser.request_is_valid() == false) {
-			std::cout << "HTTP parser request invalid" << std::endl;
-		}
-
 		connection.buff.clear();
 
 		ServerSettings server_settings = this->settings_.resolve_settings_hostname(http_request, connection.port);
+
 		HttpRequestResolver request_resolver(http_request, server_settings);
 		HttpResponse response = request_resolver.resolve();
 
