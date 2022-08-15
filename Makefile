@@ -31,7 +31,7 @@ MKDIR = mkdir -p
 ERRIGNORE = 2>/dev/null
 
 COMMON		=
-CXXFLAGS	?= -Wall -Werror -Wextra $(INCLUDES) -std=c++98 $(COMMON)
+CXXFLAGS	?= $(INCLUDES) -std=c++98 $(COMMON)
 LDFLAGS		?= $(COMMON)
 SANITIZE	= -g3 -fsanitize=address
 
