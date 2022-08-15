@@ -4,7 +4,9 @@
 #include "http_request_resolver.hpp"
 #include "http_request.hpp"
 #include "http_response.hpp"
-#include "http_uri.hpp" 
+#include "http_uri.hpp"
+#include "error_page.hpp"
+#include "server_settings.hpp"
 
 namespace ws
 {
@@ -106,6 +108,44 @@ namespace ws
 
 	}
 
+	std::string HttpRequestResolver::find_error_page()
+	{
+		ServerSettings::error_pages_cit cit;
+		ServerSettings::error_pages_cit cite;
+
+		while (cit != cite)
+		{
+			if (cit->code == this->response_.status_code)
+				return cit->path;
+			cit++;
+		}
+		return "";
+	}
+
+	std::string HttpRequestResolver::create_default_error_page()
+	{
+		// create default error page, creating a string from the html template
+	}
+
+	std::string HttpRequestResolver::resolve_custom_error_page(std::string error_page_path)
+	{
+		// get content of the custom error page and return to body
+	}
+
+	void HttpRequestResolver::set_error_body()
+	{
+		std::string error_page_path = this->find_error_page();
+
+		if (error_page_path == "")
+			this->response_.body = this->create_default_error_page();
+		else
+			this->response_.body = resolve_custom_error_page(error_page_path);
+
+		HttpHeaderContentLength *content_length_header = new HttpHeaderContentLength();
+		content_length_header->set_value(this->response_.body.size());
+		this->response_.headers.insert(content_length_header);
+	}
+
     HttpResponse HttpRequestResolver::resolve()
     {
 		this->response_.http_version = "HTTP/1.1";
@@ -123,14 +163,10 @@ namespace ws
 		}
 
 		this->response_.status_msg = this->resolve_status_code();
+
 		//buscar si se ha definido un archivo para ese codigo y rellenear el body con ello
 		if (this->response_.status_code >= 400)
-		{
-			this->response_.body = "error";
-			HttpHeaderContentLength *content_length_header = new HttpHeaderContentLength();
-			content_length_header->set_value(this->response_.body.size());
-			this->response_.headers.insert(content_length_header);
-		}
+			this->set_error_body();
 
         return this->response_;
     }
