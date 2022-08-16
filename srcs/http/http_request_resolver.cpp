@@ -130,7 +130,7 @@ namespace ws
 		error_page.append(error);
 		error_page.append("</title></head><body><h1>");
 		error_page.append(error);
-		error_page.append("</h1><p>Oops!</p></body></html>");
+		error_page.append("</h1><p>Oops!</p><img src=\"https://media2.giphy.com/media/C23cMUqoZdqMg/giphy.gif?cid=ecf05e47mrq894fkcolgk88zpywmc0gafc8631nzd474dt8m&rid=giphy.gif&ct=g\"></body></html>");
 
 		return error_page;
 	}
