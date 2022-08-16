@@ -51,6 +51,8 @@ namespace ws
 				return "BAD REQUEST";
 			case 404:
 				return "NOT FOUND";
+			case 403:
+				return "FORBIDDEN";
 			default:
 				return "";
 		}
@@ -86,7 +88,15 @@ namespace ws
 			return;
 		}
 
-		this->response_.body = file.get_content();
+		if (file.is_dir())
+		{
+		    if (this->location_.autoindex == true)
+		        this->response_.body = this->generate_autoindex(file);
+		    else
+		        this->response_.status_code = 403;
+		}
+		else
+		    this->response_.body = file.get_content();
 
 		HttpHeaderContentLength *content_length_header = new HttpHeaderContentLength();
 		content_length_header->set_value(this->response_.body.size());
@@ -106,6 +116,40 @@ namespace ws
 	{
 
 	}
+
+    std::string HttpRequestResolver::generate_autoindex(const FileSystem &file)
+    {
+        std::string autoindex_html;
+        std::vector<std::string> dir_files = file.read_dir();
+            
+        autoindex_html.append("<html>");
+        autoindex_html.append("<head>");
+        autoindex_html.append("<title>");
+        autoindex_html.append("Index of " + this->request_.uri.path);
+        autoindex_html.append("</title>");
+        autoindex_html.append("</head>");
+        autoindex_html.append("<body>");
+        autoindex_html.append("<h1>");
+        autoindex_html.append("Index of " + this->request_.uri.path);
+        autoindex_html.append("</h1>");
+        autoindex_html.append("<hr>");
+
+        for (size_t i=0; i < dir_files.size(); i++)
+        {
+            autoindex_html.append("<a href=\"");
+            autoindex_html.append(dir_files[i]);
+            autoindex_html.append("\">");
+            autoindex_html.append(dir_files[i]);
+            autoindex_html.append("</a>");
+            autoindex_html.append("<br/>");
+        }
+
+        autoindex_html.append("</hr>");
+        autoindex_html.append("</body>");
+        autoindex_html.append("</html>");
+
+        return autoindex_html;
+    }
 
 	std::string HttpRequestResolver::find_error_page()
 	{
