@@ -4,6 +4,7 @@
 #include "http_response.hpp"
 #include "../settings/settings.hpp"
 #include "../settings/location.hpp"
+#include "../server/file_system.hpp"
 
 namespace ws
 {
@@ -21,6 +22,7 @@ namespace ws
 			void apply_get_method();
 			void apply_post_method();
 			void apply_delete_method();
+            std::string generate_autoindex(const FileSystem &file);
             void set_error_body();
             std::string find_error_page();
             std::string create_default_error_page();
