@@ -24,7 +24,7 @@ namespace ws
 		{
 			response.append(cit->first);
 			response.append(": ");
-			response.append(cit->second->get_header_value_string());
+			response.append(cit->second->value);
 			response.append("\r\n");
 		}
 		

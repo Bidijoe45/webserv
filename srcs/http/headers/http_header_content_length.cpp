@@ -8,6 +8,7 @@ namespace ws
 	HttpHeaderContentLength::HttpHeaderContentLength()
 	{
 		this->type = HTTP_HEADER_CONTENT_LENGTH;
+		this->is_list_based = false;
 	}
 
 	HttpHeaderContentLength::~HttpHeaderContentLength() {}
@@ -16,6 +17,7 @@ namespace ws
 	{
 		this->type = src.type;
 		this->value = src.value;
+		this->content_length = src.content_length;
 	}
 
 	void HttpHeaderContentLength::parse_value()

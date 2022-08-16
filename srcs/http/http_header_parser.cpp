@@ -7,32 +7,11 @@ namespace ws
 
 	HttpHeader *HttpHeaderParser::parse(std::string name, std::string value)
 	{
-		HttpHeader	*parsed_header;
+		HttpHeader			*parsed_header;
+		HTTP_HEADER_TYPE	header_type = HttpHeader::resolve_header_name(name);
 
-		if (name == "host")
-		{
-			HttpHeaderHost	*host = new HttpHeaderHost();
-			host->set_value(value);
-			parsed_header = static_cast<HttpHeader *>(host);
-		}
-		else if (name == "accept")
-		{
-			HttpHeaderAccept *accept = new HttpHeaderAccept();
-			accept->list.push_back(value);
-			parsed_header = static_cast<HttpHeader *>(accept);
-		}
-		else if (name == "content-length")
-		{
-			HttpHeaderContentLength *content_length = new HttpHeaderContentLength();
-			content_length->set_value(value);
-			parsed_header = static_cast<HttpHeader *>(content_length);
-		}
-		else
-		{
-			HttpHeaderUnknown *unknown_header = new HttpHeaderUnknown();
-			unknown_header->value = value;
-			parsed_header = static_cast<HttpHeader *>(unknown_header);
-		}
+		parsed_header = HttpHeader::alloc_new_header(header_type);
+		parsed_header->set_value(value);
 
 		return parsed_header;
 	}

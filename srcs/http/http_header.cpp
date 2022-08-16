@@ -4,7 +4,7 @@ namespace ws
 {
 	HttpHeader::~HttpHeader() {}
 
-	/*HTTP_HEADER_TYPE HttpHeader::resolve_header_name(const std::string &name)
+	HTTP_HEADER_TYPE HttpHeader::resolve_header_name(const std::string &name)
 	{
 		if (name == "host")
 			return HTTP_HEADER_HOST;
@@ -14,24 +14,50 @@ namespace ws
 			return HTTP_HEADER_CONTENT_LENGTH;
 		else
 			return HTTP_HEADER_UNKNOWN;
-	}*/
-
-	HttpHeaderSingleton::~HttpHeaderSingleton() {}
-
-	HttpHeaderListBased::~HttpHeaderListBased() {}
-
-	const std::string HttpHeaderSingleton::get_header_value_string() const
-	{
-		return this->value;
 	}
 
-	const std::string HttpHeaderListBased::get_header_value_string() const
+	std::string HttpHeader::header_type_to_string(HTTP_HEADER_TYPE type)
 	{
-		std::string str;
-		std::vector<std::string>::const_iterator it;
+		switch (type)
+		{
+			case HTTP_HEADER_ACCEPT:
+				return "accept";
+			case HTTP_HEADER_HOST:
+				return "host";
+			case HTTP_HEADER_CONTENT_LENGTH:
+				return "content-length";
+			default:
+				return "unknown";
+		}
+	}
 
-		for (it = this->list.begin(); it != this->list.end(); it++)
-			str.append(*it);
-		return str;
+	HttpHeader *HttpHeader::alloc_new_header(HttpHeader *header)
+	{
+		switch (header->type)
+		{
+			case HTTP_HEADER_ACCEPT:
+				return new HttpHeaderAccept(*static_cast<const HttpHeaderAccept*>(header));
+			case HTTP_HEADER_HOST:
+				return new HttpHeaderHost(*static_cast<const HttpHeaderHost*>(header));
+			case HTTP_HEADER_CONTENT_LENGTH:
+				return new HttpHeaderContentLength(*static_cast<const HttpHeaderContentLength*>(header));
+			default:
+				return new HttpHeaderUnknown(*static_cast<const HttpHeaderUnknown*>(header));
+		}
+	}
+
+	HttpHeader *HttpHeader::alloc_new_header(HTTP_HEADER_TYPE type)
+	{
+		switch (type)
+		{
+			case HTTP_HEADER_ACCEPT:
+				return new HttpHeaderAccept();
+			case HTTP_HEADER_HOST:
+				return new HttpHeaderHost();
+			case HTTP_HEADER_CONTENT_LENGTH:
+				return new HttpHeaderContentLength();
+			default:
+				return new HttpHeaderUnknown();
+		}
 	}
 }

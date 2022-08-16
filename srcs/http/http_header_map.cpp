@@ -20,7 +20,7 @@ namespace ws
 
 		for (it = src.get_headers().begin(); it != src.get_headers().end(); it++)
 		{
-			header = alloc_new_header(it->second);
+			header = HttpHeader::alloc_new_header(it->second);
 			this->insert(it->first, header);
 		}
 	}
@@ -37,26 +37,11 @@ namespace ws
 
 		for (it = src.get_headers().begin(); it != src.get_headers().end(); it++)
 		{
-			header = alloc_new_header(it->second);
+			header = HttpHeader::alloc_new_header(it->second);
 			this->insert(it->first, header);
 		}
 
 		return *this;
-	}
-
-	HttpHeader *HttpHeaderMap::alloc_new_header(HttpHeader *header)
-	{
-		switch (header->type)
-		{
-			case HTTP_HEADER_ACCEPT:
-				return new HttpHeaderAccept(*static_cast<const HttpHeaderAccept*>(header));
-			case HTTP_HEADER_HOST:
-				return new HttpHeaderHost(*static_cast<const HttpHeaderHost*>(header));
-			case HTTP_HEADER_CONTENT_LENGTH:
-				return new HttpHeaderContentLength(*static_cast<const HttpHeaderContentLength*>(header));
-			default:
-				return new HttpHeaderUnknown(*static_cast<const HttpHeaderUnknown*>(header));
-		}
 	}
 
 	void HttpHeaderMap::deallocate_header_items()
@@ -77,21 +62,6 @@ namespace ws
 		return this->headers_.find(key);
 	}
 
-	std::string HttpHeaderMap::header_type_to_string(HTTP_HEADER_TYPE type)
-	{
-		switch (type)
-		{
-			case HTTP_HEADER_ACCEPT:
-				return "accept";
-			case HTTP_HEADER_HOST:
-				return "host";
-			case HTTP_HEADER_CONTENT_LENGTH:
-				return "content-length";
-			default:
-				return "unknown";
-		}
-	}
-
 	std::pair<HttpHeaderMap::iterator,bool> HttpHeaderMap::insert(std::string header_name, HttpHeader *header)
 	{
 		std::pair<std::string, HttpHeader*>	header_pair;
@@ -102,19 +72,16 @@ namespace ws
 
 	std::pair<HttpHeaderMap::iterator,bool> HttpHeaderMap::insert(HttpHeader *header)
 	{
-		std::string header_name = header_type_to_string(header->type);
+		std::string header_name = HttpHeader::header_type_to_string(header->type);
 		return this->insert(header_name, header);
 	}
 
 	void HttpHeaderMap::combine_value(HttpHeaderMap::iterator found_header, std::string header_value)
 	{
-		HttpHeaderListBased *list_based_header;
-
-		list_based_header = dynamic_cast<HttpHeaderListBased *>(found_header->second);
-		if (!list_based_header)
+		if (found_header->second->is_list_based == false)
 			throw std::runtime_error("Request: found more than one singleton header with the same name");
-		list_based_header->list[0].append(", ");
-		list_based_header->list[0].append(header_value);
+		found_header->second->value.append(", ");
+		found_header->second->value.append(header_value);
 	}
 
 	HttpHeaderMap::iterator HttpHeaderMap::begin()
