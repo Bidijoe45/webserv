@@ -8,6 +8,7 @@ namespace ws
 	{
 		this->type = HTTP_HEADER_HOST;
 		this->port = -1;
+		this->is_list_based = false;
 	}
 
 	HttpHeaderHost::~HttpHeaderHost() {}
@@ -16,6 +17,8 @@ namespace ws
 	{
 		this->type = src.type;
 		this->value = src.value;
+		this->host = src.host;
+		this->port = src.port;
 	}
 
 	void HttpHeaderHost::parse_value()

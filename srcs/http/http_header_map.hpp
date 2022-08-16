@@ -31,9 +31,7 @@ namespace ws
 			const std::map<std::string, HttpHeader*> &get_headers() const;
 
 		private:
-			HttpHeader *alloc_new_header(HttpHeader *header_type);
 			void deallocate_header_items();
-			std::string header_type_to_string(HTTP_HEADER_TYPE type);
 			std::map<std::string, HttpHeader*> headers_;
 	};
 

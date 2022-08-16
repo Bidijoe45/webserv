@@ -16,52 +16,42 @@ namespace ws
 	struct HttpHeader
 	{
 		virtual ~HttpHeader() = 0;
-		virtual const std::string get_header_value_string() const = 0;
-		//static HTTP_HEADER_TYPE resolve_header_name(const std::string &name);
+		virtual void set_value(const std::string &value) = 0;
+		static HttpHeader *alloc_new_header(HTTP_HEADER_TYPE type);
+		static HttpHeader *alloc_new_header(HttpHeader *header_type);
+		static HTTP_HEADER_TYPE resolve_header_name(const std::string &name);
+		static std::string header_type_to_string(HTTP_HEADER_TYPE type);
 
 		HTTP_HEADER_TYPE	type;
+		std::string			value;
+		bool				is_list_based;
 	};
 
-	struct HttpHeaderSingleton : public HttpHeader
-	{
-		virtual ~HttpHeaderSingleton() = 0;
-		const std::string get_header_value_string() const;
-		virtual void set_value(const std::string &value) = 0;
-
-		std::string value;
-
-		private:
-			virtual void parse_value() = 0;
-	};
-
-	struct HttpHeaderListBased : public HttpHeader
-	{
-		virtual ~HttpHeaderListBased() = 0;
-		const std::string get_header_value_string() const;
-
-		std::vector<std::string> list;
-	};
-
-	struct HttpHeaderUnknown : public HttpHeaderSingleton
+	struct HttpHeaderUnknown : public HttpHeader
 	{
 		HttpHeaderUnknown();
 		~HttpHeaderUnknown();
 		HttpHeaderUnknown(const HttpHeaderUnknown &src);
-
 		void set_value(const std::string &value);
 
 		private:
 			void parse_value();
 	};
 
-	struct HttpHeaderAccept : public HttpHeaderListBased
+	struct HttpHeaderAccept : public HttpHeader
 	{
 		HttpHeaderAccept();
 		~HttpHeaderAccept();
 		HttpHeaderAccept(const HttpHeaderAccept &src);
+		void set_value(const std::string &value);
+
+		std::vector<std::string> list;
+
+		private:
+			void parse_value();
 	};
 
-	struct HttpHeaderHost : public HttpHeaderSingleton
+	struct HttpHeaderHost : public HttpHeader
 	{
 		HttpHeaderHost();
 		~HttpHeaderHost();
@@ -75,7 +65,7 @@ namespace ws
 			void parse_value();
 	};
 
-	struct HttpHeaderContentLength : public HttpHeaderSingleton
+	struct HttpHeaderContentLength : public HttpHeader
 	{
 		HttpHeaderContentLength();
 		~HttpHeaderContentLength();
