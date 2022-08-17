@@ -4,6 +4,10 @@ namespace ws
 {
 	HttpHeader::~HttpHeader() {}
 
+	HttpHeaderListBased::~HttpHeaderListBased() {}
+
+	HttpHeaderSingleton::~HttpHeaderSingleton() {}
+
 	HTTP_HEADER_TYPE HttpHeader::resolve_header_name(const std::string &name)
 	{
 		if (name == "host")
@@ -16,7 +20,7 @@ namespace ws
 			return HTTP_HEADER_UNKNOWN;
 	}
 
-	std::string HttpHeader::header_type_to_string(HTTP_HEADER_TYPE type)
+	std::string HttpHeader::header_type_to_string(const HTTP_HEADER_TYPE &type)
 	{
 		switch (type)
 		{
@@ -46,7 +50,7 @@ namespace ws
 		}
 	}
 
-	HttpHeader *HttpHeader::alloc_new_header(HTTP_HEADER_TYPE type)
+	HttpHeader *HttpHeader::alloc_new_header(const HTTP_HEADER_TYPE &type)
 	{
 		switch (type)
 		{

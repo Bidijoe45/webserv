@@ -33,32 +33,6 @@ namespace ws_tester
 		return resolved_method;
 	}
 
-	std::string resolve_http_header_type(ws::HTTP_HEADER_TYPE header_type)
-	{
-		std::string resolved_header_type;
-
-		switch (header_type)
-		{
-			case ws::HTTP_HEADER_UNKNOWN:
-				resolved_header_type = "HTTP_HEADER_UNKNOWN";
-				break;
-
-			case ws::HTTP_HEADER_HOST:
-				resolved_header_type = "HTTP_HEADER_HOST";
-				break;
-
-			case ws::HTTP_HEADER_ACCEPT:
-				resolved_header_type = "HTTP_HEADER_ACCEPT";
-				break;
-			
-			default:
-				resolved_header_type = "WTF";
-				break;
-		}
-
-		return resolved_header_type;
-	}
-
 	void print_http_uri(ws::HttpUri uri)
 	{
 		std::cout << "-- Uri --" << std::endl;
@@ -73,8 +47,8 @@ namespace ws_tester
 		
 		for (it = headers.begin(); it != headers.end(); it++)
 		{
-			header_type = resolve_http_header_type(it->second->type);
-			std::cout << it->first << " = |" << it->second->get_header_value_string() << "| header type: " << header_type << std::endl;
+			header_type = ws::HttpHeader::header_type_to_string(it->second->type);
+			std::cout << it->first << " = |" << it->second->value << "| header type: " << header_type << std::endl;
 		}
 		std::cout << "-- --" << std::endl;
 	}

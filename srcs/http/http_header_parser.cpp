@@ -5,7 +5,7 @@ namespace ws
 {
 	HttpHeaderParser::HttpHeaderParser() {}
 
-	HttpHeader *HttpHeaderParser::parse(std::string name, std::string value)
+	HttpHeader *HttpHeaderParser::parse(const std::string &name, const std::string &value)
 	{
 		HttpHeader			*parsed_header;
 		HTTP_HEADER_TYPE	header_type = HttpHeader::resolve_header_name(name);
@@ -14,5 +14,16 @@ namespace ws
 		parsed_header->set_value(value);
 
 		return parsed_header;
+	}
+
+	void HttpHeaderParser::combine_value(HttpHeader *header, const std::string &added_value)
+	{
+		HttpHeaderListBased *list_based_header;
+
+		list_based_header = dynamic_cast<HttpHeaderListBased *>(header);
+
+		if (!list_based_header)
+			throw std::runtime_error("Request: found more than one singleton header with the same name");
+		*(HttpHeaderListBased *)header += added_value;
 	}
 }

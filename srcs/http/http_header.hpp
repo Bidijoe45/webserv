@@ -17,41 +17,45 @@ namespace ws
 	{
 		virtual ~HttpHeader() = 0;
 		virtual void set_value(const std::string &value) = 0;
-		static HttpHeader *alloc_new_header(HTTP_HEADER_TYPE type);
+		static HttpHeader *alloc_new_header(const HTTP_HEADER_TYPE &type);
 		static HttpHeader *alloc_new_header(HttpHeader *header_type);
 		static HTTP_HEADER_TYPE resolve_header_name(const std::string &name);
-		static std::string header_type_to_string(HTTP_HEADER_TYPE type);
+		static std::string header_type_to_string(const HTTP_HEADER_TYPE &type);
 
 		HTTP_HEADER_TYPE	type;
 		std::string			value;
-		bool				is_list_based;
 	};
 
-	struct HttpHeaderUnknown : public HttpHeader
+	struct HttpHeaderSingleton : public HttpHeader
 	{
-		HttpHeaderUnknown();
-		~HttpHeaderUnknown();
-		HttpHeaderUnknown(const HttpHeaderUnknown &src);
-		void set_value(const std::string &value);
+		virtual ~HttpHeaderSingleton() = 0;
+	};
+
+	struct HttpHeaderListBased : public HttpHeader
+	{
+		virtual ~HttpHeaderListBased() = 0;
+		virtual HttpHeaderListBased &operator+=(const std::string &rhs) = 0;
 
 		private:
-			void parse_value();
+			virtual void parse_added_value(const std::string &value) = 0;
 	};
 
-	struct HttpHeaderAccept : public HttpHeader
+	struct HttpHeaderAccept : public HttpHeaderListBased
 	{
 		HttpHeaderAccept();
 		~HttpHeaderAccept();
 		HttpHeaderAccept(const HttpHeaderAccept &src);
 		void set_value(const std::string &value);
+		HttpHeaderAccept &operator+=(const std::string &rhs);
 
 		std::vector<std::string> list;
 
 		private:
 			void parse_value();
+			void parse_added_value(const std::string &value);
 	};
 
-	struct HttpHeaderHost : public HttpHeader
+	struct HttpHeaderHost : public HttpHeaderSingleton
 	{
 		HttpHeaderHost();
 		~HttpHeaderHost();
@@ -65,7 +69,7 @@ namespace ws
 			void parse_value();
 	};
 
-	struct HttpHeaderContentLength : public HttpHeader
+	struct HttpHeaderContentLength : public HttpHeaderSingleton
 	{
 		HttpHeaderContentLength();
 		~HttpHeaderContentLength();
@@ -77,5 +81,13 @@ namespace ws
 
 		private:
 			void parse_value();
+	};
+
+	struct HttpHeaderUnknown : public HttpHeaderSingleton
+	{
+		HttpHeaderUnknown();
+		~HttpHeaderUnknown();
+		HttpHeaderUnknown(const HttpHeaderUnknown &src);
+		void set_value(const std::string &value);
 	};
 }

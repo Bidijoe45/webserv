@@ -190,7 +190,7 @@ namespace ws
 			header_value = get_header_value();
 			found_header = this->request_.headers.find(header_name);
 			if (found_header != this->request_.headers.end())
-				this->request_.headers.combine_value(found_header, header_value);
+				header_line_parser.combine_value(found_header->second, header_value);
 			else
 			{
 				parsed_header = header_line_parser.parse(header_name, header_value);
