@@ -32,7 +32,8 @@ namespace ws
   {
 	public:
 		HttpHeaderParser();
-		HttpHeader *parse(std::string name, std::string value);
+		HttpHeader *parse(const std::string &name, const std::string &value);
+		void combine_value(HttpHeader *header, const std::string &added_value);
 		
   };
 

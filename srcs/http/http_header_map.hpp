@@ -21,7 +21,6 @@ namespace ws
 
 			std::pair<iterator,bool> insert(std::string header_name, HttpHeader *header);
 			std::pair<iterator,bool> insert(HttpHeader *header);
-			void combine_value(iterator found_header, std::string header_value);
 			iterator begin();
 			const_iterator begin() const;
 			iterator end();

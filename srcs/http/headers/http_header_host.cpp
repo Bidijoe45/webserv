@@ -8,7 +8,6 @@ namespace ws
 	{
 		this->type = HTTP_HEADER_HOST;
 		this->port = -1;
-		this->is_list_based = false;
 	}
 
 	HttpHeaderHost::~HttpHeaderHost() {}

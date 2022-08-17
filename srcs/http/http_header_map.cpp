@@ -76,14 +76,6 @@ namespace ws
 		return this->insert(header_name, header);
 	}
 
-	void HttpHeaderMap::combine_value(HttpHeaderMap::iterator found_header, std::string header_value)
-	{
-		if (found_header->second->is_list_based == false)
-			throw std::runtime_error("Request: found more than one singleton header with the same name");
-		found_header->second->value.append(", ");
-		found_header->second->value.append(header_value);
-	}
-
 	HttpHeaderMap::iterator HttpHeaderMap::begin()
 	{
 		return this->headers_.begin();

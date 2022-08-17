@@ -8,7 +8,6 @@ namespace ws
 	HttpHeaderContentLength::HttpHeaderContentLength()
 	{
 		this->type = HTTP_HEADER_CONTENT_LENGTH;
-		this->is_list_based = false;
 	}
 
 	HttpHeaderContentLength::~HttpHeaderContentLength() {}
