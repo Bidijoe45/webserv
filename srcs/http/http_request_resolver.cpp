@@ -9,6 +9,7 @@
 #include "error_page.hpp"
 #include "server_settings.hpp"
 #include "../server/file_system.hpp"
+#include "http_headers.hpp"
 
 namespace ws
 {
