@@ -9,13 +9,15 @@
 namespace ws {
 
 struct Connection {
+	~Connection();
+	int send_data();
+	int recv_data();
+
 	int socket;
+	int port;
 	socklen_t addr_len;
 	struct sockaddr_storage addr;
 	DataBuffer buff;	
-
-	int send_data();
-	int recv_data();
 };
 
 } //namespace ws

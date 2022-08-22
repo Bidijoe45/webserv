@@ -2,141 +2,227 @@
 
 #include <sstream>
 #include <iostream>
+#include <exception>
+#include <utility>
 
-#include "../server/connection.hpp"
-#include "./http_request.hpp"
+#include "http_request.hpp"
+#include "../server/data_buffer.hpp"
+#include "../utils/string_utils.hpp"
+#include "http_uri.hpp"
+#include "http_uri_parser.hpp"
+#include "http_header.hpp"
+#include "http_header_parser.hpp"
+#include "http_header_map.hpp"
 
 namespace ws
 {
 
-	HttpParser::HttpParser(DataBuffer &buff) {
-		this->raw_request_ = std::string(buff.data, buff.size);
-		this->valid_request_ = true;
-	}
+	HttpParser::HttpParser(DataBuffer &buff) : buff_(buff), line_pos_(0) {}
 
-	std::string HttpParser::next_line() {
-		std::string next_line;
+	std::string HttpParser::get_next_line()
+	{
+		std::string line;
+		size_t crlf_pos = this->buff_.find("\r\n");
 
-		size_t new_line_pos = this->raw_request_.find("\n");
-		next_line = this->raw_request_.substr(0, new_line_pos);
-
-		if (new_line_pos == std::string::npos)
-			this->raw_request_.erase(0, new_line_pos);
+		if (crlf_pos == std::string::npos)
+			line = this->buff_.flush(this->buff_.size());
 		else
-			this->raw_request_.erase(0, new_line_pos + 1);
-
-		return next_line;
-	}
-
-	std::vector<std::string> HttpParser::split_line(std::string line, char delimiter) {
-		std::vector<std::string> tokens;
-		std::string token;
-		std::istringstream tokenStream(line);
-		while (std::getline(tokenStream, token, delimiter)) {
-			if (token.size() == 0)
-				continue;
-			tokens.push_back(token);
+		{
+			line = this->buff_.flush(crlf_pos);
+			this->buff_.flush(2);
 		}
-		return tokens;
-	}
-
-	HTTP_METHOD HttpParser::resolve_request_method(std::string str) {
-		if (str == "GET")
-			return GET;
-		else if (str == "POST")
-			return POST;
-		else if (str == "DELETE")
-			return DELETE;
-		return INVALID_METHOD;
-	}
-
-	std::string HttpParser::resolve_request_url(std::string str) {
-		return str;
-	}
-
-	void HttpParser::parse_first_line() {
-		std::string first_line = this->next_line();
-		std::vector<std::string> split_line = this->split_line(first_line, ' ');
-
-		if (split_line.size() != 3) {
-			this->valid_request_ = false;
-			return;
+		if (line.find('\r') != std::string::npos)
+		{
+			this->request_.error = HTTP_REQUEST_INVALID_CHARS;
+			throw (std::runtime_error("get_next_line: invalid line because lonely CR found"));
 		}
 
-		HTTP_METHOD parsed_method = resolve_request_method(split_line[0]);
-
-		if (parsed_method == INVALID_METHOD) {
-			this->valid_request_ = false;
-			return;
-		}
-
-		this->request_.method = parsed_method;
-
-		std::string parsed_url = resolve_request_url(split_line[1]);
-
-		this->request_.url = parsed_url;
-
-		if (split_line[2] != "HTTP/1.1") {
-			this->valid_request_ = false;
-			return;
-		}
-
+		return line;
 	}
 
-	void HttpParser::parse_headers() {
-		
-		std::string current_header = this->next_line();
-		while (current_header.size() != 0) {
-			std::vector<std::string> split_header = this->split_line(current_header, ':');
-			
-			if (split_header.size() != 2) {
-				this->valid_request_ = false;
-				return;
+	void HttpParser::advance(size_t n = 1)
+	{
+		this->line_pos_ += n;
+	}
+
+	void HttpParser::check_space()
+	{
+		if (this->line_[this->line_pos_] != ' ')
+		{
+			this->request_.error = HTTP_REQUEST_INVALID_CHARS;
+			throw std::runtime_error("Request: <Space> was expected");
+		}
+		if (this->line_[this->line_pos_ + 1] == ' ')
+		{
+			this->request_.error = HTTP_REQUEST_INVALID_CHARS;
+			throw std::runtime_error("Request: <LWR> space found");
+		}
+		this->advance();
+	}
+
+	void HttpParser::parse_method()
+	{
+		size_t space_pos = this->line_.find_first_of(' ', this->line_pos_);
+		std::string method = this->line_.substr(this->line_pos_, space_pos);
+
+		if (method == "GET")
+			this->request_.method = HTTP_METHOD_GET;
+		else if (method == "POST")
+			this->request_.method = HTTP_METHOD_POST;
+		else if (method == "DELETE")
+			this->request_.method = HTTP_METHOD_DELETE;
+		else {
+			this->request_.method = HTTP_METHOD_INVALID;
+			this->request_.error = HTTP_REQUEST_INVALID_METHOD;
+			throw std::runtime_error("Request: invalid method");
+		}
+
+		this->advance(method.size());
+	}
+
+	void HttpParser::parse_uri()
+	{
+		size_t space_pos = this->line_.find_first_of(' ', this->line_pos_);
+		std::string uri = this->line_.substr(this->line_pos_, space_pos - this->line_pos_);
+
+		HttpUriParser uri_parser(uri);
+		HttpUri parsed_uri = uri_parser.parse();
+
+		if (!uri_parser.uri_is_valid())
+		{
+			this->request_.error = HTTP_REQUEST_INVALID_URI;
+			throw std::runtime_error("Request: invalid URI");
+		}
+		this->request_.uri = parsed_uri;
+		this->advance(uri.size());
+	}
+
+	void HttpParser::parse_version()
+	{
+		std::string version = this->line_.substr(this->line_pos_);
+
+		if (version != "HTTP/1.1")
+		{
+			this->request_.error = HTTP_REQUEST_INVALID_VERSION;
+			throw std::runtime_error("Request: invalid version");
+		}
+
+		this->request_.http_version = version;
+	}
+
+	void HttpParser::parse_first_line()
+	{
+		this->line_ = this->get_next_line();
+		if (this->line_.size() == 0)
+			this->line_ = this->get_next_line();
+
+		if (!is_string_printable(this->line_, this->line_.size()))
+		{
+			this->request_.error = HTTP_REQUEST_INVALID_CHARS;
+			throw std::runtime_error("Request: non-printable characters in first line");
+		}
+
+		this->parse_method();
+		this->check_space();
+		this->parse_uri();
+		this->check_space();
+		this->parse_version();
+		this->line_pos_ = 0;
+	}
+
+	void HttpParser::skipOWS()
+	{
+		this->line_pos_ = this->line_.find_first_not_of(" \t", this->line_pos_);
+	}
+
+	std::string HttpParser::get_header_name()
+	{
+		std::string	header_name;
+		size_t		colon_pos = this->line_.find_first_of(':', this->line_pos_);
+
+		header_name = this->line_.substr(this->line_pos_, colon_pos);
+		header_name = string_to_lower(header_name, header_name.size());
+
+		if (!is_token(header_name))
+		{
+			this->request_.error = HTTP_REQUEST_INVALID_HEADER;
+			throw std::runtime_error("Request: invalid header name characters");
+		}
+
+		this->advance(colon_pos + 1);
+		return header_name;
+	}
+
+	std::string	HttpParser::get_header_value()
+	{
+		std::string	header_value;
+		size_t	value_end = this->line_.find_last_not_of(" \t");
+
+		header_value = this->line_.substr(this->line_pos_, value_end - this->line_pos_ + 1);
+		for (size_t i = 0; header_value[i]; i++)
+		{
+			if (!std::isprint(header_value[i])
+				&& header_value[i] != ' ' && header_value[i] != '\t'
+				&& !is_obstext(header_value[i]))
+			{
+				this->request_.error = HTTP_REQUEST_INVALID_HEADER;
+				throw std::runtime_error("Request: invalid header value characters");
 			}
-
-			std::string header_key = split_header[0];
-			std::string header_value = split_header[1].substr(split_header[1].find_first_not_of(" "));
-
-			this->request_.headers.insert(std::make_pair(header_key, header_value));
-
-			current_header = this->next_line();
 		}
-
+		return header_value;
 	}
 
-	void HttpParser::parse_body() {
-		HttpRequest::headers_iterator element = this->request_.headers.find("Content-Length");
+	void HttpParser::parse_headers()
+	{
+		std::string				header_name;
+		std::string				header_value;
+		HttpHeaderParser		header_line_parser;
+		HttpHeader				*parsed_header;
+		HttpHeaderMap::iterator	found_header;
 
-		if (element == this->request_.headers.end()) {
-			return ;
+		this->line_ = this->get_next_line();
+
+		while (this->line_.size() != 0)
+		{
+			this->line_pos_ = 0;
+			header_name = get_header_name();
+			this->skipOWS();
+			header_value = get_header_value();
+			found_header = this->request_.headers.find(header_name);
+			if (found_header != this->request_.headers.end())
+				header_line_parser.combine_value(found_header->second, header_value);
+			else
+			{
+				parsed_header = header_line_parser.parse(header_name, header_value);
+				this->request_.headers.insert(header_name, parsed_header);
+			}
+			this->line_ = this->get_next_line();
 		}
-
-		this->request_.body = this->raw_request_;
 	}
 
-	HttpRequest HttpParser::parse() {
-		this->parse_first_line();
-
-		if (this->valid_request_ == false) {
-			return this->request_;
+	HttpRequest HttpParser::parse()
+	{
+		this->valid_request_ = true;
+		try
+		{
+			this->parse_first_line();
+			this->parse_headers();
+			// utilizar los datos parseados para determinar si se espera un body o no
+			//this->parse_body();
 		}
-
-		this->parse_headers();
-
-		if (this->valid_request_ == false) {
-			return this->request_;
-		}
-
-		this->parse_body();
-
-		if (this->valid_request_ == false) {
-			return this->request_;
+		catch(const std::runtime_error& e)
+		{
+			this->valid_request_ = false;
+			std::cout << e.what() << std::endl;
+			if (this->request_.error == HTTP_REQUEST_NO_ERROR)
+				this->request_.error = HTTP_REQUEST_OTHER_SYNTAX_ERROR;
 		}
 
 		return this->request_;
 	}
 
-	bool HttpParser::request_is_valid() {
+	bool HttpParser::request_is_valid()
+	{
 		return this->valid_request_;
 	}
 

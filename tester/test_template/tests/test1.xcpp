@@ -1,0 +1,12 @@
+#include <typeinfo>
+#include <iostream>
+
+namespace ws_tester
+{
+
+bool module_test1(size_t test_n, bool print)
+{
+	return true;
+}
+
+}
