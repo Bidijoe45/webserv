@@ -2,7 +2,6 @@
 
 namespace ws_tester {
 
-
 	class HttpParserTester {
 		public:
 			HttpParserTester();

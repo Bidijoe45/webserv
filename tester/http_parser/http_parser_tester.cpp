@@ -12,11 +12,14 @@ namespace ws_tester
 
 		bool ret = false;
 
-		ret = http_parser_test1(1, false);
-		print_test_result(1, ret);
+		//ret = http_parser_test1(1, false);
+		//print_test_result(1, ret);
 
-		ret = http_parser_test2(2, false);
-		print_test_result(2, ret);
+		//ret = http_parser_test2(2, false);
+		//print_test_result(2, ret);
+
+		ret = http_parser_test3(3, true);
+		//print_test_result(3, ret);
 
 	}
 

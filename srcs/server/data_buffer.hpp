@@ -1,24 +1,26 @@
 #pragma once
 
-#include <memory>
+#include <string>
 
 namespace ws {
 
 	struct DataBuffer {
 
 		DataBuffer();	
-		DataBuffer(const DataBuffer &buff);
+		DataBuffer(const std::string &str);
 		~DataBuffer();
 
+		DataBuffer(const DataBuffer &buff);
+		DataBuffer &operator=(const DataBuffer &buff);
+
 		void append(const char *buff, size_t buff_size);
-		char *flush(size_t n);
+		void append(const std::string &str);
+		std::string flush(size_t n);
 		void clear();
+		size_t find(const std::string &str) const;
+		size_t size() const;
 
-		char *data;
-		size_t size;
-
-		private:
-			std::allocator<char> allocator_;
+		std::string data;
 	};
 
 }

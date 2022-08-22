@@ -1,11 +1,11 @@
 #include <iostream>
 
 #include "settings_tests_utils.hpp"
+#include "../../../srcs/http/http_request.hpp"
 #include "../../../srcs/settings/server_settings.hpp"
 #include "../../../srcs/settings/settings.hpp"
 #include "../../../srcs/settings/error_page.hpp"
 #include "../../../srcs/settings/location.hpp"
-#include "../../../srcs/settings/http_methods.hpp"
 #include "../../../srcs/settings/rewrite.hpp"
 
 
@@ -14,16 +14,19 @@ void print_methods(std::vector<ws::HTTP_METHOD> &methods) {
 
 		switch (methods[i])
 		{
-		case ws::GET:
+		case ws::HTTP_METHOD_GET:
 			std::cout << "GET";
 			break;
 
-		case ws::POST:
+		case ws::HTTP_METHOD_POST:
 			std::cout << "POST";
 			break;
 
-		case ws::DELETE:
+		case ws::HTTP_METHOD_DELETE:
 			std::cout << "DELETE";
+			break;
+		default:
+			std::cout << "INVALID";
 			break;
 		}
 

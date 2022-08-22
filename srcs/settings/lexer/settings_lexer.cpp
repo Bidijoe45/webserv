@@ -25,7 +25,7 @@ namespace ws
 
 		this->pos_ = -1;
 		this->current_char_ = 0;
-		this->str_len_ = this->str_.length();
+		this->str_len_ = this->str_.size();
 		this->valid_file_ = true;
 	}
 
@@ -108,9 +108,8 @@ namespace ws
 		std::string value;
 		TOKEN_TYPE value_type;
 
-		while (!std::isspace(this->current_char_) && this->current_char_ != '{'
-				&& this->current_char_ != '}' && this->current_char_ != ';'
-				&& this->current_char_ != -1) {
+		while (this->current_char_ != -1 && !std::isspace(this->current_char_) && this->current_char_ != '{'
+				&& this->current_char_ != '}' && this->current_char_ != ';') {
 			value += this->current_char_;
 			this->advance();
 		}

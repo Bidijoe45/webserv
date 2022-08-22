@@ -5,6 +5,7 @@ services:
     image: nginx
     ports:
       - 80:80
+      - 81:81
     volumes:
       - ./container_vol/nginx/conf.d:/etc/nginx/conf.d/
       - ./container_vol/nginx/sites-available/:/etc/nginx/sites-available/

@@ -10,6 +10,12 @@ namespace ws {
 
 	SettingsParser::SettingsParser(std::string settings_file) : settings_file_(settings_file) {
 		SettingsLexer lexer = SettingsLexer(this->settings_file_);
+		if(!lexer.file_is_valid())
+		{
+			this->valid_file_ = false;
+			this->error_msg_ = lexer.get_error_msg();
+			return ;
+		}
 		this->tokens_ = lexer.make_tokens();
 		this->n_tokens_ = this->tokens_.size();
 		this->pos_ = 0;
@@ -178,11 +184,11 @@ namespace ws {
 		while (this->pos_ != -1 && this->current_token_.type != TT_SEMICOLON) {
 
 			if (this->current_token_.type == TT_VALUE && this->current_token_.value == "GET") {
-				methods.push_back(GET);
+				methods.push_back(HTTP_METHOD_GET);
 			} else if (this->current_token_.type == TT_VALUE && this->current_token_.value == "POST") {
-				methods.push_back(POST);
+				methods.push_back(HTTP_METHOD_POST);
 			} else if (this->current_token_.type == TT_VALUE && this->current_token_.value == "DELETE") {
-				methods.push_back(DELETE);
+				methods.push_back(HTTP_METHOD_DELETE);
 			} else {
 				throw std::runtime_error(std::string("Invalid element in accept"));
 			}
@@ -317,6 +323,8 @@ namespace ws {
 	}
 
 	Settings SettingsParser::parse() {
+		if (!this->valid_file_)
+			return this->settings_;
 
 		try {
 			if (current_token_.type != TT_SERVER) {

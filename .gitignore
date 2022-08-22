@@ -34,4 +34,6 @@
 # Custom
 .vscode
 webserv
-test
+webserv_test
+build
+.DS_Store
