@@ -16,7 +16,7 @@ static ws::HttpUri prepare_uri()
 
 bool http_uri_parser_test1(size_t test_n, bool print)
 {
-	std::string uri = "/path/to/file.html?param1=value1&param2=value2";
+	std::string uri = "/path/to/file.html?%2B%29";
 
 	ws::HttpUriParser uri_parser(uri);
 	ws::HttpUri parsed_uri = uri_parser.parse();
@@ -24,8 +24,8 @@ bool http_uri_parser_test1(size_t test_n, bool print)
 
 	if (print)
 	{
-		std::cout << "--- Prepared Uri ---" << std::endl;
-		print_http_uri(prepared_uri);
+		//std::cout << "--- Prepared Uri ---" << std::endl;
+		//print_http_uri(prepared_uri);
 		std::cout << "--- Parsed Uri ---" << std::endl;
 		print_http_uri(parsed_uri);
 	}

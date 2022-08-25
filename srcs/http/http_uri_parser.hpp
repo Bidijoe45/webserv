@@ -24,6 +24,8 @@ class HttpUriParser
             bool is_abs();
 
         private:
+            void decode();
+            int parse_hex(const std::string &str); 
             HTTP_URI_ERROR error_;
             HttpUri uri_;
             std::string line_;
