@@ -8,7 +8,7 @@
 namespace ws_tester
 {
 
-	ws::ServerSettings prepare_settings()
+	static ws::ServerSettings prepare_settings()
 	{
 		ws::ServerSettings settings;
 
@@ -17,7 +17,7 @@ namespace ws_tester
 		return settings;
 	}
 
-	ws::HttpRequest prepare_request()
+	static ws::HttpRequest prepare_request()
 	{
 		ws::HttpRequest request;
 

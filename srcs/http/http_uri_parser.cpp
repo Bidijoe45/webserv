@@ -1,16 +1,19 @@
-
 #include <string>
 #include <exception>
 #include <iostream>
 #include <vector>
+#include <sstream>
 
 #include "http_uri_parser.hpp"
 #include "http_uri.hpp"
-#include "string_utils.hpp"
+#include "../utils/string_utils.hpp"
 
 namespace ws
 {
-    HttpUriParser::HttpUriParser(const std::string &uri) : line_(uri), line_pos_(0), error_(HTTP_URI_VALID) {}
+    HttpUriParser::HttpUriParser(const std::string &uri) : line_(uri), line_pos_(0), error_(HTTP_URI_VALID)
+    {
+        this->decode();
+    }
 
     void HttpUriParser::parse_scheme()
     {
@@ -120,5 +123,35 @@ namespace ws
         return (this->error_ == HTTP_URI_VALID);
     }
 
+    int HttpUriParser::parse_hex(const std::string &str)
+    {
+        int ret;
+        std::stringstream ss;
+        ss << std::hex << str;
+        ss >> ret;
+        return ret;
+    }
+
+    void HttpUriParser::decode()
+    {
+        std::string new_line;
+        size_t i = 0;
+
+        while (i < this->line_.size())
+        {
+            char character = this->line_[i];
+
+            if (character == '%')
+            {
+                std::string code = this->line_.substr(i + 1, 2);
+                character = parse_hex(code);
+                i += 2;
+            }
+
+            new_line.push_back(character);
+            i++;
+        }
+        this->line_ = new_line;
+    }
 
 }
