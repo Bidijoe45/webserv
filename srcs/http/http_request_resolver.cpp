@@ -215,7 +215,7 @@ namespace ws
 		else
 		{
 			this->location_ = this->resolve_location();
-			this->file_path_ = compress_slash(this->location_.root + this->request_.uri.path);
+			this->file_path_ = this->location_.root + this->request_.uri.path;
 			this->apply_method();
 		}
 

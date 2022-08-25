@@ -12,7 +12,6 @@ namespace ws
 {
     HttpUriParser::HttpUriParser(const std::string &uri) : line_(uri), line_pos_(0), error_(HTTP_URI_VALID)
     {
-        this->decode();
     }
 
     void HttpUriParser::parse_scheme()
@@ -65,6 +64,8 @@ namespace ws
             this->uri_.path = this->line_.substr(this->line_pos_);
         else
             this->uri_.path = this->line_.substr(this->line_pos_, question_mark_pos - this->line_pos_);
+        this->uri_.path = compress_slash(this->uri_.path);
+        this->uri_.path = decode(this->uri_.path);
         this->line_pos_ += this->uri_.path.size();
 
         if (question_mark_pos != std::string::npos)
@@ -90,7 +91,7 @@ namespace ws
         for (; it != ite; it++)
         {
             key_value = string_split(*it, "=");
-            this->uri_.params.insert(std::make_pair(key_value[0], key_value[1]));
+            this->uri_.params.insert(std::make_pair(decode(key_value[0]), decode(key_value[1])));
         }
     }
 
@@ -99,10 +100,8 @@ namespace ws
         try
         {
             this->parse_scheme();
-
             if (this->uri_.is_absolute)
                 this->parse_host();
-
             this->parse_path();
         }
         catch (std::runtime_error &e)
@@ -132,18 +131,18 @@ namespace ws
         return ret;
     }
 
-    void HttpUriParser::decode()
+    std::string HttpUriParser::decode(const std::string &str)
     {
         std::string new_line;
         size_t i = 0;
 
-        while (i < this->line_.size())
+        while (i < str.size())
         {
-            char character = this->line_[i];
+            char character = str[i];
 
             if (character == '%')
             {
-                std::string code = this->line_.substr(i + 1, 2);
+                std::string code = str.substr(i + 1, 2);
                 character = parse_hex(code);
                 i += 2;
             }
@@ -151,7 +150,8 @@ namespace ws
             new_line.push_back(character);
             i++;
         }
-        this->line_ = new_line;
+
+        return new_line;
     }
 
 }
