@@ -36,4 +36,6 @@
 webserv
 webserv_test
 build
+*.swp
 .DS_Store
+server.conf
