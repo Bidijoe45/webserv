@@ -96,6 +96,21 @@ namespace ws
 		return 0;
 	}
 
+	void Server::listen_all()
+	{
+		std::vector<int>::iterator it = this->ports_.begin();
+		std::vector<int>::iterator ite = this->ports_.end();
+
+		for (; it != ite; it++)
+			this->listen_on(*it);
+
+		it = this->ports_.begin();
+		std::cout << "Server listening on:";
+		for (; it != ite; it++)
+			std::cout << " " << *it;
+		std::cout << std::endl;
+	}
+
 	std::vector<ServerSocket>::iterator Server::get_server_socket(int socket)
 	{
 		std::vector<ServerSocket>::iterator it = this->server_sockets_.begin();
@@ -217,6 +232,17 @@ namespace ws
 		this->poll_.erase(this->poll_.end() - 1);
 	}
 
+	void Server::set_ports_from_settings()
+	{
+		std::vector<ServerSettings>::iterator it = this->settings_.servers.begin();
+		std::vector<ServerSettings>::iterator ite = this->settings_.servers.end();
+		
+		for(; it != ite; it++)
+		{
+			this->ports_.push_back((*it).port);
+		}
+	}
+
 	void Server::run() {
 		running = true;
 		SettingsParser settings_parser("./server.conf");
@@ -227,19 +253,8 @@ namespace ws
 			std::cout << "server config file invalid: " << settings_parser.get_error_msg() << std::endl;
 			return;
 		}
-
-		std::vector<int> ports;
-		ports.push_back(3000);
-		ports.push_back(3001);
-
-		std::vector<int>::iterator it = ports.begin();
-		std::vector<int>::iterator ite = ports.end();
-		for (; it != ite; it++)
-		{
-			this->listen_on(*it);
-		}
-
-		std::cout << "Server listening on " << "X" << std::endl;
+		this->set_ports_from_settings();
+		this->listen_all();
 
 		this->poll_connections();
 	}

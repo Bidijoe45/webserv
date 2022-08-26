@@ -28,10 +28,12 @@ namespace ws
 
 		private:
 			int listen_on(int port);
+			void listen_all();
 			void set_server_sockets_to_poll();
 			void delete_connection(const Connection &connection);
 			void delete_from_poll(size_t index);
 			std::vector<ServerSocket>::iterator get_server_socket(int socket);
+			void set_ports_from_settings();
 			
 			std::map<int, Connection> connections_;
 			std::vector<ServerSocket> server_sockets_;
