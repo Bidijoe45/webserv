@@ -36,5 +36,6 @@
 webserv
 webserv_test
 build
+server.conf
 .DS_Store
 server.conf
