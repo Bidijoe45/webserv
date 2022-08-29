@@ -5,6 +5,7 @@
 #include "../settings.hpp"
 #include "../lexer/settings_lexer.hpp"
 #include "../lexer/token.hpp"
+#include "../cgi_settings.hpp"
 
 namespace ws {
 
@@ -267,6 +268,10 @@ namespace ws {
 				this->advance();
 				location.rewrites.push_back(this->resolve_rewrite_element());
 				this->check_semicolon();
+			} else if (this->current_token_.type == TT_CGI) {
+				this->advance();
+				location.cgis.push_back(this->resolve_cgi_element());
+				this->check_semicolon();
 			}
 			else {
 				throw std::runtime_error(std::string("Invalid location block element"));
@@ -277,6 +282,27 @@ namespace ws {
 		this->check_right_bracket();
 
 		return location;
+	}
+
+	CGISettings SettingsParser::resolve_cgi_element()
+	{
+		CGISettings cgi_settings;
+
+		if (this->current_token_.type != TT_VALUE)
+			throw std::runtime_error(std::string("Missing CGI extension"));
+
+		cgi_settings.extension = this->current_token_.value;
+
+		this->advance();
+		
+		if (this->current_token_.type != TT_VALUE)
+			throw std::runtime_error(std::string("Missing CGI executable"));
+
+		cgi_settings.executable = this->current_token_.value;
+
+		this->advance();
+
+		return cgi_settings;
 	}
 
 	ServerSettings SettingsParser::resolve_server_block() {
