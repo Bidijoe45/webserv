@@ -6,6 +6,7 @@
 
 #include "../settings.hpp"
 #include "../lexer/token.hpp"
+#include "../cgi_settings.hpp"
 
 namespace ws {
 
@@ -33,6 +34,7 @@ class SettingsParser {
 		size_t resolve_client_max_body_size();
 		ErrorPage resolve_error_page();
 		Location resolve_location_block();
+		CGISettings resolve_cgi_element();
 		void advance();
 		void back();
 

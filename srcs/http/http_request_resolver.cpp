@@ -1,15 +1,17 @@
 #include <fstream>
 #include <iostream>
+#include <string>
+#include <vector>
 
 #include "../utils/string_utils.hpp"
 #include "http_request_resolver.hpp"
 #include "http_request.hpp"
 #include "http_response.hpp"
 #include "http_uri.hpp"
-#include "error_page.hpp"
-#include "server_settings.hpp"
+#include "../settings/error_page.hpp"
+#include "../settings/server_settings.hpp"
 #include "../server/file_system.hpp"
-#include "http_headers.hpp"
+#include "headers/http_headers.hpp"
 
 namespace ws
 {
@@ -215,6 +217,12 @@ namespace ws
 		else
 		{
 			this->location_ = this->resolve_location();
+			for (size_t i=0; i < location_.cgis.size(); i++)
+			{
+                std::cout << "CGI-- " << std::endl;
+                std::cout << "extension: "<< this->location_.cgis[i].extension << std::endl;
+                std::cout << "executable: "<< this->location_.cgis[i].executable << std::endl;
+			}
 			this->file_path_ = this->location_.root + this->request_.uri.path;
 			this->apply_method();
 		}
