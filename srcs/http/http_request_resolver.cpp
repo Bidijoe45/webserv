@@ -16,10 +16,11 @@
 namespace ws
 {
 
-    HttpRequestResolver::HttpRequestResolver(const HttpRequest &request, const ServerSettings &settings)
+    HttpRequestResolver::HttpRequestResolver(const HttpRequest &request, const ServerSettings &settings, const EnvMap &env)
     {
         this->request_ = request;
         this->settings_ = settings;
+		this->env_ = env;
     }
 
     Location HttpRequestResolver::resolve_location()
@@ -217,13 +218,9 @@ namespace ws
 		else
 		{
 			this->location_ = this->resolve_location();
-			for (size_t i=0; i < location_.cgis.size(); i++)
-			{
-                std::cout << "CGI-- " << std::endl;
-                std::cout << "extension: "<< this->location_.cgis[i].extension << std::endl;
-                std::cout << "executable: "<< this->location_.cgis[i].executable << std::endl;
-			}
 			this->file_path_ = this->location_.root + this->request_.uri.path;
+			//if (this->location.cgis.size != 0)
+				//call cgi
 			this->apply_method();
 		}
 
