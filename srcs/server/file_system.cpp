@@ -83,6 +83,8 @@ namespace ws
                 dir_files.push_back(std::string(dir_file->d_name));
         }
 
+        closedir(dir_fd);
+
         return dir_files;
     }
 }
