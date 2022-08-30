@@ -5,6 +5,7 @@
 #include "../settings/settings.hpp"
 #include "../settings/location.hpp"
 #include "../server/file_system.hpp"
+#include "env_map.hpp"
 
 namespace ws
 {
@@ -12,7 +13,7 @@ namespace ws
     class HttpRequestResolver
     {
         public: 
-            HttpRequestResolver(const HttpRequest &request, const ServerSettings &settings);
+            HttpRequestResolver(const HttpRequest &request, const ServerSettings &settings, const EnvMap &env);
             HttpResponse resolve();
 
         private:
@@ -32,6 +33,7 @@ namespace ws
             ServerSettings settings_;
 			Location location_;
 			std::string file_path_;
+			EnvMap env_;
     };
     
 }
