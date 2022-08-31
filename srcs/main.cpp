@@ -26,7 +26,7 @@ int main(int argc, char **argv, char **env) {
 
 	server.set_env(env);
 	
-	atexit(&atExit);
+//	atexit(&atExit);
 	memset (&act, 0, sizeof(act));
 	act.sa_sigaction = &close_handler;
 	act.sa_flags = SA_SIGINFO;
