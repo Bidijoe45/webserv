@@ -34,6 +34,26 @@ namespace ws
 		}
 	}
 
+	char **EnvMap::get_double_pointer()
+	{
+		size_t map_size = this->env_.size();
+		char **envp = new char *[map_size + 1];
+		
+		const_iterator it = this->env_.begin();
+		const_iterator ite = this->env_.end();
+		size_t i = 0;
+		while (it != ite)
+		{
+			char *var = new char[it->second.size() + 1];
+			std::strcpy(var, it->second.c_str());
+			envp[i] = var;
+			i++;	
+			it++;
+		}	
+		envp[i] = NULL;
+		return envp;
+	}
+
 	EnvMap::iterator EnvMap::begin()
 	{
 		return this->env_.begin();

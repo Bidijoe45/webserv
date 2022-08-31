@@ -8,4 +8,6 @@ namespace ws
         std::string extension;
         std::string executable;
     };
+
+	bool operator==(const CGISettings &lhs, const CGISettings &rhs);
 }

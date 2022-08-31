@@ -12,6 +12,9 @@
 #include "../settings/server_settings.hpp"
 #include "../server/file_system.hpp"
 #include "headers/http_headers.hpp"
+#include "cgi_settings.hpp"
+#include "cgi.hpp"
+#include "env_map.hpp"
 
 namespace ws
 {
@@ -39,7 +42,10 @@ namespace ws
         {
             int score = request_.uri.path.compare((*location_it).path);
             if (score >= last_score)
+			{
                 location = *location_it;
+				last_score = score;
+			}
         }
 
         return location;
@@ -206,6 +212,23 @@ namespace ws
 		content_length_header->set_value(this->response_.body.size());
 		this->response_.headers.insert(content_length_header);
 	}
+	
+	std::string HttpRequestResolver::resolve_cgi_executable()
+	{
+		if (this->location_.cgis.size() == 0)
+			return "";
+		size_t dot_pos = this->file_path_.find_last_of('.');
+		std::string file_extension = this->file_path_.substr(dot_pos);
+		std::vector<CGISettings>::iterator it = this->location_.cgis.begin();
+		std::vector<CGISettings>::iterator ite = this->location_.cgis.end();
+		while (it != ite)
+		{
+			if (it->extension == file_extension)
+				return it->executable;
+			it++;
+		}
+		return "";
+	}
 
     HttpResponse HttpRequestResolver::resolve()
     {
@@ -217,11 +240,22 @@ namespace ws
 		}
 		else
 		{
-			this->location_ = this->resolve_location();
+			this->location_ = this->resolve_location();	
+			std::cout << "LOCATION PATH: " << this->location_.path << std::endl;
+			std::cout << "LOCATION CGIS SIZE: " << this->location_.cgis.size() <<std::endl;
+			std::cout << "LOCATION CGIS[0] EXEC: " << this->location_.cgis[0].executable <<std::endl;
+
 			this->file_path_ = this->location_.root + this->request_.uri.path;
-			//if (this->location.cgis.size != 0)
-				//call cgi
-			this->apply_method();
+			this->cgi_.set_executable(this->resolve_cgi_executable());
+			
+			if (this->cgi_.get_executable() != "")
+			{
+				this->cgi_.set_env(this->env_, this->file_path_, this->request_);
+				this->cgi_.execute(this->file_path_);
+				this->response_.status_code = 200; //setear en execute o donde haga falta
+			}
+			else
+				this->apply_method();
 		}
 
 		this->response_.status_msg = this->resolve_status_code();

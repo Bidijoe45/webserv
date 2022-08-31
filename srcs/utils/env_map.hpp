@@ -15,6 +15,7 @@ namespace ws
 			EnvMap();
 			EnvMap(char **env);
 			void set_from(char **env);
+			char **get_double_pointer();
 			iterator begin();
 			const_iterator begin() const;
 			iterator end();
