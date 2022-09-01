@@ -6,10 +6,11 @@
 #include "http_request.hpp"
 #include "http_response.hpp"
 #include "http_uri.hpp"
-#include "error_page.hpp"
-#include "server_settings.hpp"
+#include "../settings/error_page.hpp"
+#include "../settings/server_settings.hpp"
 #include "../server/file_system.hpp"
-#include "http_headers.hpp"
+#include "./headers/http_headers.hpp"
+#include "location_resolver.hpp"
 
 namespace ws
 {
@@ -18,28 +19,6 @@ namespace ws
     {
         this->request_ = request;
         this->settings_ = settings;
-    }
-
-    Location HttpRequestResolver::resolve_location()
-    {
-        Location location;
-        int last_score;
-        HttpUri request_uri = this->request_.uri;
-        ServerSettings::locations_cit location_it = this->settings_.locations.begin(); 
-        ServerSettings::locations_cit location_ite = this->settings_.locations.end(); 
-
-        location = *location_it;
-        last_score = request_.uri.path.compare((*location_it).path);
-        location_it++;
-
-        for (; location_it != location_ite; location_it++)
-        {
-            int score = request_.uri.path.compare((*location_it).path);
-            if (score >= last_score)
-                location = *location_it;
-        }
-
-        return location;
     }
 
 	std::string HttpRequestResolver::resolve_status_code()
@@ -91,10 +70,14 @@ namespace ws
 
 		if (file.is_dir())
 		{
+            std::cout << "XX: " << this->location_.autoindex << std::endl;
 		    if (this->location_.autoindex == true)
 		        this->response_.body = this->generate_autoindex(file);
 		    else
+		    {
 		        this->response_.status_code = 403;
+		        return ;
+		    }
 		}
 		else
 		    this->response_.body = file.get_content();
@@ -138,6 +121,9 @@ namespace ws
         for (size_t i=0; i < dir_files.size(); i++)
         {
             autoindex_html.append("<a href=\"");
+            autoindex_html.append(this->request_.uri.path);
+            if (this->request_.uri.path.back() != '/')
+                autoindex_html.append("/");
             autoindex_html.append(dir_files[i]);
             autoindex_html.append("\">");
             autoindex_html.append(dir_files[i]);
@@ -214,9 +200,22 @@ namespace ws
 		}
 		else
 		{
-			this->location_ = this->resolve_location();
-			this->file_path_ = this->location_.root + this->request_.uri.path;
-			this->apply_method();
+			LocationResolver location_resolver = LocationResolver(this->settings_.locations);
+            std::string uri_path = this->request_.uri.path;
+			this->location_ = location_resolver.resolve(this->request_.uri);
+
+            if (this->location_.path.size() == 0)
+            {
+                this->response_.status_code = 404;
+            }
+            else
+            {
+                std::string new_uri_path; 
+                if (uri_path.compare(0, this->location_.path.size(), this->location_.path) == 0)
+                    new_uri_path = this->request_.uri.path.substr(this->location_.path.size());
+			    this->file_path_ = this->location_.root + new_uri_path;
+			    this->apply_method();
+            }
 		}
 
 		this->response_.status_msg = this->resolve_status_code();
@@ -227,4 +226,4 @@ namespace ws
         return this->response_;
     }
     
-}
+    }
