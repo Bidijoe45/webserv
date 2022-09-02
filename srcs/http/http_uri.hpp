@@ -14,6 +14,7 @@ namespace ws
         std::string host;
         size_t port;
         std::string path;
+        std::string query;
         std::map<std::string, std::string> params;
         bool is_absolute;
     };

@@ -3,7 +3,7 @@
 #include <iostream>
 
 #include "location_resolver.hpp"
-#include "string_utils.hpp"
+#include "../utils/string_utils.hpp"
 #include "../http/http_uri.hpp"
 #include "../settings/location.hpp"
 
@@ -25,9 +25,6 @@ namespace ws
 
     Location LocationResolver::resolve(const HttpUri &uri)
     {
-
-        std::cout << this->locations_.size() << std::endl;
-        
         std::vector<std::string> split_uri_path = string_split(uri.path, "/");
         Location location;
         size_t location_i = 0;

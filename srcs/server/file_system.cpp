@@ -23,8 +23,6 @@ namespace ws
     {
         this->path_ = file_path;
 
-        std::cout << this->path_ << std::endl;
-
         if (lstat(this->path_.c_str(), &this->stat_) != 0)
             return;
 

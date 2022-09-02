@@ -59,7 +59,6 @@ namespace ws
 
 	void HttpRequestResolver::apply_get_method()
 	{
-		std::cout << "File path: " << this->file_path_ << std::endl;
 		FileSystem file(this->file_path_);
 
 		if (!file.is_valid())
@@ -70,7 +69,6 @@ namespace ws
 
 		if (file.is_dir())
 		{
-            std::cout << "XX: " << this->location_.autoindex << std::endl;
 		    if (this->location_.autoindex == true)
 		        this->response_.body = this->generate_autoindex(file);
 		    else
