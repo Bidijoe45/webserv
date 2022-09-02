@@ -14,6 +14,7 @@ namespace ws
             FileSystem(const std::string &file_path);
             ~FileSystem();
             void open(const std::string &file_path);
+            void close();
             bool is_valid() const;
             bool is_open() const;
             bool is_dir() const;
