@@ -16,7 +16,6 @@ namespace ws
             HttpResponse resolve();
 
         private:
-            Location resolve_location();
 			std::string resolve_status_code();
 			void apply_method();
 			void apply_get_method();

@@ -83,6 +83,7 @@ namespace ws
 
         this->line_pos_ += 1;
         str = this->line_.substr(this->line_pos_);
+        this->uri_.query = str;
         tokens = ws::string_split(str, "&");
 
         it = tokens.begin();
