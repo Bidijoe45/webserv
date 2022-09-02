@@ -60,7 +60,7 @@ namespace ws
 	void HttpRequestResolver::apply_get_method()
 	{
 		FileSystem file(this->file_path_);
-
+        
 		if (!file.is_valid())
 		{
 			this->response_.status_code = 404;
@@ -69,8 +69,21 @@ namespace ws
 
 		if (file.is_dir())
 		{
-		    if (this->location_.autoindex == true)
+		    if (this->location_.index.size() > 0)
+		    {
+		        this->file_path_ = this->file_path_ + this->location_.index;
+		        FileSystem new_file(this->file_path_);
+		        if (!new_file.is_valid())
+		        {
+			        this->response_.status_code = 404; //Deberia devolver 404 o 403?
+			        return;
+		        }
+		        this->response_.body = new_file.get_content();
+		    }
+		    else if (this->location_.autoindex == true)
+		    {
 		        this->response_.body = this->generate_autoindex(file);
+		    }
 		    else
 		    {
 		        this->response_.status_code = 403;

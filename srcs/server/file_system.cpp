@@ -37,6 +37,12 @@ namespace ws
         this->is_valid_ = true;
     }
 
+    void FileSystem::close()
+    {
+        if (this->is_open())
+            this->file_.close();
+    }
+
     bool FileSystem::is_open() const
     {
         return this->file_.is_open();
