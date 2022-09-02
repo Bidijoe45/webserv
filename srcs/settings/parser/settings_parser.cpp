@@ -5,6 +5,7 @@
 #include "../settings.hpp"
 #include "../lexer/settings_lexer.hpp"
 #include "../lexer/token.hpp"
+#include "../../../tester/settings_lexer/tests/lexer_tests_utils.hpp"
 
 namespace ws {
 
@@ -168,9 +169,9 @@ namespace ws {
 		if (this->current_token_.type != TT_VALUE 
 			&& (this->current_token_.value != "on" || this->current_token_.value != "off"))
 		{
-			throw std::runtime_error(std::string("Invalid index arggument"));
+			throw std::runtime_error(std::string("Invalid autoindex argument"));
 		}
-		
+
 		if (this->current_token_.value == "on")
 			autoindex_value = true;
 
