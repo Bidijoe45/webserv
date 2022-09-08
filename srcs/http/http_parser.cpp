@@ -200,6 +200,11 @@ namespace ws
 		}
 	}
 
+	void HttpParser::parse_body()
+	{
+		this->request_.body = this->buff_.flush(this->buff_.size());
+	}
+
 	HttpRequest HttpParser::parse()
 	{
 		this->valid_request_ = true;
@@ -207,8 +212,7 @@ namespace ws
 		{
 			this->parse_first_line();
 			this->parse_headers();
-			// utilizar los datos parseados para determinar si se espera un body o no
-			//this->parse_body();
+			this->parse_body();
 		}
 		catch(const std::runtime_error& e)
 		{
