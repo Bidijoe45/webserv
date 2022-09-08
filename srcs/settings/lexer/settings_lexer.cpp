@@ -99,6 +99,8 @@ namespace ws
 			return Token(TT_AUTOINDEX);
 		} else if (value == "listen") {
 			return Token(TT_LISTEN);
+		} else if (value == "upload") {
+			return Token(TT_UPLOAD);
 		} 
 
 		return Token(TT_VALUE, value);

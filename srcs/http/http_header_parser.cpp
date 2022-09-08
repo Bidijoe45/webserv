@@ -1,5 +1,6 @@
 #include "http_header_parser.hpp"
 #include "http_header.hpp"
+#include <iostream>
 
 namespace ws
 {

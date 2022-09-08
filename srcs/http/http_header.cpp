@@ -1,5 +1,5 @@
 #include "http_header.hpp"
-#include "http_headers.hpp"
+#include "headers/http_headers.hpp"
 
 namespace ws
 {
@@ -17,6 +17,8 @@ namespace ws
 			return HTTP_HEADER_ACCEPT;
 		else if (name == "content-length")
 			return HTTP_HEADER_CONTENT_LENGTH;
+		else if (name == "content-disposition")
+			return HTTP_HEADER_CONTENT_DISPOSITION;
 		else
 			return HTTP_HEADER_UNKNOWN;
 	}
@@ -31,6 +33,8 @@ namespace ws
 				return "host";
 			case HTTP_HEADER_CONTENT_LENGTH:
 				return "content-length";
+			case HTTP_HEADER_CONTENT_DISPOSITION:
+				return "content-disposition";
 			default:
 				return "unknown";
 		}
@@ -46,6 +50,8 @@ namespace ws
 				return new HttpHeaderHost(*static_cast<const HttpHeaderHost*>(header));
 			case HTTP_HEADER_CONTENT_LENGTH:
 				return new HttpHeaderContentLength(*static_cast<const HttpHeaderContentLength*>(header));
+			case HTTP_HEADER_CONTENT_DISPOSITION:
+				return new HttpHeaderContentDisposition(*static_cast<const HttpHeaderContentDisposition*>(header));
 			default:
 				return new HttpHeaderUnknown(*static_cast<const HttpHeaderUnknown*>(header));
 		}
@@ -61,6 +67,8 @@ namespace ws
 				return new HttpHeaderHost();
 			case HTTP_HEADER_CONTENT_LENGTH:
 				return new HttpHeaderContentLength();
+			case HTTP_HEADER_CONTENT_DISPOSITION:
+				return new HttpHeaderContentDisposition();
 			default:
 				return new HttpHeaderUnknown();
 		}

@@ -47,6 +47,21 @@ namespace ws
 			void parse_value();
 	};
 
+	struct HttpHeaderContentDisposition : public HttpHeaderSingleton
+	{
+		HttpHeaderContentDisposition();
+		~HttpHeaderContentDisposition();
+		HttpHeaderContentDisposition(const HttpHeaderContentDisposition&src);
+		void set_value(const std::string &value);
+
+		std::string type;
+		std::string name;
+		std::string filename;
+
+		private:
+			void parse_value();
+	};
+
 	struct HttpHeaderUnknown : public HttpHeaderSingleton
 	{
 		HttpHeaderUnknown();

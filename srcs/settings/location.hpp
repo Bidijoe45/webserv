@@ -16,6 +16,7 @@ struct Location {
     std::vector<HTTP_METHOD> methods;
     std::vector<Rewrite> rewrites;
 	bool autoindex;
+    std::string upload_dir;
 };
 
 bool operator==(const Location &lhs, const Location &rhs);

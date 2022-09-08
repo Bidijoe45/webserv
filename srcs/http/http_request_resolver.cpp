@@ -104,6 +104,11 @@ namespace ws
 
 	void HttpRequestResolver::apply_post_method()
 	{
+	    if (this->location_.upload_dir.size() == 0)
+	    {
+	        this->response_.status_code = 403;
+	        return;
+	    }
 
 	}
 
