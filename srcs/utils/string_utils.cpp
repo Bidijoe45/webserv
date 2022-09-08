@@ -82,4 +82,14 @@ namespace ws
 
 		return str;
 	}
+
+	std::string ul_to_string(const unsigned long int n)
+	{
+		std::ostringstream s;
+		s << n;
+		std::string str = s.str();
+
+		return str;
+	}
+	
 }
