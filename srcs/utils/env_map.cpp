@@ -44,8 +44,9 @@ namespace ws
 		size_t i = 0;
 		while (it != ite)
 		{
-			char *var = new char[it->second.size() + 1];
-			std::strcpy(var, it->second.c_str());
+			std::string var_line = it->first + '=' + it->second;
+			char *var = new char[it->first.size() + it->second.size() + 2];
+			std::strcpy(var, var_line.c_str());
 			envp[i] = var;
 			i++;	
 			it++;

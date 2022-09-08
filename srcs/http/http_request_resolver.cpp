@@ -63,6 +63,8 @@ namespace ws
 				return "NOT FOUND";
 			case 403:
 				return "FORBIDDEN";
+			case 500:
+				return "INTERNAL SERVER ERROR";
 			default:
 				return "";
 		}
@@ -178,13 +180,13 @@ namespace ws
 	std::string HttpRequestResolver::create_default_error_page()
 	{
 		std::string error_page;
-		std::string error = int_to_string(this->response_.status_code) + " " + this->response_.status_msg;
+		std::string error = ul_to_string(this->response_.status_code) + " " + this->response_.status_msg;
 
 		error_page.append("<!DOCTYPE html><html lang=\"en\"><head><title>");
 		error_page.append(error);
 		error_page.append("</title></head><body><h1>");
 		error_page.append(error);
-		error_page.append("</h1><p>Oops!</p><img src=\"https://http.cat/" + int_to_string(this->response_.status_code) + "\"></body></html>");
+		error_page.append("</h1><p>Oops!</p><img src=\"https://http.cat/" + ul_to_string(this->response_.status_code) + "\"></body></html>");
 
 		return error_page;
 	}
@@ -251,8 +253,9 @@ namespace ws
 			if (this->cgi_.get_executable() != "")
 			{
 				this->cgi_.set_env(this->env_, this->file_path_, this->request_);
-				this->cgi_.execute(this->file_path_);
-				this->response_.status_code = 200; //setear en execute o donde haga falta
+				this->response_.status_code = this->cgi_.execute(this->file_path_);
+				this->response_.headers = this->cgi_.parse_cgi_headers();
+//				this->response_.body = this->cgi_.parse_cgi_body();
 			}
 			else
 				this->apply_method();
