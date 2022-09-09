@@ -23,6 +23,7 @@ namespace ws
 			void parse_first_line();
 			void parse_headers();
 			void parse_body();
+			void parse_multipart(const std::string &boundary);
 			void advance(size_t n);
 			void skipOWS();
 			std::string get_header_name();
