@@ -2,9 +2,22 @@
 
 namespace ws
 {
-	HttpRequest::HttpRequest() : error(HTTP_REQUEST_NO_ERROR) {}
+	HttpRequest::HttpRequest() : error(HTTP_REQUEST_NO_ERROR), body(NULL) {}
 
-	HttpRequest::~HttpRequest() {}
+	HttpRequest::HttpRequest(const HttpRequest &request)
+	{
+		if (this->body != NULL)
+		{
+			if (this->body_type == HTTP_SIMPLE_BODY)
+				this->body = new HttpBody(request.body);
+
+		}
+	}
+
+	HttpRequest::~HttpRequest() {
+		if (body != NULL)
+			delete body;
+	}
 
 	bool HttpRequest::is_valid()
 	{

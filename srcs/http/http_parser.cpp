@@ -13,6 +13,9 @@
 #include "http_header.hpp"
 #include "http_header_parser.hpp"
 #include "http_header_map.hpp"
+#include "headers/http_headers.hpp"
+#include "http_body.hpp"
+#include "http_multipart_body_parser.hpp"
 
 namespace ws
 {
@@ -199,10 +202,45 @@ namespace ws
 			this->line_ = this->get_next_line();
 		}
 	}
+	
+	void HttpParser::parse_multipart(const std::string &boundary)
+	{
+		std::string body = this->buff_.flush(this->buff_.size());
+		std::vector<std::string> splitted_boundary = string_split(body, "--" + boundary);
+		std::vector<std::string>::iterator it = splitted_boundary.begin();
+		std::vector<std::string>::iterator ite = splitted_boundary.end();
+
+		std::cout << "Boundary: " << boundary << std::endl;
+
+		while (it != ite)
+		{
+			std::cout << *it << std::endl;
+	 		it++;
+		}
+	}
 
 	void HttpParser::parse_body()
 	{
-		this->request_.body = this->buff_.flush(this->buff_.size());
+		HttpHeaderMap::const_iterator it = this->request_.headers.find("content-type");
+		HttpHeaderContentType *content_type;
+		
+		if (it == this->request_.headers.end())
+		{
+			this->request_.body = new HttpBody(this->buff_.flush(this->buff_.size()));
+			return ;
+		}
+
+		if (!(content_type = dynamic_cast<HttpHeaderContentType *>(it->second)))
+			throw std::runtime_error("Invalid Content-Type Header cast");
+
+		if (content_type->type == "multipart/form-data")
+		{
+			std::map<std::string, std::string>::iterator boundary = content_type->parameters.find("boundary");
+			if (boundary == content_type->parameters.end())
+				throw std::runtime_error("Missing boundary paremeter in content-type");
+			HttpMultipartBodyParser multipart_parser(this->buff_.flush(this->buff_.size()), boundary->second);
+			this->request_.body = multipart_parser.parse();
+		}
 	}
 
 	HttpRequest HttpParser::parse()
