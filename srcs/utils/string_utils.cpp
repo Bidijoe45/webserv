@@ -87,13 +87,12 @@ namespace ws
 	{
 		std::string new_string;
 		size_t left_delim = str.find_first_not_of(delim);
+		size_t right_delim = str.find_last_not_of(delim);
 
 		if (left_delim != std::string::npos)
 			new_string = str.substr(left_delim);
 		else
 			new_string = str;
-
-		size_t right_delim = new_string.find_last_not_of(delim);
 		if (right_delim != std::string::npos)
 			new_string = new_string.substr(0, right_delim + 1);
 

@@ -7,7 +7,6 @@
 #include "http_uri.hpp"
 #include "http_header.hpp"
 #include "http_header_map.hpp"
-#include "http_body.hpp"
 
 namespace ws
 {
@@ -34,7 +33,6 @@ struct HttpRequest {
 		typedef std::map<std::string, HttpHeader*>::iterator headers_iterator;
 
 		HttpRequest();
-		HttpRequest(const HttpRequest &request);
 		~HttpRequest();
 		bool is_valid();
 
@@ -42,8 +40,7 @@ struct HttpRequest {
 		HttpUri uri;
 		std::string http_version;
 		HttpHeaderMap headers;
-		HttpBodyType body_type;
-		HttpBody *body;
+		std::string body;
 		HTTP_REQUEST_ERROR error;
 };
 

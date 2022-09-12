@@ -33,16 +33,13 @@ namespace ws
 		}
 
 		if (splitted_header.size() > 0)
-		{
-			std::cout << splitted_header[0] << std::endl;
 			this->type = splitted_header[0];
-		}
 
 		it = splitted_header.begin() + 1;
 		while (it != ite)
 		{
 			splitted_param = string_split(*it, "=");
-			std::string key = *(splitted_param.begin());
+			std::string key = *splitted_param.begin();
 			std::string value = string_trim(*(splitted_param.end() - 1), "\"");
 			this->parameters.insert(std::make_pair(key, value));
 			it++;

@@ -40,4 +40,3 @@ int main() {
 
 	std::cout << "FIN del programa" << std::endl;
 }
-
