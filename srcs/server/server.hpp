@@ -7,6 +7,7 @@
 #include "connection.hpp"
 #include "../settings/settings.hpp"
 #include "server_socket.hpp"
+#include "env_map.hpp"
 
 namespace ws
 {
@@ -24,6 +25,8 @@ namespace ws
 			void poll_connections();
 			void on_new_request(Connection &connection);
 			void add_to_poll(Connection new_connection);
+			void set_env(char **env);
+
 			static bool running;
 
 		private:
@@ -40,7 +43,7 @@ namespace ws
 			std::vector<int> ports_;
 			std::vector<struct pollfd> poll_;
 			Settings settings_;
-
+			EnvMap env_; 
 
 	};
 

@@ -1,6 +1,6 @@
 #include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+#include <cstdlib>
+#include <string>
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/socket.h>
@@ -191,6 +191,9 @@ namespace ws
 
 	void Server::on_new_request(Connection &connection) {
 
+		EnvMap::iterator it = this->env_.begin();
+		EnvMap::iterator ite = this->env_.end();
+
 		std::cout << "-- Raw Message by client --" << std::endl;
 		std::fstream log_file("./log_file");
 		std::cout << connection.buff.data << std::endl;
@@ -203,7 +206,7 @@ namespace ws
 
 		ServerSettings server_settings = this->settings_.resolve_settings_hostname(http_request, connection.port);
 
-		HttpRequestResolver request_resolver(http_request, server_settings);
+		HttpRequestResolver request_resolver(http_request, server_settings, this->env_);
 		HttpResponse response = request_resolver.resolve();
 
 		connection.buff.append(response.to_string());
@@ -219,6 +222,11 @@ namespace ws
 		new_poll.events = POLLIN;
 
 		this->poll_.push_back(new_poll);
+	}
+	
+	void Server::set_env(char **env)
+	{
+		this->env_.set_from(env);
 	}
 
 	void Server::delete_connection(const Connection &connection)

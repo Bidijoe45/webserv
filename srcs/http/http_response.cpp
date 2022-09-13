@@ -12,7 +12,7 @@ namespace ws
 
         response.append(this->http_version);
         response.append(" ");
-        response.append(int_to_string(this->status_code));
+        response.append(ul_to_string(this->status_code));
         response.append(" ");
         response.append(this->status_msg);
         response.append("\r\n");
