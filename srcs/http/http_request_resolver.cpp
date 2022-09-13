@@ -1,5 +1,7 @@
 #include <fstream>
 #include <iostream>
+#include <string>
+#include <vector>
 
 #include "../utils/string_utils.hpp"
 #include "http_request_resolver.hpp"
@@ -11,14 +13,18 @@
 #include "../server/file_system.hpp"
 #include "./headers/http_headers.hpp"
 #include "location_resolver.hpp"
+#include "cgi_settings.hpp"
+#include "cgi.hpp"
+#include "env_map.hpp"
 
 namespace ws
 {
 
-    HttpRequestResolver::HttpRequestResolver(const HttpRequest &request, const ServerSettings &settings)
+    HttpRequestResolver::HttpRequestResolver(const HttpRequest &request, const ServerSettings &settings, const EnvMap &env)
     {
         this->request_ = request;
         this->settings_ = settings;
+		this->env_ = env;
     }
 
 	std::string HttpRequestResolver::resolve_status_code()
@@ -33,6 +39,8 @@ namespace ws
 				return "NOT FOUND";
 			case 403:
 				return "FORBIDDEN";
+			case 500:
+				return "INTERNAL SERVER ERROR";
 			default:
 				return "";
 		}
@@ -153,13 +161,13 @@ namespace ws
 	std::string HttpRequestResolver::create_default_error_page()
 	{
 		std::string error_page;
-		std::string error = int_to_string(this->response_.status_code) + " " + this->response_.status_msg;
+		std::string error = ul_to_string(this->response_.status_code) + " " + this->response_.status_msg;
 
 		error_page.append("<!DOCTYPE html><html lang=\"en\"><head><title>");
 		error_page.append(error);
 		error_page.append("</title></head><body><h1>");
 		error_page.append(error);
-		error_page.append("</h1><p>Oops!</p><img src=\"https://media2.giphy.com/media/C23cMUqoZdqMg/giphy.gif?cid=ecf05e47mrq894fkcolgk88zpywmc0gafc8631nzd474dt8m&rid=giphy.gif&ct=g\"></body></html>");
+		error_page.append("</h1><p>Oops!</p><img src=\"https://http.cat/" + ul_to_string(this->response_.status_code) + "\"></body></html>");
 
 		return error_page;
 	}
@@ -187,6 +195,23 @@ namespace ws
 		content_length_header->set_value(this->response_.body.size());
 		this->response_.headers.insert(content_length_header);
 	}
+	
+	std::string HttpRequestResolver::resolve_cgi_executable()
+	{
+		if (this->location_.cgis.size() == 0)
+			return "";
+		size_t dot_pos = this->file_path_.find_last_of('.');
+		std::string file_extension = this->file_path_.substr(dot_pos);
+		std::vector<CGISettings>::iterator it = this->location_.cgis.begin();
+		std::vector<CGISettings>::iterator ite = this->location_.cgis.end();
+		while (it != ite)
+		{
+			if (it->extension == file_extension)
+				return it->executable;
+			it++;
+		}
+		return "";
+	}
 
     HttpResponse HttpRequestResolver::resolve()
     {
@@ -212,7 +237,16 @@ namespace ws
                 if (uri_path.compare(0, this->location_.path.size(), this->location_.path) == 0)
                     new_uri_path = this->request_.uri.path.substr(this->location_.path.size());
 			    this->file_path_ = this->location_.root + new_uri_path;
-			    this->apply_method();
+				this->cgi_.set_executable(this->resolve_cgi_executable());
+				if (this->cgi_.get_executable() != "")
+				{
+					this->cgi_.set_env(this->env_, this->file_path_, this->request_);
+					this->response_.status_code = this->cgi_.execute(this->file_path_);
+					this->response_.headers = this->cgi_.parse_cgi_headers();
+//					this->response_.body = this->cgi_.parse_cgi_body();
+				}
+				else
+					this->apply_method();
             }
 		}
 
@@ -223,5 +257,5 @@ namespace ws
 
         return this->response_;
     }
-    
-    }
+
+}

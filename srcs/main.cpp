@@ -7,9 +7,7 @@
 #include "server/server.hpp"
 #include "server/connection.hpp"
 #include "server/data_buffer.hpp"
-
 #include "utils/string_utils.hpp"
-
 #include "server/file_system.hpp"
 
 void atExit() {
@@ -22,11 +20,13 @@ static void close_handler(int sig, siginfo_t *siginfo, void *context)
 	printf ("Sending PID: %ld, UID: %ld\n", (long)siginfo->si_pid, (long)siginfo->si_uid);
 }
 
-int main() {
+int main(int argc, char **argv, char **env) {
 	struct sigaction act;
 	ws::Server server;
 
-	atexit(&atExit);
+	server.set_env(env);
+	
+//	atexit(&atExit);
 	memset (&act, 0, sizeof(act));
 	act.sa_sigaction = &close_handler;
 	act.sa_flags = SA_SIGINFO;

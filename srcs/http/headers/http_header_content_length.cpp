@@ -32,7 +32,7 @@ namespace ws
 
 	void HttpHeaderContentLength::set_value(const size_t &value)
 	{
-		this->value = int_to_string(value);
+		this->value = ul_to_string(value);
 		this->content_length = value;
 	}
 

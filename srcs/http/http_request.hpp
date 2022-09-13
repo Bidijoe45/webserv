@@ -35,6 +35,7 @@ struct HttpRequest {
 		HttpRequest();
 		~HttpRequest();
 		bool is_valid();
+		std::string method_to_string() const;
 
 		HTTP_METHOD method;
 		HttpUri uri;
