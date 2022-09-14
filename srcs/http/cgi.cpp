@@ -1,6 +1,7 @@
 #include <vector>
-#include <unistd.h>
+//#include <unistd.h>
 #include <sstream>
+#include <signal.h>
 
 #include "http_request.hpp"
 #include "cgi_settings.hpp"
@@ -11,6 +12,7 @@
 #include "http_header.hpp"
 #include "http_header_map.hpp"
 #include "http_header_parser.hpp"
+#include "exec_utils.hpp"
 
 #include <iostream>
 
@@ -67,45 +69,19 @@ namespace ws
 		std::cout << "EXECUTING " << this->executable_<< " " << file_path << ".........." << std::endl;
 		char **envp = this->env_.get_double_pointer();
 
-		int fd[2];
-		if (pipe(fd) == -1)
-			return this->exit_with_error(500, envp);
-
-		pid_t pid = fork();
-		int status;
-		if (pid == 0)
+		try
 		{
-			close(fd[0]);
-			dup2(fd[1], 1);
-			close(fd[1]);
-			execle(this->executable_.c_str(), this->executable_.c_str(), file_path.c_str(), (char *) NULL, envp);
-			//return this->exit_with_error(500, envp);
-			std::cout << "FALLO EN EXECLE" << std::endl;
-			exit(1);
+			this->execution_output_ = exec_with_timeout(this->executable_.c_str(), file_path.c_str(), envp, 5, SIGKILL); 
+			this->delete_double_pointer(envp);
 		}
-		if (pid == -1)
-			return this->exit_with_error(500, envp);
-
-		close(fd[1]);
-		if (waitpid(pid, &status, 0) == -1)
-			return this->exit_with_error(500, envp);
-
-		this->delete_double_pointer(envp);
-
-		int old_stdin = dup(0);
-		dup2(fd[0], 0);
-		close(fd[0]);
-
-		char c;
-		while (std::cin.get(c))
-			execution_output_ += c;
-
-		dup2(old_stdin, 0);
-		close(old_stdin);
-
-		//system("lsof -c webserv");
+		catch (const std::runtime_error &e)
+		{
+			std::cout << e.what() << std::endl;
+			this->delete_double_pointer(envp);
+			return 500;
+		}
+		
 		std::cout << "CGI RESPONSE: " << execution_output_ << std::endl;
-
 		return 200;
     }
 
@@ -119,14 +95,6 @@ namespace ws
 		delete[] envp;
 	}
 
-	unsigned int CGI::exit_with_error(unsigned int code, char **envp = NULL)
-	{
-		if (envp)
-			delete_double_pointer(envp);
-
-		return code;
-	}	
-	
 	void CGI::set_executable(const std::string &executable)
 	{
 		this->executable_ = executable;
@@ -180,22 +148,13 @@ namespace ws
 		//if (this->execution_output_.size() == 0)
 		//	return "";
 		
-//		std::cout << "ASCII OUTPUT: " << std::endl;
-//		for (size_t i  = 0; this->execution_output_[i]; i++)
-//			std::cout << (int)this->execution_output_[i] << " ";
-//		std::cout << std::endl;
 		size_t pos_end_of_header_section = this->execution_output_.find("\r\n");
 		size_t pos0 = 0;
 		size_t pos1 = this->execution_output_.find('\n');
 
-//		std::cout << "end of headers: " << pos_end_of_header_section << std::endl;
 		while (pos1 != pos_end_of_header_section && pos1 != std::string::npos)
 		{
 			line = this->execution_output_.substr(pos0, pos1 - pos0);
-		//	std::cout << "ASCII LINE : ";
-		//	for(size_t i = 0; line[i] ; i++)
-		//		std::cout << (int)line[i] << " ";
-		//	std::cout << std::endl;
 			header_name = this->get_cgi_header_name(line);
 			if (header_name == "")
 			{
@@ -210,10 +169,6 @@ namespace ws
 			pos1 = this->execution_output_.find('\n', pos0);
 		}
 
-		HttpHeaderMap::iterator it = headers.begin();
-		std::cout << "CGI RESPONSE HEADERS" << std::endl;
-		for (; it != headers.end(); it++)
-			std::cout << "---name: " << it->first << ", type: " << HttpHeader::header_type_to_string(it->second->type) << "---"<< std::endl;  
 		return headers;
 	}
     
