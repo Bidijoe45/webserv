@@ -5,12 +5,13 @@
 #include <iostream>
 
 #include "exec_utils.hpp"
+#include "env_map.hpp"
 
 namespace ws
 {
-	Executer::Executer(const std::string &path, const std::string &arg, char **envp) : path_(path), arg_(arg)
+	Executer::Executer(const std::string &path, const std::string &arg, EnvMap env) : path_(path), arg_(arg)
 	{
-		this->envp_ = envp;
+		this->envp_ = env.get_double_pointer();
 		this->worker_pid_ = -1;
 		this->timer_pid_ = -1;
 	}
@@ -70,7 +71,7 @@ namespace ws
 		return output;
 	}
 
-	void Executer::kill_remaining_process(pid_t exited_pid, int kill_signal = SIGKILL)
+	void Executer::kill_remaining_process(pid_t exited_pid, int kill_signal)
 	{
 		if (exited_pid == worker_pid_)
 	        kill(timer_pid_, SIGKILL);
@@ -99,7 +100,7 @@ namespace ws
 		}
 	}
 
-	std::string Executer::exec_with_timeout(unsigned int timeout, int kill_signal = SIGKILL)
+	std::string Executer::exec_with_timeout(unsigned int timeout, int kill_signal)
 	{
 		int fd[2];
 		if (pipe(fd) == -1)
