@@ -240,9 +240,17 @@ namespace ws
 				this->cgi_.set_executable(this->resolve_cgi_executable());
 				if (this->cgi_.get_executable() != "")
 				{
+					std::cout << "LOCATION: " << this->location_.path << std::endl;
+					std::cout << "FILE PATH: " << this->file_path_ << std::endl;
 					this->cgi_.set_env(this->env_, this->file_path_, this->request_);
 					this->response_.status_code = this->cgi_.execute(this->file_path_);
 					this->response_.headers = this->cgi_.parse_cgi_headers();
+		
+					HttpHeaderMap::iterator it = this->response_.headers.begin();
+					std::cout << "CGI RESPONSE HEADERS" << std::endl;
+					for (; it != this->response_.headers.end(); it++)
+						std::cout << "---name: " << it->first << ", type: " << HttpHeader::header_type_to_string(it->second->type) << "---"<< std::endl;  
+		
 //					this->response_.body = this->cgi_.parse_cgi_body();
 				}
 				else
