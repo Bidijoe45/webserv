@@ -67,33 +67,22 @@ namespace ws
     unsigned int CGI::execute(const std::string &file_path)
     {
 		std::cout << "EXECUTING " << this->executable_<< " " << file_path << ".........." << std::endl;
-		char **envp = this->env_.get_double_pointer();
+
+		Executer cgi_executer(this->executable_, file_path, this->env_.get_double_pointer());
 
 		try
 		{
-			this->execution_output_ = exec_with_timeout(this->executable_.c_str(), file_path.c_str(), envp, 5, SIGKILL); 
-			this->delete_double_pointer(envp);
+			this->execution_output_ = cgi_executer.exec_with_timeout(5, SIGKILL); 
 		}
 		catch (const std::runtime_error &e)
 		{
 			std::cout << e.what() << std::endl;
-			this->delete_double_pointer(envp);
 			return 500;
 		}
 		
 		std::cout << "CGI RESPONSE: " << execution_output_ << std::endl;
 		return 200;
     }
-
-	void CGI::delete_double_pointer(char **envp)
-	{
-		if (!envp)
-			return;
-
-		for (size_t i = 0; envp[i] != NULL; i++)
-			delete[] envp[i];
-		delete[] envp;
-	}
 
 	void CGI::set_executable(const std::string &executable)
 	{
