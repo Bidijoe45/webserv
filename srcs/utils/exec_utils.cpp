@@ -8,24 +8,33 @@
 
 namespace ws
 {
-	enum EXEC_ERROR
+	Executer::Executer(const std::string &path, const std::string &arg, char **envp) : path_(path), arg_(arg)
 	{
-		NO_ERROR,
-		EXECLE_ERROR,
-		TIMEOUT_ERROR,
-		FORK_ERROR,
-		WAIT_ERROR,
-		OTHER_ERROR
-	};
+		this->envp_ = envp;
+		this->worker_pid_ = -1;
+		this->timer_pid_ = -1;
+	}
 
-	static pid_t fork_worker(int *fd, const char *path, const char *arg, char *const *const envp)
+	Executer::Executer() : path_(""), arg_("")
+	{
+		this->envp_ = NULL;
+		this->worker_pid_ = -1;
+		this->timer_pid_ = -1;
+	}
+
+	Executer::~Executer()
+	{
+		this->delete_double_pointer();
+	}
+
+	pid_t Executer::fork_worker(int *fd)
 	{
    		pid_t pid = fork();
 		if (pid == 0)
 		{
 			dup2(fd[1], 1);
 			close(fd[1]);
-			execle(path, path, arg, (char *) NULL, envp);
+			execle(this->path_.c_str(), this->path_.c_str(), this->arg_.c_str(), (char *) NULL, this->envp_);
             exit(1);
         }
 		if (pid == -1)
@@ -33,7 +42,7 @@ namespace ws
 		return pid;
 	}
 
-	static pid_t fork_timer(unsigned int timeout, pid_t worker_pid)
+	pid_t Executer::fork_timer(unsigned int timeout)
 	{
 		pid_t pid = fork();
    		if (pid == 0)
@@ -43,14 +52,14 @@ namespace ws
 		}
 		if (pid == -1)
 		{
-			if (waitpid(worker_pid, NULL, 0) == -1)
+			if (waitpid(this->worker_pid_, NULL, 0) == -1)
 				exit(4);
 			exit(3);
 		}
 		return pid;
 	}
 
-	static std::string get_exec_output()
+	std::string Executer::get_exec_output()
 	{
 		std::string	output;
 		char		c;
@@ -61,17 +70,17 @@ namespace ws
 		return output;
 	}
 
-	static void kill_remaining_process(pid_t exited_pid, pid_t worker_pid, pid_t timer_pid, int kill_signal = SIGKILL)
+	void Executer::kill_remaining_process(pid_t exited_pid, int kill_signal = SIGKILL)
 	{
-		if (exited_pid == worker_pid)
-	        kill(timer_pid, SIGKILL);
-		else if (exited_pid == timer_pid)
-	        kill(worker_pid, kill_signal);
+		if (exited_pid == worker_pid_)
+	        kill(timer_pid_, SIGKILL);
+		else if (exited_pid == timer_pid_)
+	        kill(worker_pid_, kill_signal);
 		else if (exited_pid == -1)
 			exit(4);
 	}
 
-	static std::string check_status_errors(int status)
+	std::string Executer::check_status_errors(int status)
 	{
 		switch (WEXITSTATUS(status))
 		{
@@ -90,7 +99,7 @@ namespace ws
 		}
 	}
 
-	std::string exec_with_timeout(const char *path, const char *arg, char *const *const envp, unsigned int timeout, int kill_signal = SIGKILL)
+	std::string Executer::exec_with_timeout(unsigned int timeout, int kill_signal = SIGKILL)
 	{
 		int fd[2];
 		if (pipe(fd) == -1)
@@ -101,12 +110,12 @@ namespace ws
 		if (intermediate_pid == 0)
 		{
 			close(fd[0]);
-	   		pid_t worker_pid = fork_worker(fd, path, arg, envp);
+	   		this->worker_pid_ = this->fork_worker(fd);
 			close(fd[1]);
-	        pid_t timer_pid = fork_timer(timeout, worker_pid);
+			this->timer_pid_ = this->fork_timer(timeout);
 
 			pid_t exited_pid = wait(&status);
-			kill_remaining_process(exited_pid, worker_pid, timer_pid, kill_signal);
+			kill_remaining_process(exited_pid, kill_signal);
 			if (wait(NULL) == -1)
 				exit(4);
 			if (WIFEXITED(status) == false)
@@ -136,6 +145,16 @@ namespace ws
 		close(old_stdin);
 
 		return output;
+	}
+
+	void Executer::delete_double_pointer()
+	{
+		if (!this->envp_)
+			return;
+
+		for (size_t i = 0; this->envp_[i] != NULL; i++)
+			delete[] this->envp_[i];
+		delete[] this->envp_;
 	}
 }
 
