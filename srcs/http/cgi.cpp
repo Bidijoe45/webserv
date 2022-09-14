@@ -69,7 +69,6 @@ namespace ws
 		std::cout << "EXECUTING " << this->executable_<< " " << file_path << ".........." << std::endl;
 
 		Executer cgi_executer(this->executable_, file_path, this->env_);
-
 		try
 		{
 			this->execution_output_ = cgi_executer.exec_with_timeout(5); 
@@ -161,8 +160,12 @@ namespace ws
 		return headers;
 	}
     
-/*	std::string CGI::parse_cgi_body()
+	std::string CGI::parse_cgi_body()
 	{
-
-	}*/
+		size_t pos_end_of_header_section = this->execution_output_.find("\r\n"); // comprobar tipo de NL
+		if (pos_end_of_header_section == std::string::npos)
+			return "";
+		std::string body = this->execution_output_.substr(pos_end_of_header_section);
+		return body;
+	}
 }
