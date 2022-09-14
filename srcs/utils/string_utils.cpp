@@ -21,13 +21,25 @@ namespace ws
 
 	std::vector<std::string> string_split(const std::string &str, const std::string &delim) {
     	std::vector<std::string> tokens;
-    	size_t start;
-    	size_t end = 0;
+    	size_t found = 0;
+    	size_t start = 0;
+    	size_t from = 0;
+		
+		while ((found = str.find(delim, from)) != std::string::npos)
+		{
+			if (start >= found)
+			{
+				start = found + delim.size();
+				from = found + delim.size();
+				continue ;
+			}
+			tokens.push_back(str.substr(start, found - start));
+			start = found + delim.size();
+			from = found + delim.size();
+		}
 
-    	while ((start = str.find_first_not_of(delim, end)) != std::string::npos) {
-        	end = str.find(delim, start);
-        	tokens.push_back(str.substr(start, end - start));
-    	}
+		if (start < str.size())
+			tokens.push_back(str.substr(start, str.size() - start));
 
     	return tokens;
     }
