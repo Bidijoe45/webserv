@@ -4,6 +4,8 @@
 #include <cstdlib>
 #include <string>
 
+#include "env_map.hpp"
+
 namespace ws
 {
 	enum EXEC_ERROR
@@ -19,16 +21,16 @@ namespace ws
 	class Executer
 	{
 		public:
-			Executer(const std::string &path, const std::string &arg, char **envp);
+			Executer(const std::string &path, const std::string &arg, EnvMap env);
 			Executer();
 			~Executer();
-			std::string exec_with_timeout(unsigned int timeout, int kill_signal);
+			std::string exec_with_timeout(unsigned int timeout, int kill_signal = SIGKILL);
 
 		private:
 			pid_t fork_worker(int *fd);
 			pid_t fork_timer(unsigned int timeout);
 			std::string get_exec_output();
-			void kill_remaining_process(pid_t exited_pid, int kill_signal);
+			void kill_remaining_process(pid_t exited_pid, int kill_signal = SIGKILL);
 			std::string check_status_errors(int status);
 			void delete_double_pointer();
 

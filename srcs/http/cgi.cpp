@@ -68,11 +68,11 @@ namespace ws
     {
 		std::cout << "EXECUTING " << this->executable_<< " " << file_path << ".........." << std::endl;
 
-		Executer cgi_executer(this->executable_, file_path, this->env_.get_double_pointer());
+		Executer cgi_executer(this->executable_, file_path, this->env_);
 
 		try
 		{
-			this->execution_output_ = cgi_executer.exec_with_timeout(5, SIGKILL); 
+			this->execution_output_ = cgi_executer.exec_with_timeout(5); 
 		}
 		catch (const std::runtime_error &e)
 		{
