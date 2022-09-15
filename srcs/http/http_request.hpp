@@ -4,19 +4,12 @@
 #include <map>
 
 #include "../server/data_buffer.hpp"
-#include "http_uri.hpp"
 #include "http_header.hpp"
 #include "http_header_map.hpp"
+#include "http_request_line.hpp"
 
 namespace ws
 {
-
-enum HTTP_METHOD {
-	HTTP_METHOD_GET,
-	HTTP_METHOD_POST,
-	HTTP_METHOD_DELETE,
-	HTTP_METHOD_INVALID
-};
 
 enum HTTP_REQUEST_ERROR {
 	HTTP_REQUEST_NO_ERROR,
@@ -36,9 +29,7 @@ struct HttpRequest {
 		~HttpRequest();
 		bool is_valid();
 
-		HTTP_METHOD method;
-		HttpUri uri;
-		std::string http_version;
+		HttpRequestLine request_line;
 		HttpHeaderMap headers;
 		std::string body;
 		HTTP_REQUEST_ERROR error;
