@@ -17,6 +17,9 @@ namespace ws
 	{
 		this->type = src.type;
 		this->value = src.value;
+		this->content_type = src.content_type;
+		this->name = src.name;
+		this->filename = src.filename;
 	}
 
 	void HttpHeaderContentDisposition::parse_value()
@@ -33,7 +36,7 @@ namespace ws
 		}
 
 		if (splitted_header.size() > 0)
-			this->type = splitted_header[0];
+			this->content_type = splitted_header[0];
 
 		it = splitted_header.begin() + 1;
 		while (it != ite)

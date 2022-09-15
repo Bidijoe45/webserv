@@ -12,5 +12,7 @@ namespace ws
 	std::vector<std::string> string_split(const std::string &str, const std::string &delim);
 	std::string compress_slash(const std::string &str);
 	std::string int_to_string(const int n);
-	std::string string_trim(const std::string &str, const std::string delim);
+	std::string string_trim_left(const std::string &str, const std::string chars);
+	std::string string_trim_right(const std::string &str, const std::string chars);
+	std::string string_trim(const std::string &str, const std::string chars);
 }
