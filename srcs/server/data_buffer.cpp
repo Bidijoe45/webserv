@@ -49,6 +49,15 @@ namespace ws {
 		return this->data.find(str);
 	}
 
+	std::string DataBuffer::get_next_line(std::string delim)
+	{
+		size_t delim_pos = this->find(delim);
+
+		if (delim_pos == std::string::npos)
+			return this->flush(this->size());
+		return this->flush(delim_pos + delim.size());
+	}
+
 	size_t DataBuffer::size() const
 	{
 		return this->data.size();

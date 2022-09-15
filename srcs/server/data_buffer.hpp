@@ -18,6 +18,7 @@ namespace ws {
 		std::string flush(size_t n);
 		void clear();
 		size_t find(const std::string &str) const;
+		std::string get_next_line(std::string delim = "\r\n");
 		size_t size() const;
 
 		std::string data;
