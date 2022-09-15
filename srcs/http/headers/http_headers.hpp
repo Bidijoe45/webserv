@@ -56,7 +56,7 @@ namespace ws
 		HttpHeaderContentDisposition(const HttpHeaderContentDisposition&src);
 		void set_value(const std::string &value);
 
-		std::string type;
+		std::string content_type;
 		std::string name;
 		std::string filename;
 
@@ -71,7 +71,7 @@ namespace ws
 		HttpHeaderContentType(const HttpHeaderContentType&src);
 		void set_value(const std::string &value);
 
-		std::string type;
+		std::string content_type;
 		std::map<std::string, std::string> parameters;
 
 		private:

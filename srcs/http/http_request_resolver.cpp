@@ -11,6 +11,8 @@
 #include "../server/file_system.hpp"
 #include "./headers/http_headers.hpp"
 #include "location_resolver.hpp"
+#include "http_multipart_body_parser.hpp"
+#include "http_multipart_body.hpp"
 
 namespace ws
 {
@@ -110,6 +112,55 @@ namespace ws
 	        return;
 	    }
 
+        HttpHeaderMap::iterator header_map_it = this->request_.headers.find("content-type");
+        if (header_map_it == this->request_.headers.end())
+        {
+            this->response_.status_code = 400;
+            return;
+        }
+
+	    HttpHeaderContentType *content_type = dynamic_cast<HttpHeaderContentType *>(header_map_it->second); 
+	    if (content_type == NULL)
+	    {
+	        this->response_.status_code = 400;
+	        return;
+	    }
+
+        // std::cout << "XXXXXXXXXXXXXXXXXX" << std::endl;
+        // std::cout << content_type->parameters.size() << std::endl;
+        // std::map<std::string, std::string>::iterator it = content_type->parameters.begin();
+        // std::map<std::string, std::string>::iterator ite = content_type->parameters.end();
+        //
+        // while (it != ite)
+        // {
+        //     std::cout << it->first << " : " << it->second << std::endl;
+        //     it++;
+        // }
+
+        // std::cout << content_type->content_type << std::endl;
+	    if (content_type->content_type != "multipart/form-data")
+	    {
+	        this->response_.status_code = 403;
+	        return;
+	    }
+
+        std::map<std::string, std::string>::iterator boundary_param = content_type->parameters.find("boundary");
+        if (boundary_param == content_type->parameters.end())
+        {
+	        this->response_.status_code = 400;
+	        return;
+        }
+
+	    HttpMultipartBodyParser multipart_parser(this->request_.body, boundary_param->second);
+	    HttpMultipartBody multipart_body = multipart_parser.parse();
+
+        if (!multipart_parser.is_valid())
+        {
+            this->response_.status_code = 400;
+            return;
+        }
+
+        std::cout << "END apply post" << std::endl;
 	}
 
 	void HttpRequestResolver::apply_delete_method()
@@ -221,9 +272,7 @@ namespace ws
 			this->location_ = location_resolver.resolve(this->request_.uri);
 
             if (this->location_.path.size() == 0)
-            {
                 this->response_.status_code = 404;
-            }
             else
             {
                 std::string new_uri_path; 
