@@ -13,12 +13,12 @@
 #include "../server/file_system.hpp"
 #include "./headers/http_headers.hpp"
 #include "location_resolver.hpp"
-#include "cgi_settings.hpp"
+#include "../settings/cgi_settings.hpp"
 #include "cgi.hpp"
-#include "env_map.hpp"
 #include "http_multipart_body_parser.hpp"
 #include "http_multipart_body.hpp"
 #include "http_header.hpp"
+#include "../utils/env_map.hpp"
 
 namespace ws
 {
@@ -115,8 +115,6 @@ namespace ws
 
 	void HttpRequestResolver::apply_post_method()
 	{
-	    this->response_.status_code = 100;
-	    return ;
 
 	    if (this->location_.upload_dir.size() == 0)
 	    {
@@ -172,7 +170,35 @@ namespace ws
             return;
         }
 
-        std::cout << "END apply post" << std::endl;
+        std::vector<HttpMultipartBodyPart>::iterator it = multipart_body.parts.begin();
+        std::vector<HttpMultipartBodyPart>::iterator ite = multipart_body.parts.end();
+
+        while (it != ite)
+        {
+            HttpMultipartBodyPart part = *it;
+
+            HttpHeaderMap::iterator header_cd_it = part.header_map.find("content-disposition");
+            if (header_cd_it != part.header_map.end())
+            {
+                this->response_.status_code = 400;
+                return;
+            }
+
+            HttpHeaderContentDisposition * header_cd = dynamic_cast<HttpHeaderContentDisposition *>(header_cd_it->second);
+            if (header_cd == NULL)
+            {
+                this->response_.status_code = 400;
+                return;
+            }
+
+            std::cout << "upload: " << this->location_.upload_dir + header_cd->filename << std::endl;
+            FileSystem file(this->location_.upload_dir + header_cd->filename);
+
+            file.close();
+
+            it++;
+        }
+
 	}
 
 	void HttpRequestResolver::apply_delete_method()
@@ -309,26 +335,26 @@ namespace ws
                     new_uri_path = this->request_.request_line.uri.path.substr(this->location_.path.size());
 			    this->file_path_ = this->location_.root + new_uri_path;
 				this->cgi_.set_executable(this->resolve_cgi_executable());
-				if (this->cgi_.get_executable() != "")
-				{
-					this->cgi_.set_env(this->env_, this->file_path_, this->request_);
-					this->response_.status_code = this->cgi_.execute(this->file_path_);
-					this->response_.headers = this->cgi_.parse_cgi_headers();
-					/*HttpHeaderMap::iterator it = this->response_.headers.begin();
-					std::cout << "CGI RESPONSE HEADERS" << std::endl;
-					for (; it != this->response_.headers.end(); it++)
-						std::cout << "---name: " << it->first << ", type: " << HttpHeader::header_type_to_string(it->second->type) << "---"<< std::endl;  
-					*/
-					if (this->response_.headers.find("content-type") != this->response_.headers.end())
-					{
-						this->response_.body = this->cgi_.parse_cgi_body();
-						HttpHeaderContentLength *content_length_header = new HttpHeaderContentLength(); 
-						content_length_header->set_value(this->response_.body.size());
-						this->response_.headers.insert(content_length_header);
-					}
-				}
-				else
-					this->apply_method();
+				// if (this->cgi_.get_executable() != "")
+				// {
+				// 	this->cgi_.set_env(this->env_, this->file_path_, this->request_);
+				// 	this->response_.status_code = this->cgi_.execute(this->file_path_);
+				// 	this->response_.headers = this->cgi_.parse_cgi_headers();
+				// 	/*HttpHeaderMap::iterator it = this->response_.headers.begin();
+				// 	std::cout << "CGI RESPONSE HEADERS" << std::endl;
+				// 	for (; it != this->response_.headers.end(); it++)
+				// 		std::cout << "---name: " << it->first << ", type: " << HttpHeader::header_type_to_string(it->second->type) << "---"<< std::endl;  
+				// 	*/
+				// 	if (this->response_.headers.find("content-type") != this->response_.headers.end())
+				// 	{
+				// 		this->response_.body = this->cgi_.parse_cgi_body();
+				// 		HttpHeaderContentLength *content_length_header = new HttpHeaderContentLength(); 
+				// 		content_length_header->set_value(this->response_.body.size());
+				// 		this->response_.headers.insert(content_length_header);
+				// 	}
+				// }
+				// else
+				this->apply_method();
             }
 		}
 

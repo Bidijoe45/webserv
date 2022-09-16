@@ -15,9 +15,7 @@ namespace ws
             HttpMultipartBody parse();
 
         private:
-            std::string get_header_name(std::string line);
-            std::string get_header_value(std::string line); 
-            HttpHeaderMap parse_headers(std::string body);
+            HttpMultipartBody body_;
             std::string content_;
             std::string boundary_;
             bool valid_;

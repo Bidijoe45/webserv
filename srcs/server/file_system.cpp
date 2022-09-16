@@ -91,4 +91,9 @@ namespace ws
 
         return dir_files;
     }
+
+    void write(const std::string &buff)
+    {
+
+    }
 }
