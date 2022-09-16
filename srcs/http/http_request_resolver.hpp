@@ -6,8 +6,6 @@
 #include "../settings/location.hpp"
 #include "../server/file_system.hpp"
 #include "env_map.hpp"
-#include "cgi_settings.hpp"
-#include "cgi.hpp"
 
 namespace ws
 {
@@ -37,7 +35,6 @@ namespace ws
 			Location location_;
 			std::string file_path_;
 			EnvMap env_;
-			CGI cgi_;
     };
     
 }

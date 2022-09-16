@@ -12,14 +12,21 @@
 #include "http_header.hpp"
 #include "http_header_map.hpp"
 #include "http_header_parser.hpp"
-#include "exec_utils.hpp"
+#include "executer.hpp"
 
 #include <iostream>
 
 namespace ws
 {
 
-    CGI::CGI() {}
+    CGI::CGI(const std::string &executable, const EnvMap &env, const std::string &file_path, const HttpRequest &request)
+   	{
+		this->executable_ = executable;
+		this->env_ = env;
+		this->set_env();
+		this->file_path_ = file_path;
+		this->request_ = request;
+	}
 
 	void CGI::set_env(const EnvMap &env, const std::string &file_path, const HttpRequest &request)
 	{
@@ -49,7 +56,7 @@ namespace ws
 		this->env_.insert("REMOTE_ADDR", "1.1.1.1");
 		//TODO: remote host es un should, habria que encontrarlo del servidor tb, o dejar el remote_addr, o dejarlo en null:
 		this->env_.insert("REMOTE_HOST", "");
-		this->env_.insert("REQUEST_METHOD", request.method_to_string());	
+		this->env_.insert("REQUEST_METHOD", request.request_line.method_to_string());	
 
 		it = request.headers.find("host");
 		HttpHeaderHost *host_header = static_cast<HttpHeaderHost *>(it->second);

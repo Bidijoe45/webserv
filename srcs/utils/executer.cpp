@@ -4,7 +4,7 @@
 #include <string>
 #include <iostream>
 
-#include "exec_utils.hpp"
+#include "executer.hpp"
 #include "env_map.hpp"
 
 namespace ws
@@ -12,13 +12,6 @@ namespace ws
 	Executer::Executer(const std::string &path, const std::string &arg, EnvMap env) : path_(path), arg_(arg)
 	{
 		this->envp_ = env.get_double_pointer();
-		this->worker_pid_ = -1;
-		this->timer_pid_ = -1;
-	}
-
-	Executer::Executer() : path_(""), arg_("")
-	{
-		this->envp_ = NULL;
 		this->worker_pid_ = -1;
 		this->timer_pid_ = -1;
 	}
