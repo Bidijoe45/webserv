@@ -49,7 +49,6 @@ namespace ws
 		this->env_.insert("REMOTE_ADDR", "1.1.1.1");
 		//TODO: remote host es un should, habria que encontrarlo del servidor tb, o dejar el remote_addr, o dejarlo en null:
 		this->env_.insert("REMOTE_HOST", "");
-		this->env_.insert("REQUEST_METHOD", request.method_to_string());	
 
 		it = request.headers.find("host");
 		HttpHeaderHost *host_header = static_cast<HttpHeaderHost *>(it->second);
@@ -127,7 +126,6 @@ namespace ws
 	HttpHeaderMap CGI::parse_cgi_headers()
 	{
 		HttpHeaderMap headers;
-		HttpHeaderParser header_line_parser;
 		HttpHeader *parsed_header;
 		std::string line;
 		std::string header_name;
@@ -151,7 +149,6 @@ namespace ws
 				continue;
 			}
 			header_value = this->get_cgi_header_value(line.substr(line.find(':') + 1));
-			parsed_header = header_line_parser.parse(header_name, header_value);
 			headers.insert(header_name, parsed_header);
 			pos0 = pos1 + 1;
 			pos1 = this->execution_output_.find('\n', pos0);

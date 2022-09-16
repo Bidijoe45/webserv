@@ -5,8 +5,8 @@
 #include "../settings/settings.hpp"
 #include "../settings/location.hpp"
 #include "../server/file_system.hpp"
-#include "env_map.hpp"
-#include "cgi_settings.hpp"
+#include "../utils/env_map.hpp"
+#include "../settings/cgi_settings.hpp"
 #include "cgi.hpp"
 
 namespace ws

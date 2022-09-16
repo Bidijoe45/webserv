@@ -21,6 +21,7 @@ namespace ws
             std::string get_path() const;
             std::string get_content();
             std::vector<std::string> read_dir() const;
+            void write(const std::string &buff);
         
         private:
             std::string path_;
