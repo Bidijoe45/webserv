@@ -12,21 +12,6 @@ namespace ws
 		return this->error == HTTP_REQUEST_NO_ERROR;
 	}
 
-	std::string HttpRequest::method_to_string() const
-	{
-		switch (this->method)
-		{
-			case HTTP_METHOD_GET:
-				return "GET";
-			case HTTP_METHOD_POST:
-				return "POST";
-			case HTTP_METHOD_DELETE:
-				return "DELETE";
-			default:
-				return "INVALID";
-		}
-	}
-
 	bool operator==(const HttpRequest &lhs, const HttpRequest &rhs) {
 		
 		if (lhs.method != rhs.method)

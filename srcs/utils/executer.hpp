@@ -22,7 +22,6 @@ namespace ws
 	{
 		public:
 			Executer(const std::string &path, const std::string &arg, EnvMap env);
-			Executer();
 			~Executer();
 			std::string exec_with_timeout(unsigned int timeout, int kill_signal = SIGKILL);
 
