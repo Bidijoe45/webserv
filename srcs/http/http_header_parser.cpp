@@ -3,10 +3,11 @@
 #include "../utils/string_utils.hpp"
 #include <iostream>
 #include <string>
+#include <vector>
 
 namespace ws
 {
-	HttpHeaderParser::HttpHeaderParser(const DataBuffer &buff) : buff_(buff), valid_(true) {}
+	HttpHeaderParser::HttpHeaderParser(const std::vector<std::string> &block) : block_(block), valid_(true) {}
 
 	bool HttpHeaderParser::is_valid()
 	{
@@ -76,13 +77,14 @@ namespace ws
 		HttpHeader				*parsed_header;
 		HttpHeaderMap           map;
 		HttpHeaderMap::iterator	found_header;
-
-		this->current_line_ = this->buff_.get_next_line();
+		std::vector<std::string>::iterator block_it = this->block_.begin();
+		std::vector<std::string>::iterator block_ite = this->block_.end();
 
 		try
 		{
-			while (this->current_line_.size() != 0)
+			while (block_it != block_ite)
 			{
+				this->current_line_ = *block_it;
 				this->line_pos_ = 0;
 				header_name = get_header_name();
 				this->skipOWS();
@@ -95,7 +97,7 @@ namespace ws
 					parsed_header = this->parse_header(header_name, header_value);
 					map.insert(header_name, parsed_header);
 				}
-				this->current_line_ = this->buff_.get_next_line();
+				block_it++;
 			}
 		}
 		catch (const std::runtime_error &e)

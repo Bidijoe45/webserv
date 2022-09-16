@@ -12,7 +12,6 @@ namespace ws
 		public:
 			HttpParser(DataBuffer &buff);
 			HttpRequest parse();
-			bool request_is_valid();
 
 		private:
 			void parse_first_line();
@@ -22,7 +21,6 @@ namespace ws
 			std::string get_header_name();
 			std::string get_header_value();
 
-			bool valid_request_;
 			DataBuffer &buff_;
 			HttpRequest request_;
 

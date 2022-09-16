@@ -106,4 +106,20 @@ namespace ws
 
         return this->request_line_;
     }
+
+    bool operator==(const HttpRequestLine &lhs, const HttpRequestLine &rhs)
+    {
+        if (lhs.method != rhs.method)
+            return false;
+        if (lhs.uri != rhs.uri )
+            return false;
+        if (lhs.http_version != rhs.http_version)
+            return false;
+        return true;
+    }
+
+    bool operator!=(const HttpRequestLine &lhs, const HttpRequestLine &rhs)
+    {
+        return !(lhs == rhs);
+    }
 }

@@ -52,10 +52,15 @@ namespace ws {
 	std::string DataBuffer::get_next_line(std::string delim)
 	{
 		size_t delim_pos = this->find(delim);
+		std::string line;
 
 		if (delim_pos == std::string::npos)
 			return this->flush(this->size());
-		return this->flush(delim_pos + delim.size());
+
+		line = this->flush(delim_pos);
+		this->flush(delim.size());
+
+		return line;
 	}
 
 	size_t DataBuffer::size() const

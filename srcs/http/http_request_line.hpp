@@ -19,4 +19,7 @@ namespace ws
 		HttpUri uri;
 		std::string http_version;
     };
+
+    bool operator==(const HttpRequestLine &lhs, const HttpRequestLine &rhs);
+    bool operator!=(const HttpRequestLine &lhs, const HttpRequestLine &rhs);
 }
