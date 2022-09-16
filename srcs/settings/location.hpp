@@ -18,6 +18,7 @@ struct Location {
     std::vector<Rewrite> rewrites;
 	bool autoindex;
     std::vector<CGISettings> cgis;
+    std::string upload_dir;
 };
 
 bool operator==(const Location &lhs, const Location &rhs);

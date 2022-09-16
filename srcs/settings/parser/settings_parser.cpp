@@ -234,6 +234,14 @@ namespace ws {
 		return rewrite;
 	}
 
+	std::string SettingsParser::resolve_upload_element()
+	{
+		std::string upload_dir = this->current_token_.value;
+		this->advance();
+
+		return upload_dir;
+	}
+
 	Location SettingsParser::resolve_location_block() {
 		Location location;
 		
@@ -273,8 +281,11 @@ namespace ws {
 				this->advance();
 				location.cgis.push_back(this->resolve_cgi_element());
 				this->check_semicolon();
-			}
-			else {
+			} else if (this->current_token_.type == TT_UPLOAD) {
+				this->advance();
+				location.upload_dir = this->resolve_upload_element();
+				this->check_semicolon();
+			} else {
 				throw std::runtime_error(std::string("Invalid location block element"));
 			}
 

@@ -20,6 +20,7 @@ namespace ws
 		TT_REWRITE,
 		TT_AUTOINDEX,
 		TT_CGI,
+		TT_UPLOAD,
 		TT_VALUE
 	};
 
