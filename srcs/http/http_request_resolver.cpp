@@ -16,6 +16,8 @@
 #include "cgi_settings.hpp"
 #include "cgi.hpp"
 #include "env_map.hpp"
+#include "http_multipart_body_parser.hpp"
+#include "http_multipart_body.hpp"
 #include "http_header.hpp"
 
 namespace ws
@@ -49,7 +51,7 @@ namespace ws
 
 	void HttpRequestResolver::apply_method()
 	{
-		switch (this->request_.method)
+		switch (this->request_.request_line.method)
 		{
 			case HTTP_METHOD_GET:
 				this->apply_get_method();
@@ -69,7 +71,7 @@ namespace ws
 	void HttpRequestResolver::apply_get_method()
 	{
 		FileSystem file(this->file_path_);
-
+        
 		if (!file.is_valid())
 		{
 			this->response_.status_code = 404;
@@ -78,8 +80,21 @@ namespace ws
 
 		if (file.is_dir())
 		{
-		    if (this->location_.autoindex == true)
+		    if (this->location_.index.size() > 0)
+		    {
+		        this->file_path_ = this->file_path_ + this->location_.index;
+		        FileSystem new_file(this->file_path_);
+		        if (!new_file.is_valid())
+		        {
+			        this->response_.status_code = 404; //Deberia devolver 404 o 403?
+			        return;
+		        }
+		        this->response_.body = new_file.get_content();
+		    }
+		    else if (this->location_.autoindex == true)
+		    {
 		        this->response_.body = this->generate_autoindex(file);
+		    }
 		    else
 		    {
 		        this->response_.status_code = 403;
@@ -100,7 +115,64 @@ namespace ws
 
 	void HttpRequestResolver::apply_post_method()
 	{
+	    this->response_.status_code = 100;
+	    return ;
 
+	    if (this->location_.upload_dir.size() == 0)
+	    {
+	        this->response_.status_code = 403;
+	        return;
+	    }
+
+        HttpHeaderMap::iterator header_map_it = this->request_.headers.find("content-type");
+        if (header_map_it == this->request_.headers.end())
+        {
+            this->response_.status_code = 400;
+            return;
+        }
+
+	    HttpHeaderContentType *content_type = dynamic_cast<HttpHeaderContentType *>(header_map_it->second); 
+	    if (content_type == NULL)
+	    {
+	        this->response_.status_code = 400;
+	        return;
+	    }
+
+        // std::cout << "XXXXXXXXXXXXXXXXXX" << std::endl;
+        // std::cout << content_type->parameters.size() << std::endl;
+        // std::map<std::string, std::string>::iterator it = content_type->parameters.begin();
+        // std::map<std::string, std::string>::iterator ite = content_type->parameters.end();
+        //
+        // while (it != ite)
+        // {
+        //     std::cout << it->first << " : " << it->second << std::endl;
+        //     it++;
+        // }
+
+        // std::cout << content_type->content_type << std::endl;
+	    if (content_type->content_type != "multipart/form-data")
+	    {
+	        this->response_.status_code = 403;
+	        return;
+	    }
+
+        std::map<std::string, std::string>::iterator boundary_param = content_type->parameters.find("boundary");
+        if (boundary_param == content_type->parameters.end())
+        {
+	        this->response_.status_code = 400;
+	        return;
+        }
+
+	    HttpMultipartBodyParser multipart_parser(this->request_.body, boundary_param->second);
+	    HttpMultipartBody multipart_body = multipart_parser.parse();
+
+        if (!multipart_parser.is_valid())
+        {
+            this->response_.status_code = 400;
+            return;
+        }
+
+        std::cout << "END apply post" << std::endl;
 	}
 
 	void HttpRequestResolver::apply_delete_method()
@@ -116,20 +188,20 @@ namespace ws
         autoindex_html.append("<html>");
         autoindex_html.append("<head>");
         autoindex_html.append("<title>");
-        autoindex_html.append("Index of " + this->request_.uri.path);
+        autoindex_html.append("Index of " + this->request_.request_line.uri.path);
         autoindex_html.append("</title>");
         autoindex_html.append("</head>");
         autoindex_html.append("<body>");
         autoindex_html.append("<h1>");
-        autoindex_html.append("Index of " + this->request_.uri.path);
+        autoindex_html.append("Index of " + this->request_.request_line.uri.path);
         autoindex_html.append("</h1>");
         autoindex_html.append("<hr>");
 
         for (size_t i=0; i < dir_files.size(); i++)
         {
             autoindex_html.append("<a href=\"");
-            autoindex_html.append(this->request_.uri.path);
-            if (this->request_.uri.path.back() != '/')
+            autoindex_html.append(this->request_.request_line.uri.path);
+            if (this->request_.request_line.uri.path.back() != '/')
                 autoindex_html.append("/");
             autoindex_html.append(dir_files[i]);
             autoindex_html.append("\">");
@@ -218,25 +290,23 @@ namespace ws
     {
 		this->response_.http_version = "HTTP/1.1";
 
-		if (this->request_.is_valid() == false)
+		if (this->request_.is_valid == false)
 		{
 			this->response_.status_code = 400;
 		}
 		else
 		{
 			LocationResolver location_resolver = LocationResolver(this->settings_.locations);
-            std::string uri_path = this->request_.uri.path;
-			this->location_ = location_resolver.resolve(this->request_.uri);
+            std::string uri_path = this->request_.request_line.uri.path;
+			this->location_ = location_resolver.resolve(this->request_.request_line.uri);
 
             if (this->location_.path.size() == 0)
-            {
                 this->response_.status_code = 404;
-            }
             else
             {
                 std::string new_uri_path; 
                 if (uri_path.compare(0, this->location_.path.size(), this->location_.path) == 0)
-                    new_uri_path = this->request_.uri.path.substr(this->location_.path.size());
+                    new_uri_path = this->request_.request_line.uri.path.substr(this->location_.path.size());
 			    this->file_path_ = this->location_.root + new_uri_path;
 				std::string cgi_executable = this->resolve_cgi_executable();
 				if (cgi_executable != "")
