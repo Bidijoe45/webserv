@@ -25,7 +25,6 @@ namespace ws {
 			std::string executable_;
 			std::string execution_output_;
 
-			void delete_double_pointer(char **envp);
 			unsigned int exit_with_error(unsigned int code, char **envp);
 			std::string get_cgi_header_name(std::string line);
 			std::string get_cgi_header_value(std::string line);
