@@ -1,5 +1,5 @@
 #include "http_header.hpp"
-#include "http_headers.hpp"
+#include "headers/http_headers.hpp"
 
 namespace ws
 {
@@ -17,6 +17,10 @@ namespace ws
 			return HTTP_HEADER_ACCEPT;
 		else if (name == "content-length")
 			return HTTP_HEADER_CONTENT_LENGTH;
+		else if (name == "content-disposition")
+			return HTTP_HEADER_CONTENT_DISPOSITION;
+		else if (name == "content-type")
+			return HTTP_HEADER_CONTENT_TYPE;
 		else
 			return HTTP_HEADER_UNKNOWN;
 	}
@@ -31,6 +35,10 @@ namespace ws
 				return "host";
 			case HTTP_HEADER_CONTENT_LENGTH:
 				return "content-length";
+			case HTTP_HEADER_CONTENT_DISPOSITION:
+				return "content-disposition";
+			case HTTP_HEADER_CONTENT_TYPE:
+				return "content-type";
 			default:
 				return "unknown";
 		}
@@ -46,6 +54,10 @@ namespace ws
 				return new HttpHeaderHost(*static_cast<const HttpHeaderHost*>(header));
 			case HTTP_HEADER_CONTENT_LENGTH:
 				return new HttpHeaderContentLength(*static_cast<const HttpHeaderContentLength*>(header));
+			case HTTP_HEADER_CONTENT_DISPOSITION:
+				return new HttpHeaderContentDisposition(*static_cast<const HttpHeaderContentDisposition*>(header));
+			case HTTP_HEADER_CONTENT_TYPE:
+				return new HttpHeaderContentType(*static_cast<const HttpHeaderContentType*>(header));
 			default:
 				return new HttpHeaderUnknown(*static_cast<const HttpHeaderUnknown*>(header));
 		}
@@ -61,6 +73,10 @@ namespace ws
 				return new HttpHeaderHost();
 			case HTTP_HEADER_CONTENT_LENGTH:
 				return new HttpHeaderContentLength();
+			case HTTP_HEADER_CONTENT_DISPOSITION:
+				return new HttpHeaderContentDisposition();
+			case HTTP_HEADER_CONTENT_TYPE:
+				return new HttpHeaderContentType();
 			default:
 				return new HttpHeaderUnknown();
 		}

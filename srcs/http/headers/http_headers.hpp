@@ -1,5 +1,7 @@
 #pragma once
 
+#include <map>
+
 #include "../http_header.hpp"
 
 namespace ws
@@ -42,6 +44,35 @@ namespace ws
 		void set_value(const size_t &value);
 
 		size_t content_length;
+
+		private:
+			void parse_value();
+	};
+
+	struct HttpHeaderContentDisposition : public HttpHeaderSingleton
+	{
+		HttpHeaderContentDisposition();
+		~HttpHeaderContentDisposition();
+		HttpHeaderContentDisposition(const HttpHeaderContentDisposition&src);
+		void set_value(const std::string &value);
+
+		std::string content_type;
+		std::string name;
+		std::string filename;
+
+		private:
+			void parse_value();
+	};
+	
+	struct HttpHeaderContentType : public HttpHeaderSingleton
+	{
+		HttpHeaderContentType();
+		~HttpHeaderContentType();
+		HttpHeaderContentType(const HttpHeaderContentType&src);
+		void set_value(const std::string &value);
+
+		std::string content_type;
+		std::map<std::string, std::string> parameters;
 
 		private:
 			void parse_value();
