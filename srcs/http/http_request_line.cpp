@@ -2,7 +2,7 @@
 
 namespace ws
 {
-	std::string HttpRequest::method_to_string() const
+	std::string HttpRequestLine::method_to_string() const
 	{
 		switch (this->method)
 		{
