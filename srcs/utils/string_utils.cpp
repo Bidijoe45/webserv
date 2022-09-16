@@ -21,13 +21,25 @@ namespace ws
 
 	std::vector<std::string> string_split(const std::string &str, const std::string &delim) {
     	std::vector<std::string> tokens;
-    	size_t start;
-    	size_t end = 0;
+    	size_t found = 0;
+    	size_t start = 0;
+    	size_t from = 0;
+		
+		while ((found = str.find(delim, from)) != std::string::npos)
+		{
+			if (start >= found)
+			{
+				start = found + delim.size();
+				from = found + delim.size();
+				continue ;
+			}
+			tokens.push_back(str.substr(start, found - start));
+			start = found + delim.size();
+			from = found + delim.size();
+		}
 
-    	while ((start = str.find_first_not_of(delim, end)) != std::string::npos) {
-        	end = str.find(delim, start);
-        	tokens.push_back(str.substr(start, end - start));
-    	}
+		if (start < str.size())
+			tokens.push_back(str.substr(start, str.size() - start));
 
     	return tokens;
     }
@@ -92,4 +104,30 @@ namespace ws
 		return str;
 	}
 	
+	std::string string_trim_left(const std::string &str, const std::string delim)
+	{
+		size_t left_delim = str.find_first_not_of(delim);
+
+		if (left_delim == std::string::npos)
+			return str;
+
+		return str.substr(left_delim);
+	}
+
+	std::string string_trim_right(const std::string &str, const std::string delim)
+	{
+		size_t right_delim = str.find_last_not_of(delim);
+
+		if (right_delim == std::string::npos)
+			return str;
+
+		return str.substr(0, right_delim + 1);
+	}
+
+	std::string string_trim(const std::string &str, const std::string delim)
+	{
+		std::string left_trim = string_trim_left(str, delim);
+		std::string right_trim = string_trim_right(left_trim, delim);
+		return right_trim;
+	}
 }

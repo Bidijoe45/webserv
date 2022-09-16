@@ -101,7 +101,9 @@ namespace ws
 			return Token(TT_LISTEN);
 		} else if (value == "cgi") {
 			return Token(TT_CGI);
-		}
+		} else if (value == "upload") {
+			return Token(TT_UPLOAD);
+		} 
 
 		return Token(TT_VALUE, value);
 	}

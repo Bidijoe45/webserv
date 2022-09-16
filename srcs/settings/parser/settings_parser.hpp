@@ -33,6 +33,7 @@ class SettingsParser {
 		ServerSettings resolve_server_block();
 		size_t resolve_client_max_body_size();
 		ErrorPage resolve_error_page();
+		std::string resolve_upload_element();
 		Location resolve_location_block();
 		CGISettings resolve_cgi_element();
 		void advance();
