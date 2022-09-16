@@ -26,7 +26,8 @@ namespace ws
    		pid_t pid = fork();
 		if (pid == 0)
 		{
-			dup2(fd[1], 1);
+			if (dup2(fd[1], 1) == -1)
+				exit(4);
 			close(fd[1]);
 			execle(this->path_.c_str(), this->path_.c_str(), this->arg_.c_str(), (char *) NULL, this->envp_);
             exit(1);
@@ -130,14 +131,19 @@ namespace ws
 			throw std::runtime_error("cgi exec: " + check_status_errors(status));
 
 		int old_stdin = dup(0);
-		dup2(fd[0], 0);
+		if (old_stdin == -1)
+			throw std::runtime_error("cgi exec: dup");
+		if (dup2(fd[0], 0) == -1)
+			throw std::runtime_error("cgi exec: dup2");
+
 		close(fd[0]);
 
 		std::string output = get_exec_output();
 
-		dup2(old_stdin, 0);
+		if (dup2(old_stdin, 0) == -1)
+			throw std::runtime_error("cgi exec: dup2");
 		close(old_stdin);
-
+		//system("lsof -c webserv");
 		return output;
 	}
 

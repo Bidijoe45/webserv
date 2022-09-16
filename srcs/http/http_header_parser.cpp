@@ -42,6 +42,9 @@ namespace ws
 		size_t		colon_pos = this->current_line_.find_first_of(':', this->line_pos_);
 
 		header_name = this->current_line_.substr(this->line_pos_, colon_pos);
+		if (header_name == "")
+			throw std::runtime_error("Header Parser: empty header name");
+
 		header_name = string_to_lower(header_name, header_name.size());
 
 		if (!is_token(header_name))

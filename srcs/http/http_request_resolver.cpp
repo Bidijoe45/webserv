@@ -315,32 +315,13 @@ namespace ws
 					this->response_.status_code = cgi.execute();
 					this->response_.headers = cgi.get_header_map();
 					this->response_.body = cgi.get_body();
-					/*HttpHeaderMap::iterator it = this->response_.headers.begin();
+
+					HttpHeaderMap::iterator it = this->response_.headers.begin();
 					std::cout << "CGI RESPONSE HEADERS" << std::endl;
 					for (; it != this->response_.headers.end(); it++)
-						std::cout << "---name: " << it->first << ", type: " << HttpHeader::header_type_to_string(it->second->type) << "---"<< std::endl;  
-					*/
-	
+						std::cout << "---name: " << it->first << ", type: " << HttpHeader::header_type_to_string(it->second->type)<< ", value: " << it->second->value << "---"<< std::endl;  
 				}
-				
-
-/*				this->cgi_.set_executable(this->resolve_cgi_executable());
-				if (this->cgi_.get_executable() != "")
-				{
-					this->cgi_.set_env(this->env_, this->file_path_, this->request_);
-					this->response_.status_code = this->cgi_.execute(this->file_path_);
-
-					this->response_.headers = this->cgi_.get_header_map();
-					this->response_.body = this->cgi_.get_body();
-					if (this->response_.headers.find("content-type") != this->response_.headers.end())
-					{
-						this->response_.body = this->cgi_.parse_cgi_body();
-						HttpHeaderContentLength *content_length_header = new HttpHeaderContentLength(); 
-						content_length_header->set_value(this->response_.body.size());
-						this->response_.headers.insert(content_length_header);
-					}
-				}
-*/				else
+				else
 					this->apply_method();
             }
 		}
