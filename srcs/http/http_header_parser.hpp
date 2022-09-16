@@ -1,6 +1,7 @@
 #pragma once
 
 #include <string>
+#include <vector>
 
 #include "http_header.hpp"
 #include "http_header_map.hpp"
@@ -35,7 +36,7 @@ namespace ws
   class HttpHeaderParser
   {
 	public:
-		HttpHeaderParser(const DataBuffer &buff);
+		HttpHeaderParser(const std::vector<std::string> &block);
 		HttpHeaderMap parse_block();
 		bool is_valid();
 
@@ -47,7 +48,7 @@ namespace ws
 		void advance(size_t n);
 		void skipOWS();
 
-		DataBuffer buff_;
+		std::vector<std::string> block_;
 		std::string current_line_;
 		size_t line_pos_;
 		bool valid_;

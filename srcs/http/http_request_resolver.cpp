@@ -42,7 +42,7 @@ namespace ws
 
 	void HttpRequestResolver::apply_method()
 	{
-		switch (this->request_.method)
+		switch (this->request_.request_line.method)
 		{
 			case HTTP_METHOD_GET:
 				this->apply_get_method();
@@ -179,20 +179,20 @@ namespace ws
         autoindex_html.append("<html>");
         autoindex_html.append("<head>");
         autoindex_html.append("<title>");
-        autoindex_html.append("Index of " + this->request_.uri.path);
+        autoindex_html.append("Index of " + this->request_.request_line.uri.path);
         autoindex_html.append("</title>");
         autoindex_html.append("</head>");
         autoindex_html.append("<body>");
         autoindex_html.append("<h1>");
-        autoindex_html.append("Index of " + this->request_.uri.path);
+        autoindex_html.append("Index of " + this->request_.request_line.uri.path);
         autoindex_html.append("</h1>");
         autoindex_html.append("<hr>");
 
         for (size_t i=0; i < dir_files.size(); i++)
         {
             autoindex_html.append("<a href=\"");
-            autoindex_html.append(this->request_.uri.path);
-            if (this->request_.uri.path.back() != '/')
+            autoindex_html.append(this->request_.request_line.uri.path);
+            if (this->request_.request_line.uri.path.back() != '/')
                 autoindex_html.append("/");
             autoindex_html.append(dir_files[i]);
             autoindex_html.append("\">");
@@ -264,15 +264,15 @@ namespace ws
     {
 		this->response_.http_version = "HTTP/1.1";
 
-		if (this->request_.is_valid() == false)
+		if (this->request_.is_valid == false)
 		{
 			this->response_.status_code = 400;
 		}
 		else
 		{
 			LocationResolver location_resolver = LocationResolver(this->settings_.locations);
-            std::string uri_path = this->request_.uri.path;
-			this->location_ = location_resolver.resolve(this->request_.uri);
+            std::string uri_path = this->request_.request_line.uri.path;
+			this->location_ = location_resolver.resolve(this->request_.request_line.uri);
 
             if (this->location_.path.size() == 0)
                 this->response_.status_code = 404;
@@ -280,7 +280,7 @@ namespace ws
             {
                 std::string new_uri_path; 
                 if (uri_path.compare(0, this->location_.path.size(), this->location_.path) == 0)
-                    new_uri_path = this->request_.uri.path.substr(this->location_.path.size());
+                    new_uri_path = this->request_.request_line.uri.path.substr(this->location_.path.size());
 			    this->file_path_ = this->location_.root + new_uri_path;
 			    this->apply_method();
             }

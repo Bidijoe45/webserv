@@ -45,44 +45,7 @@ namespace ws
 	HttpHeaderMap HttpMultipartBodyParser::parse_headers(std::string body)
 	{
 		HttpHeaderMap headers;
-		HttpHeaderParser header_line_parser;
-		HttpHeader *parsed_header;
-		std::string line;
-		std::string header_name;
-		std::string header_value;
 
-		body = string_trim_left(body, "\r\n");
-
-		size_t pos_end_of_header_section = body.find("\n\n");
-        std::cout << "pos_end: " << pos_end_of_header_section << std::endl;
-		size_t pos0 = 0;
-		size_t pos1 = body.find("\r\n");
-
-		while (pos1 != pos_end_of_header_section && pos1 != std::string::npos)
-		{
-			line = body.substr(pos0, pos1 - pos0);
-		//	std::cout << "ASCII LINE : ";
-		//	for(size_t i = 0; line[i] ; i++)
-		//		std::cout << (int)line[i] << " ";
-		//	std::cout << std::endl;
-			header_name = this->get_header_name(line);
-			if (header_name == "")
-			{
-				pos0 = pos1 + 1;
-				pos1 = body.find("\r\n", pos0);
-				continue;
-			}
-			header_value = this->get_header_value(line.substr(line.find(':') + 1));
-			parsed_header = header_line_parser.parse(header_name, header_value);
-			headers.insert(header_name, parsed_header);
-			pos0 = pos1 + 1;
-			pos1 = body.find("\r\n", pos0);
-		}
-
-		HttpHeaderMap::iterator it = headers.begin();
-		std::cout << "RESPONSE HEADERS" << std::endl;
-		for (; it != headers.end(); it++)
-			std::cout << "---name: " << it->first << ", type: " << HttpHeader::header_type_to_string(it->second->type) << "---"<< std::endl;  
 		return headers;
 	}
 
