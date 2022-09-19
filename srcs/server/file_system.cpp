@@ -33,8 +33,10 @@ namespace ws
             return;
         }
 
-        this->file_.open(this->path_.c_str());
-        this->is_valid_ = true;
+        this->file_.open(this->path_.c_str(), std::ios_base::in);
+
+        if (this->file_.is_open())
+            this->is_valid_ = true;
     }
 
     void FileSystem::close()
@@ -92,8 +94,13 @@ namespace ws
         return dir_files;
     }
 
-    void write(const std::string &buff)
+    void FileSystem::write(const std::string &buff)
     {
+        this->file_.write(buff.c_str(), buff.size());
+    }
 
+    void FileSystem::create(const std::string &file_path)
+    {
+        this->file_.open(file_path, std::ios_base::out);
     }
 }

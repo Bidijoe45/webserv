@@ -48,29 +48,29 @@ namespace ws
             body.parts.push_back(multipart_body);
         }
 
-        // std::cout << "XX-------------------XX" << std::endl;
-        // for (size_t i=0; i < body.parts.size(); i++)
-        // {
-        //     HttpMultipartBodyPart part = body.parts[i];
-        //     std::cout << "-- Part" << std::endl;
-        //
-        //     std::cout << "--- Headers" << std::endl;
-        //     HttpHeaderMap::iterator hit = part.header_map.begin();
-        //     HttpHeaderMap::iterator hite = part.header_map.end();
-        //     while (hit != hite)
-        //     {
-        //         std::cout << hit->first << std::endl;
-        //         hit++;
-        //     }
-        //     std::cout << "--- ------" << std::endl;
-        //
-        //     std::cout << "--- Content" << std::endl;
-        //     std::cout << part.content << std::endl;
-        //     std::cout << "--- ------" << std::endl;
-        //
-        //     std::cout << "-- ----" << std::endl;
-        // }
-        // std::cout << "XX-------------------XX" << std::endl;
+        std::cout << "XX-------------------XX" << std::endl;
+        for (size_t i=0; i < body.parts.size(); i++)
+        {
+            HttpMultipartBodyPart part = body.parts[i];
+            std::cout << "-- Part" << std::endl;
+
+            std::cout << "--- Headers" << std::endl;
+            HttpHeaderMap::iterator hit = part.header_map.begin();
+            HttpHeaderMap::iterator hite = part.header_map.end();
+            while (hit != hite)
+            {
+                std::cout << hit->first << std::endl;
+                hit++;
+            }
+            std::cout << "--- ------" << std::endl;
+
+            std::cout << "--- Content" << std::endl;
+            std::cout << part.content << std::endl;
+            std::cout << "--- ------" << std::endl;
+
+            std::cout << "-- ----" << std::endl;
+        }
+        std::cout << "XX-------------------XX" << std::endl;
 
         return body;
     }
