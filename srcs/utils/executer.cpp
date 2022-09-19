@@ -26,7 +26,7 @@ namespace ws
    		pid_t pid = fork();
 		if (pid == 0)
 		{
-			if (dup2(fd[1], 1) == -1)
+			if (dup2(fd[1], STDOUT_FILENO) == -1)
 				exit(4);
 			close(fd[1]);
 			execle(this->path_.c_str(), this->path_.c_str(), this->arg_.c_str(), (char *) NULL, this->envp_);
@@ -54,14 +54,15 @@ namespace ws
 		return pid;
 	}
 
-	std::string Executer::get_exec_output()
+	std::string Executer::get_exec_output(int fd)
 	{
 		std::string	output;
-		char		c;
-
-		while (std::cin.get(c))
-			output += c;
-
+		size_t	ret;
+		char	buff[64];
+		while ((ret = read(fd, buff, 64)) > 0)
+			output.append(buff, ret);
+		if (ret == -1)
+			throw std::runtime_error("cgi exec: read");
 		return output;
 	}
 
@@ -100,8 +101,8 @@ namespace ws
 		if (pipe(fd) == -1)
 			throw std::runtime_error("cgi exec: pipe");
 
-		pid_t intermediate_pid = fork();
 		int status;
+		pid_t intermediate_pid = fork();
 		if (intermediate_pid == 0)
 		{
 			close(fd[0]);
@@ -130,19 +131,9 @@ namespace ws
 		else if (WEXITSTATUS(status) != NO_ERROR)
 			throw std::runtime_error("cgi exec: " + check_status_errors(status));
 
-		int old_stdin = dup(0);
-		if (old_stdin == -1)
-			throw std::runtime_error("cgi exec: dup");
-		if (dup2(fd[0], 0) == -1)
-			throw std::runtime_error("cgi exec: dup2");
 
+		std::string output = get_exec_output(fd[0]);
 		close(fd[0]);
-
-		std::string output = get_exec_output();
-
-		if (dup2(old_stdin, 0) == -1)
-			throw std::runtime_error("cgi exec: dup2");
-		close(old_stdin);
 		//system("lsof -c webserv");
 		return output;
 	}
