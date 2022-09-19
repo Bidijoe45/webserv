@@ -42,18 +42,26 @@ namespace ws
 		size_t		colon_pos = this->current_line_.find_first_of(':', this->line_pos_);
 
 		header_name = this->current_line_.substr(this->line_pos_, colon_pos);
+		if (header_name == "")
+			throw std::runtime_error("Header Parser: empty header name");
+
 		header_name = string_to_lower(header_name, header_name.size());
 
 		if (!is_token(header_name))
 			throw std::runtime_error("Header Parser: invalid header name characters");
 
-		this->advance(colon_pos + 1);
+		if (colon_pos != std::string::npos)
+			this->advance(colon_pos + 1);
+		else
+			this->line_pos_ = std::string::npos;
 		return header_name;
 	}
 
 	std::string	HttpHeaderParser::get_header_value()
 	{
 		std::string	header_value;
+		if (this->line_pos_ == std::string::npos)
+			return "";
 		size_t	value_end = this->current_line_.find_last_not_of(" \t");
 
 		header_value = this->current_line_.substr(this->line_pos_, value_end - this->line_pos_ + 1);
@@ -111,7 +119,7 @@ namespace ws
 	void HttpHeaderParser::advance(size_t n = 1)
 	{
 	    if ((this->line_pos_ + n) >= this->current_line_.size())
-	        throw std::runtime_error("Header Parser: trying to advance past the end of string");
+			this->line_pos_ = std::string::npos;
 		this->line_pos_ += n;
 	}
 
