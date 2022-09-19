@@ -28,7 +28,7 @@ namespace ws
 		private:
 			pid_t fork_worker(int *fd);
 			pid_t fork_timer(unsigned int timeout);
-			std::string get_exec_output();
+			std::string get_exec_output(int fd);
 			void kill_remaining_process(pid_t exited_pid, int kill_signal = SIGKILL);
 			std::string check_status_errors(int status);
 			void delete_double_pointer();
