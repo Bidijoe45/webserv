@@ -15,6 +15,7 @@ namespace ws
 
     struct HttpRequestLine
     {
+		std::string method_to_string() const;
 		HTTP_METHOD method;
 		HttpUri uri;
 		std::string http_version;
