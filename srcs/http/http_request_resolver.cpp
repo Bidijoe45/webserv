@@ -115,7 +115,6 @@ namespace ws
 
 	void HttpRequestResolver::apply_post_method()
 	{
-
 	    if (this->location_.upload_dir.size() == 0)
 	    {
 	        this->response_.status_code = 403;
@@ -136,18 +135,6 @@ namespace ws
 	        return;
 	    }
 
-        // std::cout << "XXXXXXXXXXXXXXXXXX" << std::endl;
-        // std::cout << content_type->parameters.size() << std::endl;
-        // std::map<std::string, std::string>::iterator it = content_type->parameters.begin();
-        // std::map<std::string, std::string>::iterator ite = content_type->parameters.end();
-        //
-        // while (it != ite)
-        // {
-        //     std::cout << it->first << " : " << it->second << std::endl;
-        //     it++;
-        // }
-
-        // std::cout << content_type->content_type << std::endl;
 	    if (content_type->content_type != "multipart/form-data")
 	    {
 	        this->response_.status_code = 403;
@@ -178,7 +165,7 @@ namespace ws
             HttpMultipartBodyPart part = *it;
 
             HttpHeaderMap::iterator header_cd_it = part.header_map.find("content-disposition");
-            if (header_cd_it != part.header_map.end())
+            if (header_cd_it == part.header_map.end())
             {
                 this->response_.status_code = 400;
                 return;
@@ -191,14 +178,22 @@ namespace ws
                 return;
             }
 
-            std::cout << "upload: " << this->location_.upload_dir + header_cd->filename << std::endl;
-            FileSystem file(this->location_.upload_dir + header_cd->filename);
+            if (header_cd->filename.size() == 0)
+            {
+                it++;
+                continue;
+            }
+        
+            std::string file_path = this->location_.upload_dir + header_cd->filename;
+            FileSystem file(file_path);
 
+            if (!file.is_open())
+                file.create(file_path);
+            file.write(part.content);
             file.close();
 
             it++;
         }
-
 	}
 
 	void HttpRequestResolver::apply_delete_method()
