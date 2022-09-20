@@ -12,6 +12,12 @@ namespace ws
             return false;
         if (lhs.path != rhs.path)
             return false;
+        if (lhs.query != rhs.query)
+            return false;
+        if (lhs.is_absolute != rhs.is_absolute)
+            return false;
+        if (lhs.params != rhs.params)
+            return false;
         return true;
     }
 
