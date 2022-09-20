@@ -320,7 +320,7 @@ namespace ws
 			LocationResolver location_resolver = LocationResolver(this->settings_.locations);
             std::string uri_path = this->request_.request_line.uri.path;
 			this->location_ = location_resolver.resolve(this->request_.request_line.uri);
-
+			
             if (this->location_.path.size() == 0)
                 this->response_.status_code = 404;
             else
