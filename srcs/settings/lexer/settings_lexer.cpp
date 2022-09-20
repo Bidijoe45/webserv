@@ -93,8 +93,8 @@ namespace ws
 			return Token(TT_INDEX);
 		} else if (value == "accept") {
 			return Token(TT_ACCEPT);
-		} else if (value == "rewrite") {
-			return Token(TT_REWRITE);
+		} else if (value == "redirect") {
+			return Token(TT_REDIRECT);
 		} else if (value == "autoindex") {
 			return Token(TT_AUTOINDEX);
 		} else if (value == "listen") {

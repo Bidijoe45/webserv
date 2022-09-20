@@ -5,6 +5,7 @@
 #include <exception>
 
 #include "../settings.hpp"
+#include "../redirect.hpp"
 #include "../lexer/token.hpp"
 #include "../cgi_settings.hpp"
 
@@ -27,7 +28,7 @@ class SettingsParser {
 		std::string resolve_index_element();
 		bool resolve_autoindex_element();
 		std::vector<HTTP_METHOD> resolve_accept_element();
-		Rewrite resolve_rewrite_element();
+		Redirect resolve_redirect_element();
 		size_t resolve_listen_element();
 		std::string resolve_server_name();
 		ServerSettings resolve_server_block();

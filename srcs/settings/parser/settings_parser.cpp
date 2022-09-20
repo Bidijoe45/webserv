@@ -205,33 +205,26 @@ namespace ws {
 		return methods;
 	}
 
-	Rewrite SettingsParser::resolve_rewrite_element() {
-		Rewrite rewrite;
+	Redirect SettingsParser::resolve_redirect_element() {
+		Redirect redirect;
 
 		if (this->current_token_.type != TT_VALUE) {
-			throw std::runtime_error(std::string("No valid rewrite first argument"));
+			throw std::runtime_error(std::string("No valid redirect first argument"));
 		}
 
-		rewrite.from = this->current_token_.value;
+		redirect.code = atoll(this->current_token_.value.c_str());
 
 		this->advance();
 
 		if (this->current_token_.type != TT_VALUE) {
-			throw std::runtime_error(std::string("No valid rewrite second argument"));
+			throw std::runtime_error(std::string("No valid redirect second argument"));
 		}
 
-		rewrite.to = this->current_token_.value;
+		redirect.to = this->current_token_.value;
 
 		this->advance();
 
-		if (this->current_token_.type != TT_VALUE && this->current_token_.value != "permanent") {
-			throw std::runtime_error(std::string("No valid rewrite third argument"));
-		}
-
-		rewrite.permanent = true;
-		this->advance();
-
-		return rewrite;
+		return redirect;
 	}
 
 	std::string SettingsParser::resolve_upload_element()
@@ -273,9 +266,9 @@ namespace ws {
 				this->advance();
 				location.methods = this->resolve_accept_element();
 				this->check_semicolon();
-			} else if (this->current_token_.type == TT_REWRITE) {
+			} else if (this->current_token_.type == TT_REDIRECT) {
 				this->advance();
-				location.rewrites.push_back(this->resolve_rewrite_element());
+				location.redirect = this->resolve_redirect_element();
 				this->check_semicolon();
 			} else if (this->current_token_.type == TT_CGI) {
 				this->advance();
