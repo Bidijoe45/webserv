@@ -7,6 +7,7 @@
 #include "../lexer/token.hpp"
 #include "../../../tester/settings_lexer/tests/lexer_tests_utils.hpp"
 #include "../cgi_settings.hpp"
+#include "../../http/http_uri_parser.hpp"
 
 namespace ws {
 
@@ -220,7 +221,11 @@ namespace ws {
 			throw std::runtime_error(std::string("No valid redirect second argument"));
 		}
 
-		redirect.to = this->current_token_.value;
+		HttpUriParser uri_parser(this->current_token_.value);
+		redirect.to = uri_parser.parse();
+
+		if (!uri_parser.uri_is_valid())
+			throw std::runtime_error(std::string("No valid redirect uri"));
 
 		this->advance();
 
