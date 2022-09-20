@@ -21,6 +21,8 @@ namespace ws
 			return HTTP_HEADER_CONTENT_DISPOSITION;
 		else if (name == "content-type")
 			return HTTP_HEADER_CONTENT_TYPE;
+		else if (name == "location")
+			return HTTP_HEADER_LOCATION;
 		else
 			return HTTP_HEADER_UNKNOWN;
 	}
@@ -39,6 +41,8 @@ namespace ws
 				return "content-disposition";
 			case HTTP_HEADER_CONTENT_TYPE:
 				return "content-type";
+			case HTTP_HEADER_LOCATION:
+				return "locaiton";
 			default:
 				return "unknown";
 		}
@@ -58,6 +62,8 @@ namespace ws
 				return new HttpHeaderContentDisposition(*static_cast<const HttpHeaderContentDisposition*>(header));
 			case HTTP_HEADER_CONTENT_TYPE:
 				return new HttpHeaderContentType(*static_cast<const HttpHeaderContentType*>(header));
+			case HTTP_HEADER_LOCATION:
+				return new HttpHeaderLocation(*static_cast<const HttpHeaderLocation*>(header));
 			default:
 				return new HttpHeaderUnknown(*static_cast<const HttpHeaderUnknown*>(header));
 		}
@@ -77,6 +83,8 @@ namespace ws
 				return new HttpHeaderContentDisposition();
 			case HTTP_HEADER_CONTENT_TYPE:
 				return new HttpHeaderContentType();
+			case HTTP_HEADER_LOCATION:
+				return new HttpHeaderLocation();
 			default:
 				return new HttpHeaderUnknown();
 		}

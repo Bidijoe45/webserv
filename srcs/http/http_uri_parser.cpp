@@ -4,8 +4,8 @@
 #include <vector>
 #include <sstream>
 
-#include "http_uri_parser.hpp"
 #include "http_uri.hpp"
+#include "http_uri_parser.hpp"
 #include "../utils/string_utils.hpp"
 
 namespace ws

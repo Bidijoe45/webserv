@@ -2,7 +2,7 @@
 #include <iostream>
 
 #include "http_headers.hpp"
-#include "../http_uri_parser.cpp"
+#include "../http_uri_parser.hpp"
 
 namespace ws
 {
