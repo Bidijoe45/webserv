@@ -320,9 +320,22 @@ namespace ws
 			LocationResolver location_resolver = LocationResolver(this->settings_.locations);
             std::string uri_path = this->request_.request_line.uri.path;
 			this->location_ = location_resolver.resolve(this->request_.request_line.uri);
-			
+
             if (this->location_.path.size() == 0)
+            {
                 this->response_.status_code = 404;
+            }
+            else if (this->location_.redirect.code > 0)
+		    {
+		        this->response_.status_code = this->location_.redirect.code;
+
+                HttpHeaderLocation *location_header = new HttpHeaderLocation();
+                location_header->uri = this->location_.redirect.to;
+                location_header->value = location_header->uri.absolute_path();
+
+		        this->response_.headers.insert(location_header);
+
+		    }
             else
             {
                 std::string new_uri_path; 
@@ -349,7 +362,7 @@ namespace ws
 
 		this->response_.status_msg = this->resolve_status_code();
 
-		if (this->response_.status_code >= 400)
+		if (this->response_.status_code >= 300)
 			this->set_error_body();
 
         return this->response_;

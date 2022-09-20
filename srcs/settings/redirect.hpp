@@ -1,6 +1,7 @@
 #pragma once
 
 #include <string>
+#include "../http/http_uri.hpp"
 
 namespace ws
 {
@@ -8,7 +9,7 @@ struct Redirect {
 	Redirect();
 
 	size_t code;
-	std::string to;
+	HttpUri to;
 };
 
 bool operator==(const Redirect &lhs, const Redirect &rhs);

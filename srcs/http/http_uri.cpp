@@ -1,8 +1,24 @@
 #include "http_uri.hpp"
 
+#include <iostream>
 namespace ws
 {
     HttpUri::HttpUri() : port(80), is_absolute(false) {}
+
+    std::string HttpUri::absolute_path()
+    {
+        std::string abs_path;
+
+        if (this->schema.size() > 0)
+            abs_path += this->schema + "://";
+
+        abs_path += this->path;
+
+        if (this->query.size() > 0)
+            abs_path += this->query;
+
+        return abs_path;
+    }
 
     bool operator==(const HttpUri &lhs, const HttpUri &rhs)
     {

@@ -42,7 +42,7 @@ namespace ws
 			case HTTP_HEADER_CONTENT_TYPE:
 				return "content-type";
 			case HTTP_HEADER_LOCATION:
-				return "locaiton";
+				return "location";
 			default:
 				return "unknown";
 		}
