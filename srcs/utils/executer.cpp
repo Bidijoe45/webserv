@@ -134,7 +134,6 @@ namespace ws
 
 		std::string output = get_exec_output(fd[0]);
 		close(fd[0]);
-		//system("lsof -c webserv");
 		return output;
 	}
 
