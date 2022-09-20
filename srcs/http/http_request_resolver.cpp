@@ -44,6 +44,8 @@ namespace ws
 				return "FORBIDDEN";
 			case 500:
 				return "INTERNAL SERVER ERROR";
+			case 501:
+				return "NOT IMPLEMENTED";
 			default:
 				return "";
 		}
