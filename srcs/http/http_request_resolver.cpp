@@ -264,6 +264,10 @@ namespace ws
 		else
 			this->response_.body = resolve_custom_error_page(error_page_path);
 
+		HttpHeaderMap::iterator content_length = this->response_.headers.find("content-length");
+		if (content_length != this->response_.headers.end())
+			this->response_.headers.erase(content_length);
+
 		HttpHeaderContentLength *content_length_header = new HttpHeaderContentLength();
 		content_length_header->set_value(this->response_.body.size());
 		this->response_.headers.insert(content_length_header);
@@ -313,20 +317,17 @@ namespace ws
 				{
 					CGI cgi(cgi_executable, this->env_, this->file_path_, this->request_);
 					this->response_.status_code = cgi.execute();
+					this->response_.status_msg = cgi.get_status_msg();
 					this->response_.headers = cgi.get_header_map();
 					this->response_.body = cgi.get_body();
-
-					HttpHeaderMap::iterator it = this->response_.headers.begin();
-					std::cout << "CGI RESPONSE HEADERS" << std::endl;
-					for (; it != this->response_.headers.end(); it++)
-						std::cout << "---name: " << it->first << ", type: " << HttpHeader::header_type_to_string(it->second->type)<< ", value: " << it->second->value << "---"<< std::endl;  
 				}
 				else
 					this->apply_method();
             }
 		}
 
-		this->response_.status_msg = this->resolve_status_code();
+		if (this->response_.status_msg.size() == 0)
+			this->response_.status_msg = this->resolve_status_code();
 
 		if (this->response_.status_code >= 400)
 			this->set_error_body();

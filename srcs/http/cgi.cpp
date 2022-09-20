@@ -1,5 +1,4 @@
 #include <vector>
-//#include <unistd.h>
 #include <sstream>
 #include <signal.h>
 
@@ -71,15 +70,12 @@ namespace ws
 
     unsigned int CGI::execute()
     {
-		std::cout << "EXECUTING " << this->executable_<< " " << this->file_path_ << ".........." << std::endl;
+		unsigned int status_code = 200;
 
 		Executer cgi_executer(this->executable_, this->file_path_, this->env_);
 		try
 		{
 			this->execution_output_ = cgi_executer.exec_with_timeout(5); 
-
-//			std::cout << "CGI RESPONSE: " << execution_output_ << std::endl;
-
 			if (this->execution_output_.size() == 0)
 				throw std::runtime_error("CGI: no output from cgi");
 			this->output_buff_ = DataBuffer(this->execution_output_);
@@ -90,13 +86,22 @@ namespace ws
 			std::cout << e.what() << std::endl;
 			return 500;
 		}
-		return 200;
+	
+		HttpHeaderMap::iterator status = this->response_headers_.find("status");
+		if (status != this->response_headers_.end())
+		{
+			this->status_msg_ = static_cast<HttpHeaderCGIStatus*>(status->second)->reason_phrase;
+			status_code = static_cast<HttpHeaderCGIStatus*>(status->second)->status_code;
+			this->response_headers_.erase(status);
+		}
+		
+		return status_code;
     }
 			
 	void CGI::parse_execution_output()
 	{
 		this->response_headers_ = this->parse_headers();
-		if (this->response_headers_.find("content-type") != this->response_headers_.end())
+		if (this->response_headers_.find(HttpHeader::header_type_to_string(HTTP_HEADER_CONTENT_TYPE))!= this->response_headers_.end())
 		{
 			this->response_body_ = this->parse_body();
 			HttpHeaderContentLength *content_length_header = new HttpHeaderContentLength(); 
@@ -144,5 +149,10 @@ namespace ws
 	std::string CGI::get_body()
 	{
 		return this->response_body_;
+	}
+
+	std::string CGI::get_status_msg()
+	{
+		return this->status_msg_;
 	}
 }

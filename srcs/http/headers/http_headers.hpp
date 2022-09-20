@@ -78,6 +78,20 @@ namespace ws
 			void parse_value();
 	};
 
+	struct HttpHeaderCGIStatus : public HttpHeaderSingleton
+	{
+		HttpHeaderCGIStatus();
+		~HttpHeaderCGIStatus();
+		HttpHeaderCGIStatus(const HttpHeaderCGIStatus &src);
+		void set_value(const std::string &value);
+
+		unsigned int status_code;
+		std::string reason_phrase;
+
+		private:
+			void parse_value();
+	};
+
 	struct HttpHeaderUnknown : public HttpHeaderSingleton
 	{
 		HttpHeaderUnknown();

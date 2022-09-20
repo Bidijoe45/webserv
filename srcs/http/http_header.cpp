@@ -21,6 +21,8 @@ namespace ws
 			return HTTP_HEADER_CONTENT_DISPOSITION;
 		else if (name == "content-type")
 			return HTTP_HEADER_CONTENT_TYPE;
+		else if (name == "status")
+			return HTTP_HEADER_CGI_STATUS;
 		else
 			return HTTP_HEADER_UNKNOWN;
 	}
@@ -39,6 +41,8 @@ namespace ws
 				return "content-disposition";
 			case HTTP_HEADER_CONTENT_TYPE:
 				return "content-type";
+			case HTTP_HEADER_CGI_STATUS:
+				return "status";
 			default:
 				return "unknown";
 		}
@@ -58,6 +62,8 @@ namespace ws
 				return new HttpHeaderContentDisposition(*static_cast<const HttpHeaderContentDisposition*>(header));
 			case HTTP_HEADER_CONTENT_TYPE:
 				return new HttpHeaderContentType(*static_cast<const HttpHeaderContentType*>(header));
+			case HTTP_HEADER_CGI_STATUS:
+				return new HttpHeaderCGIStatus(*static_cast<const HttpHeaderCGIStatus*>(header));
 			default:
 				return new HttpHeaderUnknown(*static_cast<const HttpHeaderUnknown*>(header));
 		}
@@ -77,6 +83,8 @@ namespace ws
 				return new HttpHeaderContentDisposition();
 			case HTTP_HEADER_CONTENT_TYPE:
 				return new HttpHeaderContentType();
+			case HTTP_HEADER_CGI_STATUS:
+				return new HttpHeaderCGIStatus();
 			default:
 				return new HttpHeaderUnknown();
 		}
