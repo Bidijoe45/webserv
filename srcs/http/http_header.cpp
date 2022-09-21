@@ -23,6 +23,8 @@ namespace ws
 			return HTTP_HEADER_CONTENT_TYPE;
 		else if (name == "status")
 			return HTTP_HEADER_CGI_STATUS;
+		else if (name == "location")
+			return HTTP_HEADER_LOCATION;
 		else
 			return HTTP_HEADER_UNKNOWN;
 	}
@@ -43,6 +45,8 @@ namespace ws
 				return "content-type";
 			case HTTP_HEADER_CGI_STATUS:
 				return "status";
+			case HTTP_HEADER_LOCATION:
+				return "location";
 			default:
 				return "unknown";
 		}
@@ -64,6 +68,8 @@ namespace ws
 				return new HttpHeaderContentType(*static_cast<const HttpHeaderContentType*>(header));
 			case HTTP_HEADER_CGI_STATUS:
 				return new HttpHeaderCGIStatus(*static_cast<const HttpHeaderCGIStatus*>(header));
+			case HTTP_HEADER_LOCATION:
+				return new HttpHeaderLocation(*static_cast<const HttpHeaderLocation*>(header));
 			default:
 				return new HttpHeaderUnknown(*static_cast<const HttpHeaderUnknown*>(header));
 		}
@@ -85,6 +91,8 @@ namespace ws
 				return new HttpHeaderContentType();
 			case HTTP_HEADER_CGI_STATUS:
 				return new HttpHeaderCGIStatus();
+			case HTTP_HEADER_LOCATION:
+				return new HttpHeaderLocation();
 			default:
 				return new HttpHeaderUnknown();
 		}

@@ -45,7 +45,7 @@ namespace ws
 			if (*splitted_param.begin() == "name")
 				this->name = string_trim(*splitted_param.begin(), "\"");
 			else if (*splitted_param.begin() == "filename")
-				this->filename = string_trim(*splitted_param.begin(), "\"");
+				this->filename = string_trim(*(splitted_param.end() - 1), "\"");
 			it++;
 		}
 	}

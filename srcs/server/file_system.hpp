@@ -21,12 +21,14 @@ namespace ws
             std::string get_path() const;
             std::string get_content();
             std::vector<std::string> read_dir() const;
+            void write(const std::string &buff);
+            void create(const std::string &file_path);
         
         private:
             std::string path_;
             bool path_is_dir_;
             bool is_valid_;
-            std::ifstream file_;
+            std::fstream file_;
             struct stat stat_;
 
     };

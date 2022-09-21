@@ -9,7 +9,7 @@ namespace ws
 
 	bool operator==(const Location &lhs, const Location &rhs) {
 		if (lhs.path == rhs.path && lhs.root == rhs.root && lhs.index == rhs.index
-			&& lhs.methods == rhs.methods && lhs.rewrites == rhs.rewrites
+			&& lhs.methods == rhs.methods && lhs.redirect == rhs.redirect
 			&& lhs.autoindex == rhs.autoindex && lhs.cgis == rhs.cgis)
 		{
 			return true;

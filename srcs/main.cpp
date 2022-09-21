@@ -1,3 +1,4 @@
+#include <fstream>
 #include <iostream>
 #include <stdlib.h>
 #include <unistd.h>
@@ -40,3 +41,4 @@ int main(int argc, char **argv, char **env) {
 
 	std::cout << "FIN del programa" << std::endl;
 }
+

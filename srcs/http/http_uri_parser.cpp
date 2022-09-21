@@ -4,8 +4,8 @@
 #include <vector>
 #include <sstream>
 
-#include "http_uri_parser.hpp"
 #include "http_uri.hpp"
+#include "http_uri_parser.hpp"
 #include "../utils/string_utils.hpp"
 
 namespace ws
@@ -16,13 +16,18 @@ namespace ws
 
     void HttpUriParser::parse_scheme()
     {
-        std::string scheme = this->line_.substr(0, 7);
+        size_t scheme_end = this->line_.find_first_of(":");
+        std::string scheme = this->line_.substr(0, scheme_end);
 
-        if (scheme == "http://")
-        {
+
+        if (scheme_end == std::string::npos)
+            return;
+
+        if (scheme == "http")
             this->uri_.is_absolute = true;
-            this->line_pos_ += 7;
-        }
+
+        this->uri_.schema = scheme;
+        this->line_pos_ += scheme_end + 2;
     }
 
     void HttpUriParser::parse_host()

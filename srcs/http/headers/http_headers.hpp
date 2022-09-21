@@ -3,6 +3,7 @@
 #include <map>
 
 #include "../http_header.hpp"
+#include "../http_uri.hpp"
 
 namespace ws
 {
@@ -87,6 +88,19 @@ namespace ws
 
 		unsigned int status_code;
 		std::string reason_phrase;
+
+		private:
+			void parse_value();
+	};
+
+	struct HttpHeaderLocation : public HttpHeaderSingleton
+	{
+		HttpHeaderLocation();
+		~HttpHeaderLocation();
+		HttpHeaderLocation(const HttpHeaderLocation &src);
+		void set_value(const std::string &value);
+
+		HttpUri uri;
 
 		private:
 			void parse_value();
