@@ -30,25 +30,18 @@ namespace ws
 
 	void CGI::set_env()
 	{
-		HttpHeaderMap::const_iterator it = this->request_.headers.find("content-length");
+		this->env_.insert("CONTENT_LENGTH", ul_to_string(this->request_.body.size())); 
+
+		HttpHeaderMap::const_iterator it = this->request_.headers.find("content-type");
 		HttpHeaderMap::const_iterator ite = this->request_.headers.end();
 		if (it != ite)
-		{
-			HttpHeaderContentLength *content_len = static_cast<HttpHeaderContentLength *>(it->second);
-			size_t body_size = content_len->content_length;
-			this->env_.insert("CONTENT_LENGTH", ul_to_string(body_size)); 
-		}
-		it = this->request_.headers.find("content-type");
-		//TODO: implementar http header content-type y encontrar el que corresponde en lugar de meterlo a mano aqui:
-		if (it != ite)
-			this->env_.insert("CONTENT_TYPE", "application/octet-stream");
+			this->env_.insert("CONTENT_TYPE", it->second->value);
 
 		this->env_.insert("GATEWAY_INTERFACE", "CGI/1.1");
 		this->env_.insert("SCRIPT_NAME", this->file_path_);
 		this->env_.insert("SCRIPT_FILENAME", this->file_path_);
 		this->env_.insert("PATH_INFO", this->file_path_);
-		//TODO: coger query string de la request.uri. se setea aunque sea vacia ""
-		this->env_.insert("QUERY_STRING", "hola=adios&que=tal");
+		this->env_.insert("QUERY_STRING", this->request_.request_line.uri.query);
 		//TODO: guardar la IP del cliente:
 		this->env_.insert("REMOTE_ADDR", "1.1.1.1");
 		//TODO: remote host es un should, habria que encontrarlo del servidor tb, o dejar el remote_addr, o dejarlo en null:
@@ -72,7 +65,7 @@ namespace ws
     {
 		unsigned int status_code = 200;
 
-		Executer cgi_executer(this->executable_, this->file_path_, this->env_);
+		Executer cgi_executer(this->executable_, this->file_path_, this->env_, this->request_.body);
 		try
 		{
 			this->execution_output_ = cgi_executer.exec_with_timeout(5); 
