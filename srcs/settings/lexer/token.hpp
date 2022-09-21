@@ -17,7 +17,7 @@ namespace ws
 		TT_ROOT,
 		TT_INDEX,
 		TT_ACCEPT,
-		TT_REWRITE,
+		TT_REDIRECT,
 		TT_AUTOINDEX,
 		TT_CGI,
 		TT_UPLOAD,

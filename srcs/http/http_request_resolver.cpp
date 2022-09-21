@@ -13,12 +13,12 @@
 #include "../server/file_system.hpp"
 #include "./headers/http_headers.hpp"
 #include "location_resolver.hpp"
-#include "cgi_settings.hpp"
+#include "../settings/cgi_settings.hpp"
 #include "cgi.hpp"
-#include "env_map.hpp"
 #include "http_multipart_body_parser.hpp"
 #include "http_multipart_body.hpp"
 #include "http_header.hpp"
+#include "../utils/env_map.hpp"
 
 namespace ws
 {
@@ -117,9 +117,6 @@ namespace ws
 
 	void HttpRequestResolver::apply_post_method()
 	{
-	    this->response_.status_code = 100;
-	    return ;
-
 	    if (this->location_.upload_dir.size() == 0)
 	    {
 	        this->response_.status_code = 403;
@@ -140,18 +137,6 @@ namespace ws
 	        return;
 	    }
 
-        // std::cout << "XXXXXXXXXXXXXXXXXX" << std::endl;
-        // std::cout << content_type->parameters.size() << std::endl;
-        // std::map<std::string, std::string>::iterator it = content_type->parameters.begin();
-        // std::map<std::string, std::string>::iterator ite = content_type->parameters.end();
-        //
-        // while (it != ite)
-        // {
-        //     std::cout << it->first << " : " << it->second << std::endl;
-        //     it++;
-        // }
-
-        // std::cout << content_type->content_type << std::endl;
 	    if (content_type->content_type != "multipart/form-data")
 	    {
 	        this->response_.status_code = 403;
@@ -174,7 +159,43 @@ namespace ws
             return;
         }
 
-        std::cout << "END apply post" << std::endl;
+        std::vector<HttpMultipartBodyPart>::iterator it = multipart_body.parts.begin();
+        std::vector<HttpMultipartBodyPart>::iterator ite = multipart_body.parts.end();
+
+        while (it != ite)
+        {
+            HttpMultipartBodyPart part = *it;
+
+            HttpHeaderMap::iterator header_cd_it = part.header_map.find("content-disposition");
+            if (header_cd_it == part.header_map.end())
+            {
+                this->response_.status_code = 400;
+                return;
+            }
+
+            HttpHeaderContentDisposition * header_cd = dynamic_cast<HttpHeaderContentDisposition *>(header_cd_it->second);
+            if (header_cd == NULL)
+            {
+                this->response_.status_code = 400;
+                return;
+            }
+
+            if (header_cd->filename.size() == 0)
+            {
+                it++;
+                continue;
+            }
+        
+            std::string file_path = this->location_.upload_dir + header_cd->filename;
+            FileSystem file(file_path);
+
+            if (!file.is_open())
+                file.create(file_path);
+            file.write(part.content);
+            file.close();
+
+            it++;
+        }
 	}
 
 	void HttpRequestResolver::apply_delete_method()
@@ -307,7 +328,20 @@ namespace ws
 			this->location_ = location_resolver.resolve(this->request_.request_line.uri);
 
             if (this->location_.path.size() == 0)
+            {
                 this->response_.status_code = 404;
+            }
+            else if (this->location_.redirect.code > 0)
+		    {
+		        this->response_.status_code = this->location_.redirect.code;
+
+                HttpHeaderLocation *location_header = new HttpHeaderLocation();
+                location_header->uri = this->location_.redirect.to;
+                location_header->value = location_header->uri.absolute_path();
+
+		        this->response_.headers.insert(location_header);
+
+		    }
             else
             {
                 std::string new_uri_path; 
@@ -331,7 +365,7 @@ namespace ws
 		if (this->response_.status_msg.size() == 0)
 			this->response_.status_msg = this->resolve_status_code();
 
-		if (this->response_.status_code >= 400)
+		if (this->response_.status_code >= 300)
 			this->set_error_body();
 
         return this->response_;
