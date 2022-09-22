@@ -3,7 +3,6 @@
 #include <iostream>
 #include <string>
 #include <arpa/inet.h>
-#include <netinet/in.h>
 
 #include "connection.hpp"
 

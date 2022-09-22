@@ -19,7 +19,6 @@ namespace ws
         size_t scheme_end = this->line_.find_first_of(":");
         std::string scheme = this->line_.substr(0, scheme_end);
 
-
         if (scheme_end == std::string::npos)
             return;
 
@@ -71,7 +70,7 @@ namespace ws
             this->uri_.path = this->line_.substr(this->line_pos_, question_mark_pos - this->line_pos_);
         this->uri_.path = compress_slash(this->uri_.path);
         this->uri_.path = decode(this->uri_.path);
-        this->line_pos_ += this->uri_.path.size();
+        this->line_pos_ = question_mark_pos;
 
         if (question_mark_pos != std::string::npos)
             this->parse_query();
