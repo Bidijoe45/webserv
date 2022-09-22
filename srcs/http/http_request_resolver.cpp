@@ -2,6 +2,7 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include <sys/socket.h>
 
 #include "../utils/string_utils.hpp"
 #include "http_request_resolver.hpp"
@@ -19,15 +20,17 @@
 #include "http_multipart_body.hpp"
 #include "http_header.hpp"
 #include "../utils/env_map.hpp"
+#include "connection.hpp"
 
 namespace ws
 {
 
-    HttpRequestResolver::HttpRequestResolver(const HttpRequest &request, const ServerSettings &settings, const EnvMap &env)
+    HttpRequestResolver::HttpRequestResolver(const HttpRequest &request, const ServerSettings &settings, const EnvMap &env, const Connection &connection)
     {
         this->request_ = request;
         this->settings_ = settings;
 		this->env_ = env;
+		this->connection_ = connection;
     }
 
 	std::string HttpRequestResolver::resolve_status_code()
@@ -351,7 +354,7 @@ namespace ws
 				std::string cgi_executable = this->resolve_cgi_executable();
 				if (cgi_executable != "")
 				{
-					CGI cgi(cgi_executable, this->env_, this->file_path_, this->request_);
+					CGI cgi(cgi_executable, this->env_, this->file_path_, this->request_, this->connection_);
 					this->response_.status_code = cgi.execute();
 					this->response_.status_msg = cgi.get_status_msg();
 					this->response_.headers = cgi.get_header_map();

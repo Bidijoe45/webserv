@@ -1,11 +1,14 @@
 #pragma once
 
+#include <sys/socket.h>
+
 #include "http_request.hpp"
 #include "http_response.hpp"
 #include "../settings/settings.hpp"
 #include "../settings/location.hpp"
 #include "../server/file_system.hpp"
 #include "../utils/env_map.hpp"
+#include "connection.hpp"
 
 namespace ws
 {
@@ -13,7 +16,7 @@ namespace ws
     class HttpRequestResolver
     {
         public: 
-            HttpRequestResolver(const HttpRequest &request, const ServerSettings &settings, const EnvMap &env);
+            HttpRequestResolver(const HttpRequest &request, const ServerSettings &settings, const EnvMap &env, const Connection &connection);
             HttpResponse resolve();
 
         private:
@@ -35,6 +38,7 @@ namespace ws
 			Location location_;
 			std::string file_path_;
 			EnvMap env_;
+			Connection connection_;
     };
     
 }

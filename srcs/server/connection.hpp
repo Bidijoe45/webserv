@@ -3,6 +3,7 @@
 #include <sys/socket.h>
 #include <memory>
 #include <poll.h>
+#include <string>
 
 #include "./data_buffer.hpp"
 
@@ -12,6 +13,7 @@ struct Connection {
 	~Connection();
 	int send_data();
 	int recv_data();
+	std::string get_ip_address();
 
 	int socket;
 	int port;
