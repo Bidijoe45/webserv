@@ -2,7 +2,6 @@
 #include <signal.h>
 #include <cstdlib>
 #include <string>
-#include <iostream>
 
 #include "executer.hpp"
 #include "env_map.hpp"
@@ -52,6 +51,7 @@ namespace ws
    		if (pid == 0)
 		{
 			sleep(timeout);
+			this->delete_double_pointer();
 			exit(TIMEOUT_ERROR);
 		}
 		if (pid == -1)
@@ -78,7 +78,7 @@ namespace ws
 	void Executer::kill_remaining_process(pid_t exited_pid, int kill_signal)
 	{
 		if (exited_pid == this->worker_pid_)
-	        kill(this->timer_pid_, SIGKILL);
+	        kill(this->timer_pid_, kill_signal);
 		else if (exited_pid == this->timer_pid_)
 	        kill(this->worker_pid_, kill_signal);
 		else if (exited_pid == -1)
@@ -109,13 +109,34 @@ namespace ws
 		}
 	}
 
+	void Executer::check_post_exec_errors(pid_t intermediate_pid, int *fd)
+	{
+		int status;
+
+		if (waitpid(intermediate_pid, &status, 0) == -1)
+		{
+			close(fd[0]);
+			throw std::runtime_error(this->get_error_string(WAIT_ERROR));
+		}
+		if (WIFEXITED(status) == false)
+		{
+			close(fd[0]);
+			throw std::runtime_error(this->get_error_string(OTHER_ERROR));
+		}
+		EXEC_ERROR error = static_cast<EXEC_ERROR>(WEXITSTATUS(status));
+		if (error > NO_ERROR && error <= OTHER_ERROR)
+		{
+			close(fd[0]);
+			throw std::runtime_error(this->get_error_string(error));
+		}
+	}
+
 	std::string Executer::exec_with_timeout(unsigned int timeout, int kill_signal)
 	{
 		int fd[2];
 		if (pipe(fd) == -1)
 			throw std::runtime_error(this->get_error_string(PIPE_ERROR));
 
-		int status;
 		pid_t intermediate_pid = fork();
 		if (intermediate_pid == 0)
 		{
@@ -124,6 +145,7 @@ namespace ws
 			close(fd[1]);
 			this->timer_pid_ = this->fork_timer(timeout);
 
+			int status;
 			pid_t exited_pid = wait(&status);
 			kill_remaining_process(exited_pid, kill_signal);
 			if (wait(NULL) == -1)
@@ -131,24 +153,17 @@ namespace ws
 			if (WIFEXITED(status) == false)
 				exit(OTHER_ERROR);
 			
+			this->delete_double_pointer();
 	        exit(WEXITSTATUS(status));
 	    }
 		if (intermediate_pid == -1)
 			throw std::runtime_error(this->get_error_string(FORK_ERROR));
 
 		close(fd[1]);
-	    if (waitpid(intermediate_pid, &status, 0) == -1)
-			throw std::runtime_error(this->get_error_string(WAIT_ERROR));
-
-		if (WIFEXITED(status) == false)
-			throw std::runtime_error(this->get_error_string(OTHER_ERROR));
-		
-		EXEC_ERROR error = static_cast<EXEC_ERROR>(WEXITSTATUS(status));
-		if (error > NO_ERROR && error <= OTHER_ERROR)
-			throw std::runtime_error(this->get_error_string(error));
-
-		std::string output = get_exec_output(fd[0]);
+		this->check_post_exec_errors(intermediate_pid, fd);
+	   	std::string output = get_exec_output(fd[0]);
 		close(fd[0]);
+
 		return output;
 	}
 

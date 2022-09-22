@@ -18,6 +18,7 @@ namespace ws
 		WAIT_ERROR,
 		DUP_ERROR,
 		READ_ERROR,
+		KILL_ERROR,
 		OTHER_ERROR
 	};
 
@@ -35,6 +36,7 @@ namespace ws
 			void kill_remaining_process(pid_t exited_pid, int kill_signal = SIGKILL);
 			std::string get_error_string(EXEC_ERROR error);
 			void delete_double_pointer();
+			void check_post_exec_errors(pid_t intermediate_pid, int *fd);
 
 			const std::string	path_;
 			const std::string	arg_;
