@@ -1,6 +1,7 @@
 #include <vector>
 #include <sstream>
 #include <signal.h>
+#include <sys/socket.h>
 
 #include "http_request.hpp"
 #include "cgi_settings.hpp"
@@ -13,18 +14,20 @@
 #include "http_header_parser.hpp"
 #include "executer.hpp"
 #include "data_buffer.hpp"
+#include "connection.hpp"
 
 #include <iostream>
 
 namespace ws
 {
 
-    CGI::CGI(const std::string &executable, const EnvMap &env, const std::string &file_path, const HttpRequest &request)
+    CGI::CGI(const std::string &executable, const EnvMap &env, const std::string &file_path, const HttpRequest &request, const Connection &connection)
    	{
 		this->executable_ = executable;
 		this->env_ = env;
 		this->file_path_ = file_path;
 		this->request_ = request;
+		this->connection_ = connection;
 		this->set_env();
 	}
 
@@ -42,18 +45,15 @@ namespace ws
 		this->env_.insert("SCRIPT_FILENAME", this->file_path_);
 		this->env_.insert("PATH_INFO", this->file_path_);
 		this->env_.insert("QUERY_STRING", this->request_.request_line.uri.query);
-		//TODO: guardar la IP del cliente:
-		this->env_.insert("REMOTE_ADDR", "1.1.1.1");
-		//TODO: remote host es un should, habria que encontrarlo del servidor tb, o dejar el remote_addr, o dejarlo en null:
-		this->env_.insert("REMOTE_HOST", "");
+
+		this->env_.insert("REMOTE_ADDR", this->connection_.get_ip_address());
 		this->env_.insert("REQUEST_METHOD", this->request_.request_line.method_to_string());	
 
 		it = this->request_.headers.find("host");
 		HttpHeaderHost *host_header = static_cast<HttpHeaderHost *>(it->second);
 		this->env_.insert("SERVER_NAME", host_header->host);
-		//FIXME: default server port needs to be set even if it doesn't appear in the host header
-		if (host_header->port != -1)
-			this->env_.insert("SERVER_PORT", int_to_string(host_header->port));
+
+		this->env_.insert("SERVER_PORT", int_to_string(this->connection_.port));
 
 		this->env_.insert("SERVER_PROTOCOL", "HTTP/1.1");
 		this->env_.insert("SERVER_SOFTWARE", "webserv/1.0");

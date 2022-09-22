@@ -206,7 +206,7 @@ namespace ws
 
 		ServerSettings server_settings = this->settings_.resolve_settings_hostname(http_request, connection.port);
 
-		HttpRequestResolver request_resolver(http_request, server_settings, this->env_);
+		HttpRequestResolver request_resolver(http_request, server_settings, this->env_, connection);
 		HttpResponse response = request_resolver.resolve();
 
 		connection.buff.append(response.to_string());
