@@ -21,6 +21,8 @@ namespace ws
 			return HTTP_HEADER_CONTENT_DISPOSITION;
 		else if (name == "content-type")
 			return HTTP_HEADER_CONTENT_TYPE;
+		else if (name == "status")
+			return HTTP_HEADER_CGI_STATUS;
 		else if (name == "location")
 			return HTTP_HEADER_LOCATION;
 		else
@@ -41,6 +43,8 @@ namespace ws
 				return "content-disposition";
 			case HTTP_HEADER_CONTENT_TYPE:
 				return "content-type";
+			case HTTP_HEADER_CGI_STATUS:
+				return "status";
 			case HTTP_HEADER_LOCATION:
 				return "location";
 			default:
@@ -62,6 +66,8 @@ namespace ws
 				return new HttpHeaderContentDisposition(*static_cast<const HttpHeaderContentDisposition*>(header));
 			case HTTP_HEADER_CONTENT_TYPE:
 				return new HttpHeaderContentType(*static_cast<const HttpHeaderContentType*>(header));
+			case HTTP_HEADER_CGI_STATUS:
+				return new HttpHeaderCGIStatus(*static_cast<const HttpHeaderCGIStatus*>(header));
 			case HTTP_HEADER_LOCATION:
 				return new HttpHeaderLocation(*static_cast<const HttpHeaderLocation*>(header));
 			default:
@@ -83,6 +89,8 @@ namespace ws
 				return new HttpHeaderContentDisposition();
 			case HTTP_HEADER_CONTENT_TYPE:
 				return new HttpHeaderContentType();
+			case HTTP_HEADER_CGI_STATUS:
+				return new HttpHeaderCGIStatus();
 			case HTTP_HEADER_LOCATION:
 				return new HttpHeaderLocation();
 			default:

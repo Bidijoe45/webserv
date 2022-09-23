@@ -1,5 +1,3 @@
-
-
 #include "http_response.hpp"
 #include "string_utils.hpp"
 

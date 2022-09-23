@@ -1,7 +1,7 @@
 #include <vector>
-//#include <unistd.h>
 #include <sstream>
 #include <signal.h>
+#include <sys/socket.h>
 
 #include "http_request.hpp"
 #include "cgi_settings.hpp"
@@ -14,54 +14,46 @@
 #include "http_header_parser.hpp"
 #include "executer.hpp"
 #include "data_buffer.hpp"
+#include "connection.hpp"
 
 #include <iostream>
 
 namespace ws
 {
 
-    CGI::CGI(const std::string &executable, const EnvMap &env, const std::string &file_path, const HttpRequest &request)
+    CGI::CGI(const std::string &executable, const EnvMap &env, const std::string &file_path, const HttpRequest &request, const Connection &connection)
    	{
 		this->executable_ = executable;
 		this->env_ = env;
 		this->file_path_ = file_path;
 		this->request_ = request;
+		this->connection_ = connection;
 		this->set_env();
 	}
 
 	void CGI::set_env()
 	{
-		HttpHeaderMap::const_iterator it = this->request_.headers.find("content-length");
+		this->env_.insert("CONTENT_LENGTH", ul_to_string(this->request_.body.size())); 
+
+		HttpHeaderMap::const_iterator it = this->request_.headers.find("content-type");
 		HttpHeaderMap::const_iterator ite = this->request_.headers.end();
 		if (it != ite)
-		{
-			HttpHeaderContentLength *content_len = static_cast<HttpHeaderContentLength *>(it->second);
-			size_t body_size = content_len->content_length;
-			this->env_.insert("CONTENT_LENGTH", ul_to_string(body_size)); 
-		}
-		it = this->request_.headers.find("content-type");
-		//TODO: implementar http header content-type y encontrar el que corresponde en lugar de meterlo a mano aqui:
-		if (it != ite)
-			this->env_.insert("CONTENT_TYPE", "application/octet-stream");
+			this->env_.insert("CONTENT_TYPE", it->second->value);
 
 		this->env_.insert("GATEWAY_INTERFACE", "CGI/1.1");
 		this->env_.insert("SCRIPT_NAME", this->file_path_);
 		this->env_.insert("SCRIPT_FILENAME", this->file_path_);
 		this->env_.insert("PATH_INFO", this->file_path_);
-		//TODO: coger query string de la request.uri. se setea aunque sea vacia ""
-		this->env_.insert("QUERY_STRING", "hola=adios&que=tal");
-		//TODO: guardar la IP del cliente:
-		this->env_.insert("REMOTE_ADDR", "1.1.1.1");
-		//TODO: remote host es un should, habria que encontrarlo del servidor tb, o dejar el remote_addr, o dejarlo en null:
-		this->env_.insert("REMOTE_HOST", "");
+		this->env_.insert("QUERY_STRING", this->request_.request_line.uri.query);
+
+		this->env_.insert("REMOTE_ADDR", this->connection_.get_ip_address());
 		this->env_.insert("REQUEST_METHOD", this->request_.request_line.method_to_string());	
 
 		it = this->request_.headers.find("host");
 		HttpHeaderHost *host_header = static_cast<HttpHeaderHost *>(it->second);
 		this->env_.insert("SERVER_NAME", host_header->host);
-		//FIXME: default server port needs to be set even if it doesn't appear in the host header
-		if (host_header->port != -1)
-			this->env_.insert("SERVER_PORT", int_to_string(host_header->port));
+
+		this->env_.insert("SERVER_PORT", int_to_string(this->connection_.port));
 
 		this->env_.insert("SERVER_PROTOCOL", "HTTP/1.1");
 		this->env_.insert("SERVER_SOFTWARE", "webserv/1.0");
@@ -71,15 +63,12 @@ namespace ws
 
     unsigned int CGI::execute()
     {
-		std::cout << "EXECUTING " << this->executable_<< " " << this->file_path_ << ".........." << std::endl;
+		unsigned int status_code = 200;
 
-		Executer cgi_executer(this->executable_, this->file_path_, this->env_);
+		Executer cgi_executer(this->executable_, this->file_path_, this->env_, this->request_.body);
 		try
 		{
-			this->execution_output_ = cgi_executer.exec_with_timeout(5); 
-
-//			std::cout << "CGI RESPONSE: " << execution_output_ << std::endl;
-
+			this->execution_output_ = cgi_executer.exec_with_timeout(5, SIGTERM); 
 			if (this->execution_output_.size() == 0)
 				throw std::runtime_error("CGI: no output from cgi");
 			this->output_buff_ = DataBuffer(this->execution_output_);
@@ -90,13 +79,22 @@ namespace ws
 			std::cout << e.what() << std::endl;
 			return 500;
 		}
-		return 200;
+	
+		HttpHeaderMap::iterator status = this->response_headers_.find("status");
+		if (status != this->response_headers_.end())
+		{
+			this->status_msg_ = static_cast<HttpHeaderCGIStatus*>(status->second)->reason_phrase;
+			status_code = static_cast<HttpHeaderCGIStatus*>(status->second)->status_code;
+			this->response_headers_.erase(status);
+		}
+		
+		return status_code;
     }
 			
 	void CGI::parse_execution_output()
 	{
 		this->response_headers_ = this->parse_headers();
-		if (this->response_headers_.find("content-type") != this->response_headers_.end())
+		if (this->response_headers_.find(HttpHeader::header_type_to_string(HTTP_HEADER_CONTENT_TYPE))!= this->response_headers_.end())
 		{
 			this->response_body_ = this->parse_body();
 			HttpHeaderContentLength *content_length_header = new HttpHeaderContentLength(); 
@@ -144,5 +142,10 @@ namespace ws
 	std::string CGI::get_body()
 	{
 		return this->response_body_;
+	}
+
+	std::string CGI::get_status_msg()
+	{
+		return this->status_msg_;
 	}
 }
