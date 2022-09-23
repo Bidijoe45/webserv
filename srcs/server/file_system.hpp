@@ -23,6 +23,7 @@ namespace ws
             std::vector<std::string> read_dir() const;
             void write(const std::string &buff);
             void create(const std::string &file_path);
+            bool remove();
         
         private:
             std::string path_;
