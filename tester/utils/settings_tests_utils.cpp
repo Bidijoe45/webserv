@@ -1,12 +1,12 @@
 #include <iostream>
 
 #include "settings_tests_utils.hpp"
-#include "../../../srcs/http/http_request.hpp"
-#include "../../../srcs/settings/server_settings.hpp"
-#include "../../../srcs/settings/settings.hpp"
-#include "../../../srcs/settings/error_page.hpp"
-#include "../../../srcs/settings/location.hpp"
-#include "../../../srcs/settings/rewrite.hpp"
+#include "../../srcs/http/http_request.hpp"
+#include "../../srcs/settings/server_settings.hpp"
+#include "../../srcs/settings/settings.hpp"
+#include "../../srcs/settings/error_page.hpp"
+#include "../../srcs/settings/location.hpp"
+#include "../../srcs/settings/redirect.hpp"
 
 
 void print_methods(std::vector<ws::HTTP_METHOD> &methods) {
@@ -34,12 +34,11 @@ void print_methods(std::vector<ws::HTTP_METHOD> &methods) {
 	}
 }
 
-void print_rewrite(std::vector<ws::Rewrite> &rewrites) {
+void print_rewrite(std::vector<ws::Redirect> &rewrites) {
 	for (int i=0; i < rewrites.size(); i++) {
 		std::cout << " -- Rewrite --" << std::endl;
-		std::cout << " from " << rewrites[i].from << std::endl;
-		std::cout << " to: " << rewrites[i].to << std::endl;
-		std::cout << " permanent: " << rewrites[i].permanent << std::endl;
+		std::cout << " code: " << rewrites[i].code << std::endl;
+		std::cout << " to: " << rewrites[i].to.absolute_path() << std::endl;
 	}
 }
 

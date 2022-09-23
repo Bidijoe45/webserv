@@ -2,7 +2,7 @@
 
 #include <vector>
 
-#include "../../../srcs/settings/lexer/settings_lexer.hpp"
+#include "../../srcs/settings/lexer/settings_lexer.hpp"
 
 void print_token_type(ws::TOKEN_TYPE token_type) {
 
@@ -60,8 +60,8 @@ void print_token_type(ws::TOKEN_TYPE token_type) {
 			std::cout << "TT_ACCEPT";
 			break;	
 
-		case ws::TT_REWRITE:
-			std::cout << "TT_REWRITE";
+		case ws::TT_REDIRECT:
+			std::cout << "TT_REDIRECT";
 			break;	
 
 		case ws::TT_AUTOINDEX:
