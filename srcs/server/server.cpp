@@ -21,12 +21,16 @@
 #include "../http/http_request_resolver.hpp"
 #include "../settings/parser/settings_parser.hpp"
 #include "server_socket.hpp"
+#include "content_type_map.hpp"
 
 namespace ws
 {
 	bool Server::running = false;
 
-	Server::Server() {}
+	Server::Server()
+	{
+		this->content_types_.parse_content_types_file("srcs/utils/content_types_list.txt");
+	}
 
 	Server::~Server()
 	{
@@ -206,7 +210,7 @@ namespace ws
 
 		ServerSettings server_settings = this->settings_.resolve_settings_hostname(http_request, connection.port);
 
-		HttpRequestResolver request_resolver(http_request, server_settings, this->env_, connection);
+		HttpRequestResolver request_resolver(http_request, server_settings, this->env_, connection, this->content_types_);
 		HttpResponse response = request_resolver.resolve();
 
 		connection.buff.append(response.to_string());
@@ -253,6 +257,13 @@ namespace ws
 
 	void Server::run() {
 		running = true;
+
+		if (this->content_types_.is_valid() == false)	
+		{
+			std::cout << "content types list file invalid" << std::endl;
+			return;
+		}
+
 		SettingsParser settings_parser("./server.conf");
 
 		this->settings_ = settings_parser.parse();

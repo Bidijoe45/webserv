@@ -103,4 +103,12 @@ namespace ws
     {
         this->file_.open(file_path, std::ios_base::out);
     }
+
+	std::string FileSystem::get_file_extension() const
+	{
+		size_t dot_pos = this->path_.find_last_of('.');
+		if (dot_pos == std::string::npos)
+			return "";
+		return this->path_.substr(dot_pos + 1);
+	}
 }
