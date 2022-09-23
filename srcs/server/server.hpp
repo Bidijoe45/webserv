@@ -8,6 +8,7 @@
 #include "../settings/settings.hpp"
 #include "server_socket.hpp"
 #include "env_map.hpp"
+#include "content_type_map.hpp"
 
 namespace ws
 {
@@ -44,6 +45,7 @@ namespace ws
 			std::vector<struct pollfd> poll_;
 			Settings settings_;
 			EnvMap env_; 
+			ContentTypeMap content_types_;
 
 	};
 

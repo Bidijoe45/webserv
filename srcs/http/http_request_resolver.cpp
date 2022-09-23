@@ -21,16 +21,18 @@
 #include "http_header.hpp"
 #include "../utils/env_map.hpp"
 #include "connection.hpp"
+#include "content_type_map.hpp"
 
 namespace ws
 {
 
-    HttpRequestResolver::HttpRequestResolver(const HttpRequest &request, const ServerSettings &settings, const EnvMap &env, const Connection &connection)
+    HttpRequestResolver::HttpRequestResolver(const HttpRequest &request, const ServerSettings &settings, const EnvMap &env, const Connection &connection, const ContentTypeMap &content_types)
     {
         this->request_ = request;
         this->settings_ = settings;
 		this->env_ = env;
 		this->connection_ = connection;
+		this->content_types_ = content_types;
     }
 
 	std::string HttpRequestResolver::resolve_status_code()
@@ -73,9 +75,22 @@ namespace ws
 		}
 	}
 
+	std::string HttpRequestResolver::resolve_content_type(std::string extension)
+	{
+		if (extension.size() == 0)
+			return "";
+
+		ContentTypeMap::iterator type_it = this->content_types_.find(extension);
+		if (type_it != this->content_types_.end())
+			return type_it->second;
+
+		return "";
+	}
+
 	void HttpRequestResolver::apply_get_method()
 	{
 		FileSystem file(this->file_path_);
+		std::string content_type;
         
 		if (!file.is_valid())
 		{
@@ -103,17 +118,26 @@ namespace ws
 		    else
 		    {
 		        this->response_.status_code = 403;
-		        return ;
+		        return;
 		    }
+			content_type = "text/html";
 		}
 		else
+		{
 		    this->response_.body = file.get_content();
+			std::string file_extension = file.get_file_extension();
+			content_type = resolve_content_type(file_extension);
+			if (content_type.size() == 0)
+				content_type = "application/octet-stream";
+		}
 
 		HttpHeaderContentLength *content_length_header = new HttpHeaderContentLength();
 		content_length_header->set_value(this->response_.body.size());
 		this->response_.headers.insert(content_length_header);
 
-		//TODO: agregar el tipo del archivo tambien
+		HttpHeaderContentType *content_type_header = new HttpHeaderContentType();
+		content_type_header->set_value(content_type);
+		this->response_.headers.insert(content_type_header);
 
 		this->response_.status_code = 200;
 	}
