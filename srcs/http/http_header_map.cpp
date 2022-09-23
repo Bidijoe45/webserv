@@ -76,6 +76,12 @@ namespace ws
 		return this->insert(header_name, header);
 	}
 
+	void HttpHeaderMap::erase(HttpHeaderMap::iterator position)
+	{
+		delete position->second;
+		this->headers_.erase(position);
+	}
+
 	HttpHeaderMap::iterator HttpHeaderMap::begin()
 	{
 		return this->headers_.begin();

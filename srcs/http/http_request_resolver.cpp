@@ -2,6 +2,7 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include <sys/socket.h>
 
 #include "../utils/string_utils.hpp"
 #include "http_request_resolver.hpp"
@@ -19,15 +20,17 @@
 #include "http_multipart_body.hpp"
 #include "http_header.hpp"
 #include "../utils/env_map.hpp"
+#include "connection.hpp"
 
 namespace ws
 {
 
-    HttpRequestResolver::HttpRequestResolver(const HttpRequest &request, const ServerSettings &settings, const EnvMap &env)
+    HttpRequestResolver::HttpRequestResolver(const HttpRequest &request, const ServerSettings &settings, const EnvMap &env, const Connection &connection)
     {
         this->request_ = request;
         this->settings_ = settings;
 		this->env_ = env;
+		this->connection_ = connection;
     }
 
 	std::string HttpRequestResolver::resolve_status_code()
@@ -44,6 +47,8 @@ namespace ws
 				return "FORBIDDEN";
 			case 500:
 				return "INTERNAL SERVER ERROR";
+			case 501:
+				return "NOT IMPLEMENTED";
 			default:
 				return "";
 		}
@@ -285,6 +290,10 @@ namespace ws
 		else
 			this->response_.body = resolve_custom_error_page(error_page_path);
 
+		HttpHeaderMap::iterator content_length = this->response_.headers.find("content-length");
+		if (content_length != this->response_.headers.end())
+			this->response_.headers.erase(content_length);
+
 		HttpHeaderContentLength *content_length_header = new HttpHeaderContentLength();
 		content_length_header->set_value(this->response_.body.size());
 		this->response_.headers.insert(content_length_header);
@@ -345,22 +354,19 @@ namespace ws
 				std::string cgi_executable = this->resolve_cgi_executable();
 				if (cgi_executable != "")
 				{
-					CGI cgi(cgi_executable, this->env_, this->file_path_, this->request_);
+					CGI cgi(cgi_executable, this->env_, this->file_path_, this->request_, this->connection_);
 					this->response_.status_code = cgi.execute();
+					this->response_.status_msg = cgi.get_status_msg();
 					this->response_.headers = cgi.get_header_map();
 					this->response_.body = cgi.get_body();
-
-					HttpHeaderMap::iterator it = this->response_.headers.begin();
-					std::cout << "CGI RESPONSE HEADERS" << std::endl;
-					for (; it != this->response_.headers.end(); it++)
-						std::cout << "---name: " << it->first << ", type: " << HttpHeader::header_type_to_string(it->second->type)<< ", value: " << it->second->value << "---"<< std::endl;  
 				}
 				else
 					this->apply_method();
             }
 		}
 
-		this->response_.status_msg = this->resolve_status_code();
+		if (this->response_.status_msg.size() == 0)
+			this->response_.status_msg = this->resolve_status_code();
 
 		if (this->response_.status_code >= 300)
 			this->set_error_body();
