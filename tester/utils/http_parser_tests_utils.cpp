@@ -2,8 +2,8 @@
 
 #include <iostream>
 
-#include "../../../srcs/http/http_request.hpp"
-#include <http_header_map.hpp>
+#include "../../srcs/http/http_request.hpp"
+#include "../../srcs/http/http_header_map.hpp"
 
 namespace ws_tester
 {
@@ -56,9 +56,9 @@ namespace ws_tester
 	void print_http_request(const ws::HttpRequest &request)
 	{	
 		std::cout << "-- HttpRequest --" << std::endl;
-		std::cout << "method: " << resolve_http_method(request.method) << std::endl;
-		print_http_uri(request.uri);
-		std::cout << "http_version: " << request.http_version << std::endl;
+		std::cout << "method: " << resolve_http_method(request.request_line.method) << std::endl;
+		print_http_uri(request.request_line.uri);
+		std::cout << "http_version: " << request.request_line.http_version << std::endl;
 		
 		std::cout << "-- headers: -- " << std::endl;
 		print_headers(request.headers);
@@ -70,7 +70,7 @@ namespace ws_tester
 
 	bool compare_requests(ws::HttpRequest r1, ws::HttpRequest r2)
 	{
-		if (r1.method == r2.method && r1.uri == r2.uri && r1.headers == r2.headers
+		if (r1.request_line == r2.request_line && r1.headers == r2.headers
 			&& r1.body == r2.body)
 		{
 			return true;
