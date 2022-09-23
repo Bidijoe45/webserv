@@ -199,6 +199,8 @@ namespace ws
 
             it++;
         }
+
+        this->apply_get_method();
 	}
 
 	void HttpRequestResolver::apply_delete_method()
@@ -343,7 +345,6 @@ namespace ws
                 location_header->value = location_header->uri.absolute_path();
 
 		        this->response_.headers.insert(location_header);
-
 		    }
             else
             {
