@@ -103,4 +103,12 @@ namespace ws
     {
         this->file_.open(file_path, std::ios_base::out);
     }
+
+    bool FileSystem::remove()
+    {
+        if (!this->is_valid())
+            return false;
+
+        return std::remove(this->path_.c_str());
+    }
 }

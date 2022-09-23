@@ -205,7 +205,25 @@ namespace ws
 
 	void HttpRequestResolver::apply_delete_method()
 	{
+	    if (this->location_.upload_dir.size() == 0)
+	    {
+	        this->response_.status_code = 403;
+	        return;
+	    }
 
+	    FileSystem file(this->file_path_);
+	    if (!file.is_valid() || file.is_dir())
+	    {
+	        this->response_.status_code = 403;
+	        return ;
+	    }
+	
+	    file.remove();
+        file.close();
+        HttpHeaderContentLength *hcl = new HttpHeaderContentLength();
+        hcl->set_value(0);
+        this->response_.headers.insert(hcl);
+        this->response_.status_code = 200;
 	}
 
     std::string HttpRequestResolver::generate_autoindex(const FileSystem &file)
