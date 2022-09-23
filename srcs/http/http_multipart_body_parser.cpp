@@ -32,12 +32,12 @@ namespace ws
             HttpMultipartBodyPart multipart_body;
             DataBuffer buff(string_trim_left(segments[i], "\r\n"));
 		    std::vector<std::string> header_block;
-		    std::string segment_line = buff.get_next_line("\n");
+		    std::string segment_line = buff.get_next_line();
 
 		    while(segment_line.size() != 0)
 		    {
 			    header_block.push_back(segment_line);
-			    segment_line = buff.get_next_line("\n");
+			    segment_line = buff.get_next_line();
 		    }
         
 		    HttpHeaderParser headers_parser(header_block);
@@ -48,6 +48,7 @@ namespace ws
             body.parts.push_back(multipart_body);
         }
 
+        /*
         std::cout << "XX-------------------XX" << std::endl;
         for (size_t i=0; i < body.parts.size(); i++)
         {
@@ -71,6 +72,7 @@ namespace ws
             std::cout << "-- ----" << std::endl;
         }
         std::cout << "XX-------------------XX" << std::endl;
+        */
 
         return body;
     }

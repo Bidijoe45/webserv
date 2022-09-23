@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../../../srcs/http/http_uri.hpp"
+#include "../../srcs/http/http_uri.hpp"
 
 namespace ws_tester
 {

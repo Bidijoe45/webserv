@@ -5,7 +5,6 @@
 #include "../settings.hpp"
 #include "../lexer/settings_lexer.hpp"
 #include "../lexer/token.hpp"
-#include "../../../tester/settings_lexer/tests/lexer_tests_utils.hpp"
 #include "../cgi_settings.hpp"
 #include "../../http/http_uri_parser.hpp"
 
