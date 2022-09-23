@@ -13,6 +13,7 @@ namespace ws
             FileSystem();
             FileSystem(const std::string &file_path);
             ~FileSystem();
+
             void open(const std::string &file_path);
             void close();
             bool is_valid() const;
@@ -23,6 +24,7 @@ namespace ws
             std::vector<std::string> read_dir() const;
             void write(const std::string &buff);
             void create(const std::string &file_path);
+			std::string get_file_extension() const;
         
         private:
             std::string path_;
