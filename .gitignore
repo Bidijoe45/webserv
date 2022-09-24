@@ -40,3 +40,4 @@ server.conf
 .DS_Store
 server.conf
 *.swp
+tester/bin
