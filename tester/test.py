@@ -13,16 +13,35 @@ def str_to_yellow(str):
     return "\x1b[33m{}\033[00m".format(str)
 
 class Tester:
-    def __init__(self, module, unit):
+    def __init__(self, module, unit, verbose):
         self.module_target = module
         self.unit_target = unit
+        self.verbose = verbose
         self.tests_dir = "tests"
         self.utils_dir = "utils"
         self.bins_dir = "bin"
         self.modules = []
         self.utils = self.get_tester_utils()
-        self.webserv_objs = self.get_webserv_objs();
+        self.webserv_objs = []
+        self.compilation_stdout = None 
+        self.compilation_stderr = None 
+        self.exec_stdout = None 
+        self.exec_stderr = None 
         self.test()
+
+    def print_output(self):
+        if self.compilation_stdout is not None and len(self.compilation_stdout) > 0:
+            print(self.compilation_stdout)
+            self.compilation_stdout = None
+        if self.compilation_stderr is not None and len(self.compilation_stderr) > 0:
+            print(self.compilation_stderr)
+            self.compilation_stderr = None
+        if self.exec_stdout is not None and len(self.exec_stdout) > 0:
+            print(self.exec_stdout)
+            self.exec_stdout = None
+        if self.exec_stderr is not None and len(self.exec_stderr) > 0:
+            print(self.exec_stderr)
+            self.exec_stderr = None
  
     def delete_tester_bins(self):
         bins = os.listdir(self.bins_dir)
@@ -58,7 +77,9 @@ class Tester:
         exec = ["clang++", "-o", output_path, unit_path]
         exec.extend(utils)
         exec.extend(webserv_objs)
-        compile_process = subprocess.run(exec, stdout=subprocess.DEVNULL)
+        compile_process = subprocess.run(exec, capture_output=True)
+        self.compilation_stdout = compile_process.stdout.decode()
+        self.compilation_stderr = compile_process.stderr.decode()
         compiled = True if compile_process.returncode == 0 else False
         return compiled
 
@@ -66,7 +87,9 @@ class Tester:
         unit_path = f"{self.bins_dir}/{module}_{unit}"
         exec = [unit_path]
         try:
-            process = subprocess.run(exec, stdout=subprocess.DEVNULL)
+            process = subprocess.run(exec, capture_output=True)
+            self.exec_stdout = process.stdout.decode()
+            self.exec_stderr = process.stderr.decode()
         except:
             print(str_to_red("Invalid Unit"))
             return
@@ -83,8 +106,8 @@ class Tester:
             test = self.test_unit(module, unit)
         tested_str = str_to_green("OK ") if test else str_to_red("KO ")
         print(tested_str, unit)
-        print()
-
+        if self.verbose:
+            self.print_output()
 
     def test_module(self, module):
         try:
@@ -97,16 +120,7 @@ class Tester:
             [unit_file_name, file_extension] = os.path.splitext(unit)
             if file_extension != ".cpp":
                 continue
-            unit_compile_name = f"{module}_{unit_file_name}"
-            compiled = self.compile_unit(unit_file_name, module, self.utils, self.webserv_objs, unit_compile_name)
-            compiled_str = str_to_green("COMPILED     ") if compiled else str_to_red("NOT COMPILED ")
-            print(compiled_str, end="")
-            test = False
-            if compiled:
-                test = self.test_unit(module, unit_file_name)
-            tested_str = str_to_green("OK ") if test else str_to_red("KO ")
-            print(tested_str, unit)
-        print()
+            self.compile_and_test_unit(module, unit_file_name)
 
     def test_all(self):
         modules_files = os.listdir(self.tests_dir)
@@ -121,8 +135,8 @@ class Tester:
             print(str_to_red("Cannot make webserv"))
             return
         print(str_to_green("OK"))
-        print()
 
+        self.webserv_objs = self.get_webserv_objs();
         if self.module_target != None and self.unit_target != None:
             self.compile_and_test_unit(self.module_target, self.unit_target)
         elif self.module_target != None:
@@ -134,6 +148,7 @@ if __name__=="__main__":
     args_parser = argparse.ArgumentParser(description="Webserv tester")
     args_parser.add_argument('-m', metavar='--module', type=str, help='Module name to test')
     args_parser.add_argument('-u', metavar='--unit', type=str, help='Unit of a module to test')
+    args_parser.add_argument('-v', action="store_true", help='Output compilation and execution error')
     args = args_parser.parse_args()
 
-    Tester(args.m, args.u)
+    Tester(args.m, args.u, args.v)
