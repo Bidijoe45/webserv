@@ -20,8 +20,8 @@
 #include "http_multipart_body.hpp"
 #include "http_header.hpp"
 #include "../utils/env_map.hpp"
-#include "connection.hpp"
-#include "content_type_map.hpp"
+#include "../server/connection.hpp"
+#include "../utils/content_type_map.hpp"
 
 namespace ws
 {
@@ -374,7 +374,12 @@ namespace ws
             std::string uri_path = this->request_.request_line.uri.path;
 			this->location_ = location_resolver.resolve(this->request_.request_line.uri);
 
-            if (this->location_.path.size() == 0)
+            std::vector<HTTP_METHOD>::iterator method_accepted = find(this->location_.methods.begin(), this->location_.methods.end(), this->request_.request_line.method);
+            if (method_accepted == this->location_.methods.end())
+            {
+                this->response_.status_code = 405;
+            }
+            else if (this->location_.path.size() == 0)
             {
                 this->response_.status_code = 404;
             }

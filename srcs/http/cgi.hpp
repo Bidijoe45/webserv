@@ -7,8 +7,8 @@
 #include "http_request.hpp"
 #include "../utils/env_map.hpp"
 #include "http_header_map.hpp"
-#include "data_buffer.hpp"
-#include "connection.hpp"
+#include "../server/data_buffer.hpp"
+#include "../server/connection.hpp"
 
 namespace ws {
 

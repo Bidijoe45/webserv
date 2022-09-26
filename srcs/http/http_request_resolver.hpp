@@ -8,8 +8,8 @@
 #include "../settings/location.hpp"
 #include "../server/file_system.hpp"
 #include "../utils/env_map.hpp"
-#include "connection.hpp"
-#include "content_type_map.hpp"
+#include "../server/connection.hpp"
+#include "../utils/content_type_map.hpp"
 
 namespace ws
 {
