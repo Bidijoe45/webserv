@@ -13,8 +13,6 @@ namespace ws
 	{
 		if (name == "host")
 			return HTTP_HEADER_HOST;
-		else if (name == "accept")
-			return HTTP_HEADER_ACCEPT;
 		else if (name == "content-length")
 			return HTTP_HEADER_CONTENT_LENGTH;
 		else if (name == "content-disposition")
@@ -25,6 +23,8 @@ namespace ws
 			return HTTP_HEADER_CGI_STATUS;
 		else if (name == "location")
 			return HTTP_HEADER_LOCATION;
+		else if (name == "transfer-encoding")
+			return HTTP_HEADER_TRANSFER_ENCODING;
 		else
 			return HTTP_HEADER_UNKNOWN;
 	}
@@ -33,8 +33,6 @@ namespace ws
 	{
 		switch (type)
 		{
-			case HTTP_HEADER_ACCEPT:
-				return "accept";
 			case HTTP_HEADER_HOST:
 				return "host";
 			case HTTP_HEADER_CONTENT_LENGTH:
@@ -47,6 +45,8 @@ namespace ws
 				return "status";
 			case HTTP_HEADER_LOCATION:
 				return "location";
+			case HTTP_HEADER_TRANSFER_ENCODING:
+				return "transfer-encoding";
 			default:
 				return "unknown";
 		}
@@ -56,8 +56,6 @@ namespace ws
 	{
 		switch (header->type)
 		{
-			case HTTP_HEADER_ACCEPT:
-				return new HttpHeaderAccept(*static_cast<const HttpHeaderAccept*>(header));
 			case HTTP_HEADER_HOST:
 				return new HttpHeaderHost(*static_cast<const HttpHeaderHost*>(header));
 			case HTTP_HEADER_CONTENT_LENGTH:
@@ -70,6 +68,8 @@ namespace ws
 				return new HttpHeaderCGIStatus(*static_cast<const HttpHeaderCGIStatus*>(header));
 			case HTTP_HEADER_LOCATION:
 				return new HttpHeaderLocation(*static_cast<const HttpHeaderLocation*>(header));
+			case HTTP_HEADER_TRANSFER_ENCODING:
+				return new HttpHeaderTransferEncoding(*static_cast<const HttpHeaderTransferEncoding*>(header));
 			default:
 				return new HttpHeaderUnknown(*static_cast<const HttpHeaderUnknown*>(header));
 		}
@@ -79,8 +79,6 @@ namespace ws
 	{
 		switch (type)
 		{
-			case HTTP_HEADER_ACCEPT:
-				return new HttpHeaderAccept();
 			case HTTP_HEADER_HOST:
 				return new HttpHeaderHost();
 			case HTTP_HEADER_CONTENT_LENGTH:
@@ -93,6 +91,8 @@ namespace ws
 				return new HttpHeaderCGIStatus();
 			case HTTP_HEADER_LOCATION:
 				return new HttpHeaderLocation();
+			case HTTP_HEADER_TRANSFER_ENCODING:
+				return new HttpHeaderTransferEncoding();
 			default:
 				return new HttpHeaderUnknown();
 		}
