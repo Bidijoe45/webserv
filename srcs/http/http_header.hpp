@@ -9,12 +9,12 @@ namespace ws
 	{
 		HTTP_HEADER_UNKNOWN,
 		HTTP_HEADER_HOST,
-		HTTP_HEADER_ACCEPT,
 		HTTP_HEADER_CONTENT_LENGTH,
 		HTTP_HEADER_CONTENT_DISPOSITION,
 		HTTP_HEADER_CONTENT_TYPE,
 		HTTP_HEADER_CGI_STATUS,
-		HTTP_HEADER_LOCATION
+		HTTP_HEADER_LOCATION,
+		HTTP_HEADER_TRANSFER_ENCODING
 	};
 
 	struct HttpHeader
@@ -41,6 +41,7 @@ namespace ws
 		virtual HttpHeaderListBased &operator+=(const std::string &rhs) = 0;
 
 		private:
-			virtual void parse_added_value(const std::string &value) = 0;
+			virtual void parse_value() = 0;
+			virtual void parse_value(const std::string &val) = 0;
 	};
 }
