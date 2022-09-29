@@ -7,84 +7,9 @@
 #include "../lexer/token.hpp"
 #include "../cgi_settings.hpp"
 #include "../../http/http_uri_parser.hpp"
+#include "../../utils/string_utils.hpp"
 
 namespace ws {
-
-void print_token_type(ws::TOKEN_TYPE token_type) {
-
-	switch (token_type)
-	{
-		case ws::TT_SERVER:
-			std::cout << "TT_SERVER";
-			break;
-
-		case ws::TT_LOCATION:
-			std::cout << "TT_LOCATION";
-			break;
-
-		case ws::TT_LBRACKET:
-			std::cout << "TT_LBRAKET";
-			break;
-
-		case ws::TT_RBRACKET:
-			std::cout << "TT_RBRAKET";
-			break;
-
-		case ws::TT_VALUE:
-			std::cout << "TT_VALUE";
-			break;
-
-		case ws::TT_SEMICOLON:
-			std::cout << "TT_SEMICOLON";
-			break;
-
-		case ws::TT_LISTEN:
-			std::cout << "TT_LISTEN";
-			break;
-
-		case ws::TT_SERVER_NAME:
-			std::cout << "TT_SERVER_NAME";
-			break;
-
-		case ws::TT_ERROR_PAGE:
-			std::cout << "TT_ERROR_PAGE";
-			break;
-
-		case ws::TT_CLIENT_MAX_BODY_SIZE:
-			std::cout << "TT_CLIENT_MAX_BODY_SIZE";
-			break;
-		
-		case ws::TT_ROOT:
-			std::cout << "TT_ROOT";
-			break;	
-	
-		case ws::TT_INDEX:
-			std::cout << "TT_INDEX";
-			break;	
-
-		case ws::TT_ACCEPT:
-			std::cout << "TT_ACCEPT";
-			break;	
-
-		case ws::TT_REDIRECT:
-			std::cout << "TT_REDIRECT";
-			break;	
-
-		case ws::TT_AUTOINDEX:
-			std::cout << "TT_AUTOINDEX";
-			break;
-
-		case ws::TT_CGI:
-			std::cout << "TT_CGI";
-			break;
-		
-		default:
-			std::cout << "???";
-			break;
-	
-	}
-
-}
 
 	SettingsParser::SettingsParser(std::string settings_file) : settings_file_(settings_file) {
 		SettingsLexer lexer = SettingsLexer(this->settings_file_);
@@ -144,8 +69,7 @@ void print_token_type(ws::TOKEN_TYPE token_type) {
 	size_t SettingsParser::resolve_listen_element() {
 		size_t port_n;
 
-		if (this->current_token_.type != TT_VALUE
-			&& this->current_token_.value.find_first_not_of("0123456789") != std::string::npos)
+		if (this->current_token_.type != TT_VALUE || !str_is_numeric(this->current_token_.value))
 		{
 			throw std::runtime_error(std::string("Invalid listen argument"));
 		}
@@ -174,8 +98,8 @@ void print_token_type(ws::TOKEN_TYPE token_type) {
 	size_t SettingsParser::resolve_client_max_body_size() {
 		size_t client_max_body_size;
 
-		if (this->current_token_.type != TT_VALUE
-			&& this->current_token_.value.find_first_not_of("0123456789") == std::string::npos) {
+		if (this->current_token_.type != TT_VALUE || !str_is_numeric(this->current_token_.value))
+		{
 			throw std::runtime_error(std::string("Invalid client_max_body_size argument"));
 		}
 
@@ -189,8 +113,7 @@ void print_token_type(ws::TOKEN_TYPE token_type) {
 		char *end_ptr = NULL;
 		ErrorPage error_page;
 
-		if (this->current_token_.type != TT_VALUE
-			&& this->current_token_.value.find_first_not_of("0123456789") == std::string::npos)
+		if (this->current_token_.type != TT_VALUE || !str_is_numeric(this->current_token_.value))
 		{
 			throw std::runtime_error(std::string("Invalid first error_page argument"));
 		}
@@ -283,7 +206,7 @@ void print_token_type(ws::TOKEN_TYPE token_type) {
 	Redirect SettingsParser::resolve_redirect_element() {
 		Redirect redirect;
 
-		if (this->current_token_.type != TT_VALUE) {
+		if (this->current_token_.type != TT_VALUE || !str_is_numeric(this->current_token_.value)) {
 			throw std::runtime_error(std::string("No valid redirect first argument"));
 		}
 
