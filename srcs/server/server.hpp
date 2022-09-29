@@ -7,8 +7,8 @@
 #include "connection.hpp"
 #include "../settings/settings.hpp"
 #include "server_socket.hpp"
-#include "env_map.hpp"
-#include "content_type_map.hpp"
+#include "../utils/content_type_map.hpp"
+#include "../utils/env_map.hpp"
 
 namespace ws
 {
