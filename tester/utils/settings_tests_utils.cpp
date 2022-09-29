@@ -50,6 +50,12 @@ void print_error_pages(std::vector<ws::ErrorPage> &error_pages) {
 	}
 }
 
+void print_cgi_settings(ws::CGISettings cgi)
+{
+	std::cout << " extension: " << cgi.extension << std::endl;
+	std::cout << " executable: " << cgi.executable << std::endl;
+}
+
 void print_locations(std::vector<ws::Location> &locations) {
 	for (int i=0; i < locations.size(); i++) {
 		std::cout << " -- Location --" << std::endl;
@@ -60,6 +66,12 @@ void print_locations(std::vector<ws::Location> &locations) {
 		std::cout << " Accepted methods: ";
 		print_methods(locations[i].methods);
 		std::cout << std::endl;
+		for (int j=0; j < locations[i].cgis.size(); j++)
+		{
+			std::cout << " -- CGI --" << std::endl;
+			print_cgi_settings(locations[i].cgis[j]);
+			std::cout << " -- --- --" << std::endl;
+		}
 		std::cout << " -- -- -- --" << std::endl;
 	}
 }
