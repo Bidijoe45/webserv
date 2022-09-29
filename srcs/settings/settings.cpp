@@ -1,7 +1,7 @@
 #include "settings.hpp"
-#include "http_header.hpp"
-#include "http_headers.hpp"
-#include "http_header_map.hpp"
+#include "../http/http_header.hpp"
+#include "../http/headers/http_headers.hpp"
+#include "../http/http_header_map.hpp"
 
 namespace ws
 {
