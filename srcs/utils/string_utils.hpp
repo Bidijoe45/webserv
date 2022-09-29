@@ -16,4 +16,5 @@ namespace ws
 	std::string string_trim_left(const std::string &str, const std::string chars);
 	std::string string_trim_right(const std::string &str, const std::string chars);
 	std::string string_trim(const std::string &str, const std::string chars);
+	bool str_is_numeric(const std::string &str);
 }
