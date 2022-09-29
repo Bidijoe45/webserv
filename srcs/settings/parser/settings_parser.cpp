@@ -21,7 +21,6 @@ namespace ws {
 		this->tokens_ = lexer.make_tokens();
 		this->n_tokens_ = this->tokens_.size();
 		this->pos_ = 0;
-		this->current_token_ = this->tokens_[this->pos_];
 		this->valid_file_ = true;
 	}
 
@@ -360,9 +359,16 @@ namespace ws {
 	Settings SettingsParser::parse() {
 		if (!this->valid_file_)
 			return this->settings_;
+		if (this->n_tokens_ == 0)
+		{
+			this->valid_file_ = false;
+			return this->settings_;
+		}
+
+		this->current_token_ = this->tokens_[0];
 
 		try {
-			if (current_token_.type != TT_SERVER) {
+			if (this->current_token_.type != TT_SERVER) {
 				throw std::runtime_error(std::string("Invalid server block element"));
 			}
 
