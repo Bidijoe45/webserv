@@ -72,6 +72,8 @@ namespace ws
 
 		}
 
+		tokens.push_back(TT_END);
+
 		return tokens;
 	}
 

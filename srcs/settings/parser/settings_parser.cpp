@@ -10,6 +10,82 @@
 
 namespace ws {
 
+void print_token_type(ws::TOKEN_TYPE token_type) {
+
+	switch (token_type)
+	{
+		case ws::TT_SERVER:
+			std::cout << "TT_SERVER";
+			break;
+
+		case ws::TT_LOCATION:
+			std::cout << "TT_LOCATION";
+			break;
+
+		case ws::TT_LBRACKET:
+			std::cout << "TT_LBRAKET";
+			break;
+
+		case ws::TT_RBRACKET:
+			std::cout << "TT_RBRAKET";
+			break;
+
+		case ws::TT_VALUE:
+			std::cout << "TT_VALUE";
+			break;
+
+		case ws::TT_SEMICOLON:
+			std::cout << "TT_SEMICOLON";
+			break;
+
+		case ws::TT_LISTEN:
+			std::cout << "TT_LISTEN";
+			break;
+
+		case ws::TT_SERVER_NAME:
+			std::cout << "TT_SERVER_NAME";
+			break;
+
+		case ws::TT_ERROR_PAGE:
+			std::cout << "TT_ERROR_PAGE";
+			break;
+
+		case ws::TT_CLIENT_MAX_BODY_SIZE:
+			std::cout << "TT_CLIENT_MAX_BODY_SIZE";
+			break;
+		
+		case ws::TT_ROOT:
+			std::cout << "TT_ROOT";
+			break;	
+	
+		case ws::TT_INDEX:
+			std::cout << "TT_INDEX";
+			break;	
+
+		case ws::TT_ACCEPT:
+			std::cout << "TT_ACCEPT";
+			break;	
+
+		case ws::TT_REDIRECT:
+			std::cout << "TT_REDIRECT";
+			break;	
+
+		case ws::TT_AUTOINDEX:
+			std::cout << "TT_AUTOINDEX";
+			break;
+
+		case ws::TT_CGI:
+			std::cout << "TT_CGI";
+			break;
+		
+		default:
+			std::cout << "???";
+			break;
+	
+	}
+
+}
+
 	SettingsParser::SettingsParser(std::string settings_file) : settings_file_(settings_file) {
 		SettingsLexer lexer = SettingsLexer(this->settings_file_);
 		if(!lexer.file_is_valid())
@@ -182,7 +258,7 @@ namespace ws {
 	std::vector<HTTP_METHOD> SettingsParser::resolve_accept_element() {
 		std::vector<HTTP_METHOD> methods;
 
-		while (this->pos_ != -1 && this->current_token_.type != TT_SEMICOLON) {
+		while (this->current_token_.type != TT_END && this->current_token_.type != TT_SEMICOLON) {
 
 			if (this->current_token_.type == TT_VALUE && this->current_token_.value == "GET") {
 				methods.push_back(HTTP_METHOD_GET);
@@ -251,7 +327,7 @@ namespace ws {
 
 		this->check_left_bracket();
 
-		while (this->pos_ != -1 && this->current_token_.type != TT_RBRACKET) {
+		while (this->current_token_.type != TT_END && this->current_token_.type != TT_RBRACKET) {
 
 			if (this->current_token_.type == TT_ROOT) {
 				this->advance();
@@ -320,7 +396,7 @@ namespace ws {
 		//FIXME: crear una funcion donde poner a default los ajustes del servidor
 		server_settings.client_max_body_size = 0;
 
-		while (this->current_token_.type != TT_RBRACKET && this->pos_ != -1) {
+		while (this->current_token_.type != TT_RBRACKET && this->current_token_.type != TT_END) {
 			if (this->current_token_.type == TT_LISTEN) {
 				this->advance();
 				server_settings.port = this->resolve_listen_element();
@@ -371,15 +447,17 @@ namespace ws {
 			if (this->current_token_.type != TT_SERVER) {
 				throw std::runtime_error(std::string("Invalid server block element"));
 			}
+			
+			while (this->current_token_.type != TT_END) {
+				if (this->current_token_.type != TT_SERVER) 
+					break ;
 
-			while (this->pos_ != -1) {
-				if (this->current_token_.type == TT_SERVER) {
-					this->advance();
-					this->check_left_bracket();
-					this->settings_.servers.push_back(this->resolve_server_block());
-					this->check_right_bracket();
-				}
+				this->advance();
+				this->check_left_bracket();
+				this->settings_.servers.push_back(this->resolve_server_block());
+				this->check_right_bracket();
 			}
+
 		} catch (std::runtime_error &e) {
 			this->error_msg_ = std::string(e.what());
 			this->valid_file_ = false;

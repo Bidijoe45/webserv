@@ -21,7 +21,8 @@ namespace ws
 		TT_AUTOINDEX,
 		TT_CGI,
 		TT_UPLOAD,
-		TT_VALUE
+		TT_VALUE,
+		TT_END
 	};
 
 	struct Token {
