@@ -80,8 +80,7 @@ class Tester:
         compile_process = subprocess.run(exec, capture_output=True)
         self.compilation_stdout = compile_process.stdout.decode()
         self.compilation_stderr = compile_process.stderr.decode()
-        compiled = True if compile_process.returncode == 0 else False
-        return compiled
+        return compile_process.returncode 
 
     def test_unit(self, module, unit):
         unit_path = f"{self.bins_dir}/{module}_{unit}"
@@ -91,21 +90,34 @@ class Tester:
             self.exec_stdout = process.stdout.decode()
             self.exec_stderr = process.stderr.decode()
         except:
-            print(str_to_red("Invalid Unit"))
-            return
-        valid = True if process.returncode == 0 else False
-        return valid
+            print(str_to_red("Invalid module or unit"))
+            quit()
+        return process.returncode 
+
+    def get_compilation_str(self, compilation_return_code):
+        return str_to_green("COMPILED") if compilation_return_code == 0 else str_to_red("NOT COMPILED")
+
+    def get_tested_str(self, test_return_code):
+        if test_return_code == 0:
+            return str_to_green("OK")
+        elif test_return_code == -11:
+            return str_to_red("SEGV")
+        else:
+            return str_to_red("KO")
 
     def compile_and_test_unit(self, module, unit):
         unit_compile_name = f"{module}_{unit}"
         compiled = self.compile_unit(unit, module, self.utils, self.webserv_objs, unit_compile_name)
-        compiled_str = str_to_green("COMPILED     ") if compiled else str_to_red("NOT COMPILED ")
-        print(compiled_str, end="")
-        test = False
-        if compiled:
-            test = self.test_unit(module, unit)
-        tested_str = str_to_green("OK ") if test else str_to_red("KO ")
-        print(tested_str, unit)
+
+        tested = 1;
+        if compiled == 0:
+            tested = self.test_unit(module, unit)
+
+        compilation_str = self.get_compilation_str(compiled)
+        tested_str = self.get_tested_str(tested)
+
+        print(compilation_str, tested_str, unit)
+
         if self.verbose:
             self.print_output()
 
