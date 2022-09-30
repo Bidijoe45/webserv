@@ -7,21 +7,6 @@
 
 namespace ws
 {
-	struct HttpHeaderAccept : public HttpHeaderListBased
-	{
-		HttpHeaderAccept();
-		~HttpHeaderAccept();
-		HttpHeaderAccept(const HttpHeaderAccept &src);
-		void set_value(const std::string &value);
-		HttpHeaderAccept &operator+=(const std::string &rhs);
-
-		std::vector<std::string> list;
-
-		private:
-			void parse_value();
-			void parse_added_value(const std::string &value);
-	};
-
 	struct HttpHeaderHost : public HttpHeaderSingleton
 	{
 		HttpHeaderHost();
@@ -104,6 +89,21 @@ namespace ws
 
 		private:
 			void parse_value();
+	};
+
+	struct HttpHeaderTransferEncoding : public HttpHeaderListBased
+	{
+		HttpHeaderTransferEncoding();
+		~HttpHeaderTransferEncoding();
+		HttpHeaderTransferEncoding(const HttpHeaderTransferEncoding &src);
+		void set_value(const std::string &value);
+		HttpHeaderTransferEncoding &operator+=(const std::string &rhs);
+
+		std::vector<std::string> codings;
+
+		private:
+			void parse_value();
+			void parse_value(const std::string &val);
 	};
 
 	struct HttpHeaderUnknown : public HttpHeaderSingleton
