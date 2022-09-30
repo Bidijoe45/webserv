@@ -45,6 +45,8 @@ namespace ws
 				return "BAD REQUEST";
 			case 404:
 				return "NOT FOUND";
+			case 405:
+				return "METHOD NOT ALLOWED";
 			case 403:
 				return "FORBIDDEN";
 			case 500:
