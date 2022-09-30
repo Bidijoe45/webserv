@@ -17,7 +17,7 @@ namespace ws {
 		void append(const std::string &str);
 		std::string flush(size_t n);
 		void clear();
-		size_t find(const std::string &str) const;
+		size_t find(const std::string &str, size_t pos) const;
 		std::string get_next_line(std::string delim = "\r\n");
 		size_t size() const;
 

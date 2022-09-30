@@ -15,6 +15,7 @@ struct HttpRequest {
 	public:
 		typedef std::map<std::string, HttpHeader*>::iterator headers_iterator;
 		HttpRequest();
+		void reset();
 
 		HttpRequestLine request_line;
 		HttpHeaderMap headers;

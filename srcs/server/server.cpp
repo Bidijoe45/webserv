@@ -193,30 +193,31 @@ namespace ws
 		}
 	}
 
-	void Server::on_new_request(Connection &connection) {
-
-		EnvMap::iterator it = this->env_.begin();
-		EnvMap::iterator ite = this->env_.end();
-
+	void Server::on_new_request(Connection &connection)
+	{
 		std::cout << "-- Raw Message by client --" << std::endl;
 		std::fstream log_file("./log_file");
 		std::cout << connection.buff.data << std::endl;
 		std::cout << "-----------------------" << std::endl;
 
-		HttpParser http_parser(connection.buff);
-		HttpRequest http_request = http_parser.parse();
-
+		connection.http_parser.parse(connection.buff);
 		connection.buff.clear();
 
-		ServerSettings server_settings = this->settings_.resolve_settings_hostname(http_request, connection.port);
+		if (connection.http_parser.get_stage() == HttpParser::COMPLETED)
+		{
+			HttpRequest http_request = connection.http_parser.get_request();
+			ServerSettings server_settings = this->settings_.resolve_settings_hostname(http_request, connection.port);
+	
+			HttpRequestResolver request_resolver(http_request, server_settings, this->env_, connection, this->content_types_);
+			HttpResponse response = request_resolver.resolve();
+	
+			connection.buff.append(response.to_string());
+	
+			connection.send_data();
+			connection.buff.clear();
 
-		HttpRequestResolver request_resolver(http_request, server_settings, this->env_, connection, this->content_types_);
-		HttpResponse response = request_resolver.resolve();
-
-		connection.buff.append(response.to_string());
-
-		connection.send_data();
-		connection.buff.clear();
+			connection.http_parser.reset();
+		}
 	}
 
 	void Server::add_to_poll(Connection new_connection)
