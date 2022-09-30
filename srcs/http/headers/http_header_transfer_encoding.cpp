@@ -28,6 +28,7 @@ namespace ws
 		while (it != ite)
 		{
 			*it = string_trim_left(string_trim_right(*it, " \t"), " \t");
+			*it = string_to_lower(*it, it->size());
 			it++;
 		}
 
