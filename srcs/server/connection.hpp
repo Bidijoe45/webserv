@@ -5,7 +5,8 @@
 #include <poll.h>
 #include <string>
 
-#include "./data_buffer.hpp"
+#include "http_parser.hpp"
+#include "data_buffer.hpp"
 
 namespace ws {
 
@@ -19,7 +20,8 @@ struct Connection {
 	int port;
 	socklen_t addr_len;
 	struct sockaddr_storage addr;
-	DataBuffer buff;	
+	DataBuffer buff;
+	HttpParser http_parser;
 };
 
 } //namespace ws
