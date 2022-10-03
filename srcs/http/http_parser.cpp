@@ -4,6 +4,7 @@
 #include <iostream>
 #include <exception>
 #include <utility>
+#include <algorithm>
 
 #include "http_request.hpp"
 #include "../server/data_buffer.hpp"
@@ -19,7 +20,7 @@
 namespace ws
 {
 
-	HttpParser::HttpParser() : stage_(REQUEST_LINE), buff_pos_(0), expected_body_size_(0) {}
+	HttpParser::HttpParser() : stage_(REQUEST_LINE), buff_pos_(0), expected_body_size_(0), must_close_(false) {}
 
 	void HttpParser::parse_first_line()
 	{
@@ -70,20 +71,33 @@ namespace ws
 			throw std::runtime_error("Request: Invalid header block");
 
 		HttpHeaderMap::iterator transfer_encoding_it = this->request_.headers.find(HTTP_HEADER_TRANSFER_ENCODING);
-		if (transfer_encoding_it == this->request_.headers.end())
+		if (transfer_encoding_it != this->request_.headers.end())
+		{
+			HttpHeaderTransferEncoding *transfer_encoding_header = static_cast<HttpHeaderTransferEncoding *>(transfer_encoding_it->second);
+			this->transfer_codings_ = transfer_encoding_header->codings;
+			if (this->transfer_codings_.size() > 0)
+			{
+				this->stage_ = CHUNKED_BODY;
+				return;
+			}
+		}
+		HttpHeaderMap::iterator content_length_it = this->request_.headers.find(HTTP_HEADER_CONTENT_LENGTH);
+		if (content_length_it != this->request_.headers.end())
 		{
 			this->stage_ = SIMPLE_BODY;
-			HttpHeaderMap::iterator content_length_it = this->request_.headers.find(HTTP_HEADER_CONTENT_LENGTH);
-			if (content_length_it != this->request_.headers.end())
-			{
-				HttpHeaderContentLength *length = static_cast<HttpHeaderContentLength *>(content_length_it->second);
-				this->expected_body_size_ = length->content_length;
-			}
-			else
-				this->expected_body_size_ = 0;
+			HttpHeaderContentLength *length = static_cast<HttpHeaderContentLength *>(content_length_it->second);
+			this->expected_body_size_ = length->content_length;
 		}
 		else
-			this->stage_ = CHUNKED_BODY;
+		{
+			this->stage_ = COMPLETED;
+//			if (this->buff_.size() > 0)
+//			{
+//				std::cout << "411 LENGTH REQUIRED!!!!!!!!!!!!!" << std::endl;
+//				this->must_close_ = true;
+//				throw
+//			}
+		}
 	}
 
 	void HttpParser::parse_body()
@@ -93,9 +107,40 @@ namespace ws
 			if (this->buff_.size() < this->expected_body_size_)
 				return;
 
-			this->request_.body += this->buff_.flush(this->buff_.size());
+			this->request_.body = this->buff_.flush(this->expected_body_size_);
 		}
 		this->stage_ = COMPLETED;
+	}
+
+	void HttpParser::parse_chunked_body()
+	{
+		if (this->transfer_codings_.size() == 0)
+			throw std::runtime_error("Request: empty transfer codings");
+
+		if (this->transfer_codings_.back() != "chunked")
+		{
+			this->must_close_ = true;
+			throw std::runtime_error("Request: last transfer coding must be chunked");
+		}
+
+		std::vector<std::string>::const_iterator it = this->transfer_codings_.begin();
+		std::vector<std::string>::const_iterator ite = this->transfer_codings_.end();
+		while (it != ite)
+		{
+			if (*it != "chunked")
+			{
+				//501 NOT IMPLEMENTED
+				throw std::runtime_error("Request: transfer coding not implemented");
+			}
+			it++;
+		}
+
+		if (this->request_.headers.find(HTTP_HEADER_CONTENT_LENGTH) != this->request_.headers.end())
+			this->must_close_ = true;
+
+//		std::string raw_body = this->buff_.flush(this->buff_.size());
+		//Unchunker unchunker(raw_body);
+//		this->request_.body = unchunker.unchunk();
 	}
 
 	HttpRequest HttpParser::get_request() const
@@ -114,6 +159,13 @@ namespace ws
 		this->buff_pos_ = 0;
 		this->request_.reset();
 		this->stage_ = REQUEST_LINE;
+		this->expected_body_size_ = 0;
+		this->must_close_ = false;
+	}
+
+	bool HttpParser::must_close() const
+	{
+		return this->must_close_;
 	}
 
 	void HttpParser::parse(const DataBuffer &new_buff)
@@ -127,7 +179,8 @@ namespace ws
 				this->parse_headers();
 			if (this->stage_ == SIMPLE_BODY)
 				this->parse_body();
-			//if (this->stage_ == CHUNKED_BODY)
+			if (this->stage_ == CHUNKED_BODY)
+				this->parse_chunked_body();
 		}
 		catch(const std::runtime_error& e)
 		{
