@@ -22,15 +22,17 @@ namespace ws
 
         private:
 			std::string resolve_status_code();
-			void apply_method();
-			void apply_get_method();
-			void apply_post_method();
-			void apply_delete_method();
+			HttpResponse apply_method();
+			HttpResponse apply_get_method();
+			HttpResponse apply_post_method();
+			HttpResponse apply_delete_method();
             std::string generate_autoindex(const FileSystem &file);
             void set_error_body();
             std::string find_error_page();
             std::string create_default_error_page();
             std::string resolve_custom_error_page(const std::string error_page_path);
+            HttpResponse generate_error_response(int code);
+            void generate_content_length_header();
 			std::string resolve_cgi_executable();
 			std::string resolve_content_type(std::string extension);
 
