@@ -174,7 +174,7 @@ namespace ws
 					}
 					else
 					{
-						Connection conn = this->connections_[this->poll_[i].fd];
+						Connection &conn = this->connections_[this->poll_[i].fd];
 						int bytes_read = conn.recv_data();
 						std::cout << "bytes_read: " << bytes_read << std::endl;
 

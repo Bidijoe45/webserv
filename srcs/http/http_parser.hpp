@@ -38,7 +38,6 @@ namespace ws
 			size_t buff_pos_;
 			HttpRequest request_;
 			Stage stage_;
-			size_t current_body_size_;
 			size_t expected_body_size_;
 	};
 	
