@@ -198,6 +198,7 @@ namespace ws
 		EnvMap::iterator it = this->env_.begin();
 		EnvMap::iterator ite = this->env_.end();
 
+		std::cout << "----- NEW REQUEST -----" << std::endl;
 		std::cout << "-- Raw Message by client --" << std::endl;
 		std::fstream log_file("./log_file");
 		std::cout << connection.buff.data << std::endl;
