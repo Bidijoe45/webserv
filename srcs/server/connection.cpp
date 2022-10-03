@@ -40,7 +40,6 @@ namespace ws
 
 		while (read == buffer_size)
 		{
-			std::cout << "read: " << read << std::endl;
 			read = recv(this->socket, buff, buffer_size, 0); 
 			total_read += read;	
 			if (read > 0)

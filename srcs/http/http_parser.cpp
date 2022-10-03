@@ -19,7 +19,7 @@
 namespace ws
 {
 
-	HttpParser::HttpParser() : stage_(REQUEST_LINE), buff_pos_(0), current_body_size_(0), expected_body_size_(-1) {}
+	HttpParser::HttpParser() : stage_(REQUEST_LINE), buff_pos_(0), expected_body_size_(0) {}
 
 	void HttpParser::parse_first_line()
 	{
@@ -32,6 +32,7 @@ namespace ws
 		this->buff_pos_ = 0;
 
 		std::string line = this->buff_.get_next_line();
+
 		if (line.size() == 0)
 			line = this->buff_.get_next_line();
 
@@ -87,9 +88,11 @@ namespace ws
 
 	void HttpParser::parse_body()
 	{
-		if (this->expected_body_size_ != 0)
+		if (this->buff_.size() > 0 && this->expected_body_size_ > 0)
 		{
-			//TODO: añadir todas las posibilidades de content length
+			if (this->buff_.size() < this->expected_body_size_)
+				return;
+
 			this->request_.body += this->buff_.flush(this->buff_.size());
 		}
 		this->stage_ = COMPLETED;
@@ -125,8 +128,6 @@ namespace ws
 			if (this->stage_ == SIMPLE_BODY)
 				this->parse_body();
 			//if (this->stage_ == CHUNKED_BODY)
-			else
-				return;
 		}
 		catch(const std::runtime_error& e)
 		{
