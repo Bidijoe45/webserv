@@ -25,11 +25,13 @@ namespace ws
 			HttpRequest get_request() const;
 			Stage get_stage() const;
 			void reset();
+			bool must_close() const;
 
 		private:
 			void parse_first_line();
 			void parse_headers();
 			void parse_body();
+			void parse_chunked_body();
 			void skipOWS();
 			std::string get_header_name();
 			std::string get_header_value();
@@ -39,6 +41,8 @@ namespace ws
 			HttpRequest request_;
 			Stage stage_;
 			size_t expected_body_size_;
+			std::vector<std::string> transfer_codings_;
+			bool must_close_;
 	};
 	
 } // namespace ws
