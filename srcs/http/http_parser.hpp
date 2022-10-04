@@ -5,6 +5,7 @@
 
 #include "http_request.hpp"
 #include "../server/data_buffer.hpp"
+#include "unchunker.hpp"
 
 namespace ws
 {
@@ -42,6 +43,7 @@ namespace ws
 			Stage stage_;
 			size_t expected_body_size_;
 			std::vector<std::string> transfer_codings_;
+			Unchunker unchunker_;
 			bool must_close_;
 	};
 	

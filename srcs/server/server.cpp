@@ -198,10 +198,10 @@ namespace ws
 
 	void Server::on_new_request(Connection &connection)
 	{
-		std::cout << "-- Raw Message by client --" << std::endl;
-		std::fstream log_file("./log_file");
-		std::cout << connection.buff.data << std::endl;
-		std::cout << "-----------------------" << std::endl;
+//		std::cout << "-- Raw Message by client --" << std::endl;
+//		std::fstream log_file("./log_file");
+//		std::cout << connection.buff.data << std::endl;
+//		std::cout << "-----------------------" << std::endl;
 
 		connection.http_parser.parse(connection.buff);
 		connection.buff.clear();
