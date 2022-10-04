@@ -13,7 +13,7 @@
 #include "../settings/server_settings.hpp"
 #include "../server/file_system.hpp"
 #include "./headers/http_headers.hpp"
-#include "location_resolver.hpp"
+//#include "location_resolver.hpp"
 #include "../settings/cgi_settings.hpp"
 #include "cgi.hpp"
 #include "http_multipart_body_parser.hpp"
@@ -371,8 +371,8 @@ namespace ws
 			return generate_error_response(400);
 
         //Resolver bloque location
-		LocationResolver location_resolver = LocationResolver(this->settings_.locations);
-		this->location_ = location_resolver.resolve(this->request_.request_line.uri);
+		// LocationResolver location_resolver = LocationResolver(this->settings_.locations);
+		// this->location_ = location_resolver.resolve(this->request_.request_line.uri);
     
         //Comprobar metodos aceptados
         std::vector<HTTP_METHOD>::iterator method_accepted = find(this->location_.methods.begin(), this->location_.methods.end(), this->request_.request_line.method);

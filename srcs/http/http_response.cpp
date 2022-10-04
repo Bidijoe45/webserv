@@ -3,6 +3,7 @@
 
 namespace ws
 {
+    HttpResponse::HttpResponse() : status_code(0) {} 
 
     std::string HttpResponse::to_string()
     {
