@@ -31,9 +31,9 @@ namespace ws
 
 	int Connection::recv_data()
 	{
-		char buff[1024];
+		char buff[10240];
 		int total_read = 0;
-		size_t buffer_size = 1024;
+		size_t buffer_size = 10240;
 		int read = buffer_size;
 
 		memset(&buff, 0, buffer_size);
