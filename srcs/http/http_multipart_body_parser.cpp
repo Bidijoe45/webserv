@@ -4,6 +4,7 @@
 #include "http_multipart_body_parser.hpp"
 #include "../utils/string_utils.hpp"
 #include "http_header_parser.hpp"
+#include "data_buffer.hpp"
 
 namespace ws
 {
