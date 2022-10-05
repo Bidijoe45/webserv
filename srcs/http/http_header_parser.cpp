@@ -112,6 +112,8 @@ namespace ws
 				}
 				block_it++;
 			}
+			if (map.find(HTTP_HEADER_HOST) == map.end())
+				throw std::runtime_error("Header Parser: missing Host header");
 		}
 		catch (const std::runtime_error &e)
 		{
