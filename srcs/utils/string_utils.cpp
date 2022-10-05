@@ -11,9 +11,19 @@ namespace ws
 {
 	bool is_string_printable(const std::string &str, size_t len)
 	{
-		for (int i = 0; (str[i] && i < len); i++)
+		for (size_t i = 0; (str[i] && i < len); i++)
 		{
 			if (!std::isprint(str[i]))
+				return false;
+		}
+		return true;
+	}
+
+	bool is_string_digit(const std::string &str, size_t len)
+	{
+		for (size_t i = 0; (str[i] && i < len); i++)
+		{
+			if (!isdigit(str[i]))
 				return false;
 		}
 		return true;
