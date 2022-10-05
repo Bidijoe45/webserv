@@ -22,10 +22,23 @@ namespace ws
 		std::string line = this->raw_body_buff_.get_next_line();
 		size_t end_of_size_pos = line.find_first_of(" ;");
 		std::string hex_num = line.substr(0, end_of_size_pos);
-		this->chunk_size_ = stoul(hex_num, NULL, 16);
+		try
+		{
+			this->chunk_size_ = std::stoul(hex_num, NULL, 16);
+		}
+		catch (const std::out_of_range &e)
+		{
+			std::string error_str = "Unchunker: ";
+			error_str.append(e.what());
+			throw std::runtime_error(error_str);
+		}
+		catch (const std::invalid_argument &e)
+		{
+			std::string error_str = "Unchunker: ";
+			error_str.append(e.what());
+			throw std::runtime_error(error_str);
+		}
 
-		if (this->chunk_size_ < 0) // FIXME: añadir límites por arriba también
-			throw std::runtime_error("Unchunker: hex size cannot be negative");
 		if (this->chunk_size_ == 0)
 			this->stage_ = TRAILER_SECTION;
 		else

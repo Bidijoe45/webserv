@@ -23,6 +23,12 @@ namespace ws
 
 	void HttpHeaderContentLength::parse_value()
 	{
+		if (is_string_digit(this->value, this->value.size()) == false)
+		{
+			this->is_valid = false;
+			std::cout << "Content Length Header: invalid content-length chars" << std::endl;
+			return;
+		}
 		try
 		{
 			this->content_length = std::stoul(this->value);
