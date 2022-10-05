@@ -1,5 +1,4 @@
 #include <string>
-#include <cstdlib>
 #include <iostream>
 
 #include "unchunker.hpp"
@@ -23,7 +22,7 @@ namespace ws
 		std::string line = this->raw_body_buff_.get_next_line();
 		size_t end_of_size_pos = line.find_first_of(" ;");
 		std::string hex_num = line.substr(0, end_of_size_pos);
-		this->chunk_size_ = strtol(hex_num.c_str(), NULL, 16);
+		this->chunk_size_ = stoul(hex_num, NULL, 16);
 
 		if (this->chunk_size_ < 0) // FIXME: añadir límites por arriba también
 			throw std::runtime_error("Unchunker: hex size cannot be negative");

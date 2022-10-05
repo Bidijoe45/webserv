@@ -21,6 +21,11 @@ namespace ws
 
 		parsed_header = HttpHeader::alloc_new_header(header_type);
 		parsed_header->set_value(value);
+		if (parsed_header->is_valid == false)
+		{
+			delete parsed_header;
+			throw std::runtime_error("Header Parser: found an invalid header");
+		}
 
 		return parsed_header;
 	}

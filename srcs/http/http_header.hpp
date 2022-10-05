@@ -19,6 +19,7 @@ namespace ws
 
 	struct HttpHeader
 	{
+		HttpHeader();
 		virtual ~HttpHeader() = 0;
 		virtual void set_value(const std::string &value) = 0;
 		static HttpHeader *alloc_new_header(const HTTP_HEADER_TYPE &type);
@@ -28,6 +29,7 @@ namespace ws
 
 		HTTP_HEADER_TYPE	type;
 		std::string			value;
+		bool				is_valid;
 
 		private:
 			virtual void parse_value() = 0;

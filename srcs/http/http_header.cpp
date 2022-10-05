@@ -3,6 +3,8 @@
 
 namespace ws
 {
+	HttpHeader::HttpHeader() : is_valid(true) {}
+
 	HttpHeader::~HttpHeader() {}
 
 	HttpHeaderListBased::~HttpHeaderListBased() {}
