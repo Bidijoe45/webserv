@@ -33,9 +33,7 @@ namespace ws
 			void parse_headers();
 			void parse_body();
 			void parse_chunked_body();
-			void skipOWS();
-			std::string get_header_name();
-			std::string get_header_value();
+			void throw_with_error(HttpRequest::RequestError error, const std::string &msg);
 
 			DataBuffer buff_;
 			size_t buff_pos_;

@@ -42,7 +42,8 @@ namespace ws
 		this->request_.request_line = request_line_parser.parse();
 
 		if (!request_line_parser.is_valid())
-			throw std::runtime_error("Request: Invalid first line");
+			this->throw_with_error(HttpRequest::BAD_REQUEST, "Request: Invalid first line");
+
 		this->stage_ = HttpParser::HEADERS_BLOCK;
 	}
 
@@ -70,7 +71,7 @@ namespace ws
 		this->request_.headers = header_parser.parse_block();
 
 		if (!header_parser.is_valid())
-			throw std::runtime_error("Request: Invalid header block");
+			this->throw_with_error(HttpRequest::BAD_REQUEST, "Request: Invalid header block");
 
 		HttpHeaderMap::iterator transfer_encoding_it = this->request_.headers.find(HTTP_HEADER_TRANSFER_ENCODING);
 		if (transfer_encoding_it != this->request_.headers.end())
@@ -94,12 +95,11 @@ namespace ws
 		else
 		{
 			this->stage_ = HttpParser::COMPLETED;
-//			if (this->buff_.size() > 0)
-//			{
-//				std::cout << "411 LENGTH REQUIRED!!!!!!!!!!!!!" << std::endl;
-//				this->must_close_ = true;
-//				throw
-//			}
+			if (this->buff_.size() > 0)
+			{
+				this->must_close_ = true;
+				this->throw_with_error(HttpRequest::LENGTH_REQUIRED, "Request: body present but missing content-length");
+			}
 		}
 	}
 
@@ -118,19 +118,16 @@ namespace ws
 	void HttpParser::parse_chunked_body()
 	{
 		if (this->transfer_codings_.size() == 0)
-			throw std::runtime_error("Request: empty transfer encoding");
+			this->throw_with_error(HttpRequest::BAD_REQUEST, "Request: empty transfer encoding");
 
 		if (this->transfer_codings_.back() != "chunked")
 		{
 			this->must_close_ = true;
-			throw std::runtime_error("Request: last transfer coding must be chunked");
+			this->throw_with_error(HttpRequest::BAD_REQUEST, "Request: last transfer coding must be chunked");
 		}
 
 		if (this->transfer_codings_.size() != 1)
-		{
-			//501 NOT IMPLEMENTED!!!!!!!
-			throw std::runtime_error("Request: unimplemented transfer coding or more than one chunked");
-		}
+			this->throw_with_error(HttpRequest::NOT_IMPLEMENTED, "Request: unimplemented transfer coding or more than one chunked");
 
 		HttpHeaderMap::iterator content_length = this->request_.headers.find(HTTP_HEADER_CONTENT_LENGTH);
 		if (content_length != this->request_.headers.end())
@@ -148,7 +145,7 @@ namespace ws
 			if (this->unchunker_.is_valid() == false)
 			{
 				this->must_close_ = true;
-				throw std::runtime_error("Request: invalid chunked body");
+				this->throw_with_error(HttpRequest::BAD_REQUEST, "Request: invalid chunked body");
 			}
 		}
 	}
@@ -172,7 +169,6 @@ namespace ws
 		this->expected_body_size_ = 0;
 		this->transfer_codings_.clear();
 		this->unchunker_.reset();
-		this->must_close_ = false;
 	}
 
 	bool HttpParser::must_close() const
@@ -180,9 +176,16 @@ namespace ws
 		return this->must_close_;
 	}
 
+	void HttpParser::throw_with_error(HttpRequest::RequestError error, const std::string &msg)
+	{
+		this->request_.error = error;
+		throw std::runtime_error(msg);
+	}
+
 	void HttpParser::parse(const DataBuffer &new_buff)
 	{
 		this->buff_.append(new_buff.data); 
+		this->must_close_ = false;
 		try
 		{
 			if (this->stage_ == HttpParser::REQUEST_LINE)

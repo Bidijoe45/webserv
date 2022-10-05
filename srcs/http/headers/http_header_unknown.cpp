@@ -19,4 +19,7 @@ namespace ws
 	{
 		this->value = value;
 	}
+
+	void HttpHeaderUnknown::parse_value() {}
+
 }
