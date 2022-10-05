@@ -112,5 +112,8 @@ namespace ws
 		~HttpHeaderUnknown();
 		HttpHeaderUnknown(const HttpHeaderUnknown &src);
 		void set_value(const std::string &value);
+
+		private:
+			void parse_value();
 	};
 }

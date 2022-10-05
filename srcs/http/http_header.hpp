@@ -28,11 +28,17 @@ namespace ws
 
 		HTTP_HEADER_TYPE	type;
 		std::string			value;
+
+		private:
+			virtual void parse_value() = 0;
 	};
 
 	struct HttpHeaderSingleton : public HttpHeader
 	{
 		virtual ~HttpHeaderSingleton() = 0;
+
+		private:
+			virtual void parse_value() = 0;
 	};
 
 	struct HttpHeaderListBased : public HttpHeader

@@ -178,18 +178,22 @@ namespace ws
 						int bytes_read = conn.recv_data();
 						std::cout << "bytes_read: " << bytes_read << std::endl;
 
-						if (bytes_read <= 0 || conn.http_parser.must_close() == true)
+						if (bytes_read <= 0)
 						{
-							if (bytes_read <= 0)
-								std::cout << "Connection: socket closed by client" << std::endl;
-							else if (conn.http_parser.must_close() == true)
-								std::cout << "Connection: socket closed by server" << std::endl;
+							std::cout << "Connection: socket closed by client" << std::endl;
 							delete_connection(conn);
 							delete_from_poll(i);
 							continue ;
 						}
 
 						this->on_new_request(conn);
+						if (conn.http_parser.must_close() == true)
+						{
+							std::cout << "Connection: socket closed by server" << std::endl;
+							delete_connection(conn);
+							delete_from_poll(i);
+							continue ;
+						}
 					}
 				}
 			}

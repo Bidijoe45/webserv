@@ -32,7 +32,7 @@ namespace ws
 		list_based_header = dynamic_cast<HttpHeaderListBased *>(header);
 
 		if (!list_based_header)
-			throw std::runtime_error("Request: found more than one singleton header with the same name");
+			throw std::runtime_error("Header Parser: found more than one singleton header with the same name");
 		*(HttpHeaderListBased *)header += added_value;
 	}
 
