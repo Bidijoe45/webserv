@@ -34,7 +34,7 @@ endif
 all: directories $(NAME)
 
 debug: COMMON += $(SANITIZE)
-debug: re
+debug: all
 
 $(NAME): $(OBJS)
 	@echo Linking $@
