@@ -21,6 +21,13 @@ namespace ws
 
 	std::vector<std::string> string_split(const std::string &str, const std::string &delim) {
     	std::vector<std::string> tokens;
+
+		if (str.size() == 0 || delim.size() == 0)
+		{
+			tokens.push_back(str);
+			return tokens;
+		}
+
     	size_t found = 0;
     	size_t start = 0;
     	size_t from = 0;
