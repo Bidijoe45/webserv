@@ -32,7 +32,9 @@ namespace ws
 	std::vector<std::string> string_split(const std::string &str, const std::string &delim) {
     	std::vector<std::string> tokens;
 
-		if (str.size() == 0 || delim.size() == 0)
+		if (str.size() == 0)
+			return tokens;
+		if (delim.size() == 0)
 		{
 			tokens.push_back(str);
 			return tokens;
@@ -126,7 +128,7 @@ namespace ws
 		size_t left_delim = str.find_first_not_of(delim);
 
 		if (left_delim == std::string::npos)
-			return str;
+			return "";
 
 		return str.substr(left_delim);
 	}
@@ -136,7 +138,7 @@ namespace ws
 		size_t right_delim = str.find_last_not_of(delim);
 
 		if (right_delim == std::string::npos)
-			return str;
+			return "";
 
 		return str.substr(0, right_delim + 1);
 	}
