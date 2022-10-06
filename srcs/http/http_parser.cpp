@@ -72,6 +72,8 @@ namespace ws
 
 		if (!header_parser.is_valid())
 			this->throw_with_error(HttpRequest::BAD_REQUEST, "Request: Invalid header block");
+		if (this->request_.headers.find(HTTP_HEADER_HOST) == this->request_.headers.end())
+			this->throw_with_error(HttpRequest::BAD_REQUEST, "Request: missing Host header");
 
 		HttpHeaderMap::iterator transfer_encoding_it = this->request_.headers.find(HTTP_HEADER_TRANSFER_ENCODING);
 		if (transfer_encoding_it != this->request_.headers.end())
