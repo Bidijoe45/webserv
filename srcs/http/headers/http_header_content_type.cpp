@@ -23,6 +23,9 @@ namespace ws
 
 	void HttpHeaderContentType::parse_value()
 	{
+		if (this->value.size() == 0)
+			return;
+
 		std::vector<std::string> splitted_header = string_split(this->value, ";");
 		std::vector<std::string>::iterator it = splitted_header.begin();
 		std::vector<std::string>::iterator ite = splitted_header.end();
@@ -41,9 +44,12 @@ namespace ws
 		while (it != ite)
 		{
 			splitted_param = string_split(*it, "=");
-			std::string key = *splitted_param.begin();
-			std::string value = string_trim(*(splitted_param.end() - 1), "\"");
-			this->parameters.insert(std::make_pair(key, value));
+			if (splitted_param.size() > 0)
+			{
+				std::string key = *splitted_param.begin();
+				std::string value = string_trim(*(splitted_param.end() - 1), "\"");
+				this->parameters.insert(std::make_pair(key, value));
+			}
 			it++;
 		}
 

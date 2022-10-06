@@ -79,11 +79,8 @@ namespace ws
 			HttpHeaderTransferEncoding *transfer_encoding_header = static_cast<HttpHeaderTransferEncoding *>(transfer_encoding_it->second);
 			this->transfer_codings_ = transfer_encoding_header->codings;
 			this->request_.headers.erase(transfer_encoding_it);
-			if (this->transfer_codings_.size() > 0)
-			{
-				this->stage_ = HttpParser::CHUNKED_BODY;
-				return;
-			}
+			this->stage_ = HttpParser::CHUNKED_BODY;
+			return;
 		}
 		HttpHeaderMap::iterator content_length_it = this->request_.headers.find(HTTP_HEADER_CONTENT_LENGTH);
 		if (content_length_it != this->request_.headers.end())
@@ -117,9 +114,6 @@ namespace ws
 
 	void HttpParser::parse_chunked_body()
 	{
-		if (this->transfer_codings_.size() == 0)
-			this->throw_with_error(HttpRequest::BAD_REQUEST, "Request: empty transfer encoding");
-
 		if (this->transfer_codings_.back() != "chunked")
 		{
 			this->must_close_ = true;

@@ -124,7 +124,7 @@ namespace ws
 		{
 		    this->response_.body = file.get_content();
 			std::string file_extension = file.get_file_extension();
-			content_type = resolve_content_type(file_extension);
+			content_type = this->resolve_content_type(file_extension);
 			if (content_type.size() == 0)
 				content_type = "application/octet-stream";
 		}
