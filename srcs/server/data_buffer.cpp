@@ -44,9 +44,9 @@ namespace ws {
 		return ret;
 	}
 
-	size_t DataBuffer::find(const std::string &str) const
+	size_t DataBuffer::find(const std::string &str, size_t pos = 0) const
 	{
-		return this->data.find(str);
+		return this->data.find(str, pos);
 	}
 
 	std::string DataBuffer::get_next_line(std::string delim)

@@ -174,7 +174,7 @@ namespace ws
 					}
 					else
 					{
-						Connection conn = this->connections_[this->poll_[i].fd];
+						Connection &conn = this->connections_[this->poll_[i].fd];
 						int bytes_read = conn.recv_data();
 						std::cout << "bytes_read: " << bytes_read << std::endl;
 
@@ -187,45 +187,44 @@ namespace ws
 						}
 
 						this->on_new_request(conn);
+						if (conn.http_parser.must_close() == true)
+						{
+							std::cout << "Connection: socket closed by server" << std::endl;
+							delete_connection(conn);
+							delete_from_poll(i);
+							continue ;
+						}
 					}
 				}
 			}
 		}
 	}
 
-	void Server::on_new_request(Connection &connection) {
+	void Server::on_new_request(Connection &connection)
+	{
+//		std::cout << "-- Raw Message by client --" << std::endl;
+//		std::fstream log_file("./log_file");
+//		std::cout << connection.buff.data << std::endl;
+//		std::cout << "-----------------------" << std::endl;
 
-		EnvMap::iterator it = this->env_.begin();
-		EnvMap::iterator ite = this->env_.end();
-
-		std::cout << "----- NEW REQUEST -----" << std::endl;
-		std::cout << "-- Raw Message by client --" << std::endl;
-		std::fstream log_file("./log_file");
-		std::cout << connection.buff.data << std::endl;
-		std::cout << "-----------------------" << std::endl;
-
-		HttpParser http_parser(connection.buff);
-		HttpRequest http_request = http_parser.parse();
-
+		connection.http_parser.parse(connection.buff);
 		connection.buff.clear();
 
-		ServerSettings server_settings = this->settings_.resolve_settings_hostname(http_request, connection.port);
+		if (connection.http_parser.get_stage() == HttpParser::COMPLETED)
+		{
+			HttpRequest http_request = connection.http_parser.get_request();
+			ServerSettings server_settings = this->settings_.resolve_settings_hostname(http_request, connection.port);
+	
+			RequestResolver request_resolver(server_settings, http_request, this->env_, connection, this->content_types_);
+			HttpResponse response = request_resolver.get_response();
+	
+			connection.buff.append(response.to_string());
+	
+			connection.send_data();
+			connection.buff.clear();
 
-		//HttpRequestResolver request_resolver(http_request, server_settings, this->env_, connection, this->content_types_);
-		//HttpResponse response = request_resolver.resolve();
-
-		RequestResolver request_resolver(server_settings, http_request, this->env_, connection, this->content_types_);
-		HttpResponse response = request_resolver.get_response();
-
-		std::cout << "RESPONSE" << std::endl;
-		std::cout << "-- -- --" << std::endl;
-		//std::cout << response.to_string() << std::endl;
-		std::cout << "-- -- --" << std::endl;
-
-		connection.buff.append(response.to_string());
-
-		connection.send_data();
-		connection.buff.clear();
+			connection.http_parser.reset();
+		}
 	}
 
 	void Server::add_to_poll(Connection new_connection)
@@ -244,6 +243,7 @@ namespace ws
 
 	void Server::delete_connection(const Connection &connection)
 	{
+		close(connection.socket);
 		this->connections_.erase(connection.socket);
 	}
 
