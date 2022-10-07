@@ -8,7 +8,7 @@ namespace ws
 {
     FileSystem::FileSystem() : is_valid_(false) {}
 
-    FileSystem::FileSystem(const std::string &file_path) : is_valid_(false)
+    FileSystem::FileSystem(const std::string &file_path) : is_valid_(false), path_is_dir_(false)
     {
         this->open(file_path);
     }
@@ -109,7 +109,7 @@ namespace ws
         if (!this->is_valid())
             return false;
 
-        return std::remove(this->path_.c_str());
+        return !std::remove(this->path_.c_str());
     }
 
 	std::string FileSystem::get_file_extension() const

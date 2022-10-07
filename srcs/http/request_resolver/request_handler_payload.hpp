@@ -8,12 +8,10 @@ namespace ws
 {
     struct RequestHandlerPayload
     {
-        RequestHandlerPayload() {
-            this->response = new HttpResponse();
-            this->location = NULL;
-        }
+        RequestHandlerPayload() {}
 
-        HttpResponse *response;
-        Location *location;
+        HttpResponse response;
+        Location location;
+        std::string file_path;
     };
 }

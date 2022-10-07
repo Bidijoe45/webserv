@@ -18,10 +18,10 @@
 #include "connection.hpp"
 #include "../http/http_parser.hpp"
 #include "../http/http_request.hpp"
-#include "../http/http_request_resolver.hpp"
 #include "../settings/parser/settings_parser.hpp"
 #include "server_socket.hpp"
-#include "content_type_map.hpp"
+#include "../utils/content_type_map.hpp"
+#include "../http/request_resolver/request_resolver.hpp"
 
 namespace ws
 {
@@ -211,8 +211,16 @@ namespace ws
 
 		ServerSettings server_settings = this->settings_.resolve_settings_hostname(http_request, connection.port);
 
-		HttpRequestResolver request_resolver(http_request, server_settings, this->env_, connection, this->content_types_);
-		HttpResponse response = request_resolver.resolve();
+		//HttpRequestResolver request_resolver(http_request, server_settings, this->env_, connection, this->content_types_);
+		//HttpResponse response = request_resolver.resolve();
+
+		RequestResolver request_resolver(server_settings, http_request, this->env_, connection, this->content_types_);
+		HttpResponse response = request_resolver.get_response();
+
+		std::cout << "RESPONSE" << std::endl;
+		std::cout << "-- -- --" << std::endl;
+		//std::cout << response.to_string() << std::endl;
+		std::cout << "-- -- --" << std::endl;
 
 		connection.buff.append(response.to_string());
 

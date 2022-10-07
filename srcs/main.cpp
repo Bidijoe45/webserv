@@ -12,7 +12,6 @@
 #include "utils/string_utils.hpp"
 #include "server/file_system.hpp"
 
-#include "http/request_resolver/resolver.hpp"
 #include "settings/server_settings.hpp"
 #include "http/http_response.hpp"
 #include "http/http_uri.hpp"
@@ -29,26 +28,26 @@ static void close_handler(int sig, siginfo_t *siginfo, void *context)
 	printf ("Sending PID: %ld, UID: %ld\n", (long)siginfo->si_pid, (long)siginfo->si_uid);
 }
 
-// int main(int argc, char **argv, char **env) {
-// 	struct sigaction act;
-// 	ws::Server server;
-//
-// 	server.set_env(env);
-// 	
-// //	atexit(&atExit);
-// 	memset (&act, 0, sizeof(act));
-// 	act.sa_sigaction = &close_handler;
-// 	act.sa_flags = SA_SIGINFO;
-//
-// 	if (sigaction(SIGINT, &act, NULL) < 0) {
-// 		perror ("sigaction");
-// 		return 1;
-// 	}
-//
-// 	server.run();
-//
-// 	std::cout << "FIN del programa" << std::endl;
-// }
+int main(int argc, char **argv, char **env) {
+	struct sigaction act;
+	ws::Server server;
+
+	server.set_env(env);
+	
+//	atexit(&atExit);
+	memset (&act, 0, sizeof(act));
+	act.sa_sigaction = &close_handler;
+	act.sa_flags = SA_SIGINFO;
+
+	if (sigaction(SIGINT, &act, NULL) < 0) {
+		perror ("sigaction");
+		return 1;
+	}
+
+	server.run();
+
+	std::cout << "FIN del programa" << std::endl;
+}
 
 ws::HttpRequest prepare_request()
 {
@@ -81,17 +80,17 @@ ws::ServerSettings prepare_settings()
 	return settings;
 }
 
-int main()
-{
-	ws::HttpRequest request = prepare_request();
-	ws::ServerSettings settings = prepare_settings();
-
-
-	ws::Resolver resolver(settings, request);
-
-	ws::HttpResponse *response = resolver.get_response();
-
-	std::cout << response->to_string() << std::endl;
-
-	delete response;
-}
+// int main()
+// {
+// 	ws::HttpRequest request = prepare_request();
+// 	ws::ServerSettings settings = prepare_settings();
+//
+//
+// 	ws::Resolver resolver(settings, request);
+//
+// 	ws::HttpResponse *response = resolver.get_response();
+//
+// 	std::cout << response->to_string() << std::endl;
+//
+// 	delete response;
+// }
