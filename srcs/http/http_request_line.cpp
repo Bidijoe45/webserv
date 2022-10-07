@@ -2,6 +2,8 @@
 
 namespace ws
 {
+	HttpRequestLine::HttpRequestLine() : method(HTTP_METHOD_INVALID) {}
+
 	std::string HttpRequestLine::method_to_string() const
 	{
 		switch (this->method)

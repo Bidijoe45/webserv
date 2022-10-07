@@ -28,6 +28,9 @@ namespace ws
 			const_iterator end() const;
 			iterator find(const std::string &key);
 			const_iterator find(const std::string &key) const;
+			iterator find(HTTP_HEADER_TYPE type);
+			const_iterator find(HTTP_HEADER_TYPE type) const;
+			void clear();
 			const std::map<std::string, HttpHeader*> &get_headers() const;
 
 		private:

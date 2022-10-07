@@ -62,6 +62,16 @@ namespace ws
 		return this->headers_.find(key);
 	}
 
+	HttpHeaderMap::iterator HttpHeaderMap::find(HTTP_HEADER_TYPE type)
+	{
+		return this->headers_.find(HttpHeader::header_type_to_string(type));
+	}
+	
+	HttpHeaderMap::const_iterator HttpHeaderMap::find(HTTP_HEADER_TYPE type) const
+	{
+		return this->headers_.find(HttpHeader::header_type_to_string(type));
+	}
+
 	std::pair<HttpHeaderMap::iterator,bool> HttpHeaderMap::insert(std::string header_name, HttpHeader *header)
 	{
 		std::pair<std::string, HttpHeader*>	header_pair;
@@ -100,6 +110,12 @@ namespace ws
 	HttpHeaderMap::const_iterator HttpHeaderMap::end() const
 	{
 		return this->headers_.end();
+	}
+
+	void HttpHeaderMap::clear()
+	{
+		this->deallocate_header_items();
+		this->headers_.clear();
 	}
 
 	const std::map<std::string, HttpHeader*> &HttpHeaderMap::get_headers() const

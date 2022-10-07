@@ -11,15 +11,26 @@
 namespace ws
 {
 
-struct HttpRequest {
+struct HttpRequest
+{
 	public:
+		enum RequestError 
+		{
+			NO_ERROR,
+			BAD_REQUEST,
+			LENGTH_REQUIRED,
+			NOT_IMPLEMENTED
+		};
+
 		typedef std::map<std::string, HttpHeader*>::iterator headers_iterator;
 		HttpRequest();
+		void reset();
 
 		HttpRequestLine request_line;
 		HttpHeaderMap headers;
 		std::string body;
 		bool is_valid;
+		RequestError error;
 };
 
 bool operator==(const HttpRequest &lhs, const HttpRequest &rhs); 
