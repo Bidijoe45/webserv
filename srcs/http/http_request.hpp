@@ -29,7 +29,6 @@ struct HttpRequest
 		HttpRequestLine request_line;
 		HttpHeaderMap headers;
 		std::string body;
-		bool is_valid;
 		RequestError error;
 };
 

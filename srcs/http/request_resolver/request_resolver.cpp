@@ -43,7 +43,7 @@ namespace ws
 
     void RequestResolver::resolve()
     {
-        RequestErrorChecker request_error_checker(&this->request_);
+        RequestErrorChecker request_error_checker(this->request_);
         SupportedMethods supported_method(&this->request_);
         LocationResolver location_resolver(&this->request_, this->settings_.locations);
         AcceptedMethod accepted_method(&this->request_, &this->settings_);
