@@ -18,6 +18,7 @@ struct HttpRequest
 		{
 			NO_ERROR,
 			BAD_REQUEST,
+			INVALID_METHOD,
 			LENGTH_REQUIRED,
 			NOT_IMPLEMENTED
 		};

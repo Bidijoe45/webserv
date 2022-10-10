@@ -74,10 +74,6 @@ namespace ws
     void HttpRequestLineParser::parse_version()
     {
 		std::string version = this->line_.substr(this->pos_);
-
-		if (version != "HTTP/1.1")
-			throw std::runtime_error("Request Line Parser: invalid version");
-
 		this->request_line_.http_version = version;
     }
 
