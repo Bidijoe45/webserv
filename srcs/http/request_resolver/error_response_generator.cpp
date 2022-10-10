@@ -3,11 +3,13 @@
 namespace ws
 {
 
-    ErrorResponseGenerator::ErrorResponseGenerator(const std::vector<ErrorPage> &error_pages) : error_pages_(error_pages) {}
+    ErrorResponseGenerator::ErrorResponseGenerator(const std::vector<ErrorPage> &error_pages, const HttpMessageMap &http_message_map)
+        : error_pages_(error_pages), http_message_map_(http_message_map){}
 
     HttpResponse ErrorResponseGenerator::get(size_t error_code)
     {
 	    this->response_.status_code = error_code;
+	    this->response_.status_msg = this->http_message_map_.get_msg(error_code);
 		this->generate_body();
         return this->response_;
     }
@@ -42,13 +44,13 @@ namespace ws
 	std::string ErrorResponseGenerator::create_default_error_page()
 	{
 		std::string error_page;
-		std::string error = ul_to_string(this->response_.status_code) + " " + this->response_.status_msg;
+		std::string error = ul_to_string(this->response_.status_code) + " - " + this->response_.status_msg;
 
 		error_page.append("<!DOCTYPE html><html lang=\"en\"><head><title>");
 		error_page.append(error);
 		error_page.append("</title></head><body><h1>");
 		error_page.append(error);
-		error_page.append("</h1><p>Oops!</p><img src=\"https://http.cat/" + ul_to_string(this->response_.status_code) + "\"></body></html>");
+		error_page.append("</h1><img src=\"https://http.cat/" + ul_to_string(this->response_.status_code) + "\"></body></html>");
 
 		return error_page;
 	}

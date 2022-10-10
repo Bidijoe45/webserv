@@ -1,7 +1,7 @@
 #pragma once
 
 #include <string>
-#include "data_buffer.hpp"
+#include "../server/data_buffer.hpp"
 
 namespace ws
 {

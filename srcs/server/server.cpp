@@ -207,16 +207,22 @@ namespace ws
 //		std::fstream log_file("./log_file");
 //		std::cout << connection.buff.data << std::endl;
 //		std::cout << "-----------------------" << std::endl;
-
+		
 		connection.http_parser.parse(connection.buff);
 		connection.buff.clear();
+
+		if (connection.http_parser.get_stage() > HttpParser::HEADERS_BLOCK && connection.settings_set == false)
+		{
+			connection.settings = this->settings_.resolve_settings_hostname(connection.http_parser.get_request(), connection.port);
+			connection.http_parser.set_max_body_size(connection.settings.client_max_body_size);
+			connection.settings_set = true;
+		}
 
 		if (connection.http_parser.get_stage() == HttpParser::COMPLETED)
 		{
 			HttpRequest http_request = connection.http_parser.get_request();
-			ServerSettings server_settings = this->settings_.resolve_settings_hostname(http_request, connection.port);
 	
-			RequestResolver request_resolver(server_settings, http_request, this->env_, connection, this->content_types_, this->http_message_map_);
+			RequestResolver request_resolver(connection.settings, http_request, this->env_, connection, this->content_types_, this->http_message_map_);
 			HttpResponse response = request_resolver.get_response();
 	
 			connection.buff.append(response.to_string());

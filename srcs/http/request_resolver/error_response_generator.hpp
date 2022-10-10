@@ -5,6 +5,7 @@
 #include "../../server/file_system.hpp"
 #include "../../utils/string_utils.hpp"
 #include "../headers/http_headers.hpp"
+#include "../../utils/http_message_map.hpp"
 
 namespace ws
 {
@@ -12,7 +13,7 @@ namespace ws
     class ErrorResponseGenerator
     {
         public: 
-            ErrorResponseGenerator(const std::vector<ErrorPage> &error_pages);
+            ErrorResponseGenerator(const std::vector<ErrorPage> &error_pages, const HttpMessageMap &http_message_map);
             HttpResponse get(size_t error_code);
 	        void generate_body();
 	        std::string get_custom_error_page_path();
@@ -22,6 +23,7 @@ namespace ws
         private:
             HttpResponse response_;
             std::vector<ErrorPage> error_pages_;
+            const HttpMessageMap &http_message_map_;
     };
 
 }
