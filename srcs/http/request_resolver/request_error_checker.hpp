@@ -7,10 +7,10 @@ namespace ws
     class RequestErrorChecker : public RequestHandler
     {
         public:
-            RequestErrorChecker(HttpRequest *request);
+            RequestErrorChecker(const HttpRequest &request);
             RequestHandlerPayload *handle(RequestHandlerPayload *payload);
 
         private:
-            HttpRequest *request_;
+            HttpRequest request_;
     };
 }

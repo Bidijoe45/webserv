@@ -195,7 +195,6 @@ namespace ws
 		}
 		catch(const std::runtime_error& e)
 		{
-			this->request_.is_valid = false;
 			this->stage_ = HttpParser::COMPLETED;
 			std::cout << e.what() << std::endl;
 		}
