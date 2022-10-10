@@ -9,6 +9,7 @@
 #include "server_socket.hpp"
 #include "../utils/content_type_map.hpp"
 #include "../utils/env_map.hpp"
+#include "../utils/http_message_map.hpp"
 
 namespace ws
 {
@@ -46,6 +47,7 @@ namespace ws
 			Settings settings_;
 			EnvMap env_; 
 			ContentTypeMap content_types_;
+			HttpMessageMap http_message_map_;
 
 	};
 
