@@ -5,7 +5,7 @@
 #include "../http_response.hpp"
 #include "../http_request.hpp"
 #include "error_response_generator.hpp"
-#include "request_resolver.hpp"
+#include "../../utils/http_message_map.hpp"
 #include "cgi_caller.hpp"
 #include "accepted_method.hpp"
 #include "error_response_generator.hpp"
@@ -24,7 +24,9 @@ namespace ws
                         const HttpRequest &request,
                         const EnvMap &env_map,
                         const Connection &connection,
-                        const ContentTypeMap &content_type_map)
+                        const ContentTypeMap &content_type_map,
+                        const HttpMessageMap &http_message_map)
+                        : http_message_map_(http_message_map)
     {
         this->settings_ = server_settings;
         this->request_ = request;
@@ -70,6 +72,8 @@ namespace ws
             this->payload_->response = error_generator.get(e.get_error_code());
             std::cout << std::string(e.what()) << ": " << e.get_error_code() << std::endl;
         }
+        
+        this->payload_->response.status_msg = this->http_message_map_.get_msg(this->payload_->response.status_code);
 
     }
 

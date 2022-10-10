@@ -6,7 +6,9 @@
 #include "../../utils/env_map.hpp"
 #include "../../server/connection.hpp"
 #include "../../utils/content_type_map.hpp"
+#include "../../utils/http_message_map.hpp"
 #include "request_handler.hpp"
+#include "../../utils/http_message_map.hpp"
 
 namespace ws
 {
@@ -17,7 +19,8 @@ namespace ws
                         const HttpRequest &request,
                         const EnvMap &env_map,
                         const Connection &connection,
-                        const ContentTypeMap &content_type_map);
+                        const ContentTypeMap &content_type_map,
+                        const HttpMessageMap &http_message_map);
             ~RequestResolver();
             HttpResponse get_response();
 
@@ -29,6 +32,7 @@ namespace ws
             Connection connection_;
             EnvMap env_map_;
             ContentTypeMap content_type_map_;
+            const HttpMessageMap &http_message_map_;
     };
 }
 
