@@ -30,6 +30,7 @@ namespace ws
 	Server::Server()
 	{
 		this->content_types_.parse_content_types_file("srcs/utils/content_types_list.txt");
+		this->http_message_map_ = HttpMessageMap();
 	}
 
 	Server::~Server()
@@ -215,7 +216,7 @@ namespace ws
 			HttpRequest http_request = connection.http_parser.get_request();
 			ServerSettings server_settings = this->settings_.resolve_settings_hostname(http_request, connection.port);
 	
-			RequestResolver request_resolver(server_settings, http_request, this->env_, connection, this->content_types_);
+			RequestResolver request_resolver(server_settings, http_request, this->env_, connection, this->content_types_, this->http_message_map_);
 			HttpResponse response = request_resolver.get_response();
 	
 			connection.buff.append(response.to_string());
