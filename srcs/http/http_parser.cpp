@@ -20,7 +20,7 @@
 namespace ws
 {
 
-	HttpParser::HttpParser() : stage_(HttpParser::REQUEST_LINE), buff_pos_(0), expected_body_size_(0), must_close_(false) {}
+	HttpParser::HttpParser() : stage_(HttpParser::REQUEST_LINE), buff_pos_(0), expected_body_size_(0), must_close_(false), max_body_size_(0) {}
 
 	void HttpParser::parse_first_line()
 	{
@@ -109,6 +109,8 @@ namespace ws
 	{
 		if (this->buff_.size() > 0 && this->expected_body_size_ > 0)
 		{
+			if (this->expected_body_size_ > this->max_body_size_)
+				this->throw_with_error(HttpRequest::BODY_TOO_LARGE, "Request: body too large");
 			if (this->buff_.size() < this->expected_body_size_)
 				return;
 
@@ -149,7 +151,12 @@ namespace ws
 		}
 	}
 
-	HttpRequest HttpParser::get_request() const
+	void HttpParser::set_max_body_size(size_t max_body_size)
+	{
+		this->max_body_size_ = max_body_size;
+	}
+
+	const HttpRequest &HttpParser::get_request() const
 	{
 		return this->request_;
 	}

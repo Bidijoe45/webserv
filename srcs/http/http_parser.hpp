@@ -23,10 +23,11 @@ namespace ws
 
 			HttpParser();
 			void parse(const DataBuffer &new_buff);
-			HttpRequest get_request() const;
+			const HttpRequest &get_request() const;
 			Stage get_stage() const;
 			void reset();
 			bool must_close() const;
+			void set_max_body_size(size_t max_body_size);
 
 		private:
 			void parse_first_line();
@@ -40,6 +41,7 @@ namespace ws
 			HttpRequest request_;
 			Stage stage_;
 			size_t expected_body_size_;
+			size_t max_body_size_;
 			std::vector<std::string> transfer_codings_;
 			Unchunker unchunker_;
 			bool must_close_;

@@ -20,7 +20,8 @@ struct HttpRequest
 			BAD_REQUEST,
 			INVALID_METHOD,
 			LENGTH_REQUIRED,
-			NOT_IMPLEMENTED
+			NOT_IMPLEMENTED,
+			BODY_TOO_LARGE
 		};
 
 		typedef std::map<std::string, HttpHeader*>::iterator headers_iterator;

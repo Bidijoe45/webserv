@@ -68,13 +68,12 @@ namespace ws
         }
         catch(RequestHandler::Exception &e)
         {
-            ErrorResponseGenerator error_generator(this->settings_.error_pages);
+            ErrorResponseGenerator error_generator(this->settings_.error_pages, this->http_message_map_);
             this->payload_->response = error_generator.get(e.get_error_code());
             std::cout << std::string(e.what()) << ": " << e.get_error_code() << std::endl;
         }
         
         this->payload_->response.status_msg = this->http_message_map_.get_msg(this->payload_->response.status_code);
-
     }
 
     HttpResponse RequestResolver::get_response()

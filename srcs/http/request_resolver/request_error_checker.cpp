@@ -20,6 +20,8 @@ namespace ws
 				throw RequestHandler::Exception(411);
 			case HttpRequest::NOT_IMPLEMENTED:
 				throw RequestHandler::Exception(501);
+			case HttpRequest::BODY_TOO_LARGE:
+			    throw RequestHandler::Exception(413);
 			default:
 				throw RequestHandler::Exception(400);
 		}

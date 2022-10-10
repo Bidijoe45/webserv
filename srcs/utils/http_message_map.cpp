@@ -17,9 +17,9 @@ namespace ws
         this->messages.insert(std::make_pair(405, "Method Not Allowed"));
         this->messages.insert(std::make_pair(408, "Request Timeout"));
         this->messages.insert(std::make_pair(411, "Length Required"));
+        this->messages.insert(std::make_pair(413, "Payload Too Large"));
         this->messages.insert(std::make_pair(414, "URI Too Long"));
         this->messages.insert(std::make_pair(500, "Internal Server Error"));
-        this->messages.insert(std::make_pair(501, "Not Implemented"));
         this->messages.insert(std::make_pair(501, "Not Implemented"));
         this->messages.insert(std::make_pair(505, "Http Version Not Supported"));
     }

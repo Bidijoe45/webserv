@@ -5,12 +5,14 @@
 #include <poll.h>
 #include <string>
 
-#include "http_parser.hpp"
+#include "../http/http_parser.hpp"
 #include "data_buffer.hpp"
+#include "../settings/server_settings.hpp"
 
 namespace ws {
 
 struct Connection {
+	Connection();
 	~Connection();
 	int send_data();
 	int recv_data();
@@ -22,6 +24,8 @@ struct Connection {
 	struct sockaddr_storage addr;
 	DataBuffer buff;
 	HttpParser http_parser;
+	ServerSettings settings;
+	bool settings_set;
 };
 
 } //namespace ws
