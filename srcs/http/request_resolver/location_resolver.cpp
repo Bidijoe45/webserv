@@ -1,16 +1,10 @@
-#include <vector>
-
-#include <iostream>
-
 #include "location_resolver.hpp"
-#include "../utils/string_utils.hpp"
-#include "../http/http_uri.hpp"
-#include "../settings/location.hpp"
 
 namespace ws
 {
 
-    LocationResolver::LocationResolver(const std::vector<Location> &locations)
+    LocationResolver::LocationResolver(HttpRequest *request, const std::vector<Location> &locations)
+        : RequestHandler(), request_(request)
     {
         std::vector<Location>::const_iterator it = locations.begin();
         std::vector<Location>::const_iterator ite = locations.end();
@@ -21,6 +15,16 @@ namespace ws
             this->splitted_locations_.push_back(split);
         }
         this->locations_ = locations;
+    }
+
+    RequestHandlerPayload *LocationResolver::handle(RequestHandlerPayload *payload)
+    {
+        payload->location = resolve(this->request_->request_line.uri);
+        
+        if (payload->location.path.size() == 0)
+            throw RequestHandler::Exception(404);
+
+        return RequestHandler::handle(payload);
     }
 
     Location LocationResolver::resolve(const HttpUri &uri)
@@ -35,7 +39,7 @@ namespace ws
         {
             size_t score = this->compare_locations(split_uri_path, this->splitted_locations_[location_i]);
             if (score > hightes_score)
-                location = this->locations_[location_i];
+                location = Location(this->locations_[location_i]);
         }
         
         return location;
