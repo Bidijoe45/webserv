@@ -45,7 +45,7 @@ namespace ws
 			this->throw_with_error(HttpRequest::BAD_REQUEST, "Request: Invalid first line");
 
 		if (this->request_.request_line.http_version != "HTTP/1.1")
-			this->throw_with_error(HttpRequest::INVALID_METHOD, "Request: Invalid first line");
+			this->throw_with_error(HttpRequest::INVALID_VERSION, "Request: Invalid first line");
 
 		this->stage_ = HttpParser::HEADERS_BLOCK;
 	}

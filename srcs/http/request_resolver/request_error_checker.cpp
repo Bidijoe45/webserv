@@ -14,7 +14,7 @@ namespace ws
 				break;
 			case HttpRequest::BAD_REQUEST:
 				throw RequestHandler::Exception(400);
-			case HttpRequest::INVALID_METHOD:
+			case HttpRequest::INVALID_VERSION:
 				throw RequestHandler::Exception(505);
 			case HttpRequest::LENGTH_REQUIRED:
 				throw RequestHandler::Exception(411);
