@@ -31,6 +31,7 @@ namespace ws
 			iterator find(HTTP_HEADER_TYPE type);
 			const_iterator find(HTTP_HEADER_TYPE type) const;
 			void clear();
+			size_t size() const;
 			const std::map<std::string, HttpHeader*> &get_headers() const;
 
 		private:

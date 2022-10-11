@@ -118,6 +118,11 @@ namespace ws
 		this->headers_.clear();
 	}
 
+	size_t HttpHeaderMap::size() const
+	{
+		return this->headers_.size();
+	}
+
 	const std::map<std::string, HttpHeader*> &HttpHeaderMap::get_headers() const
 	{
 		return this->headers_;
