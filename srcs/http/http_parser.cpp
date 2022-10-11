@@ -113,7 +113,7 @@ namespace ws
 	{
 		if (this->buff_.size() > 0 && this->expected_body_size_ > 0)
 		{
-			if (this->expected_body_size_ > this->max_body_size_)
+			if (this->max_body_size_ != 0 && this->expected_body_size_ > this->max_body_size_)
 				this->throw_with_error(HttpRequest::BODY_TOO_LARGE, "Request: body too large");
 			if (this->buff_.size() < this->expected_body_size_)
 				return;
