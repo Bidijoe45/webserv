@@ -1,4 +1,8 @@
+#include <vector>
+#include <iostream>
+
 #include "http_delete_method.hpp"
+#include "../../utils/string_utils.hpp"
 
 namespace ws
 {
@@ -7,6 +11,13 @@ namespace ws
 
     HttpResponse HttpDeleteMethod::execute()
     {
+        std::vector<std::string> split_file_path = string_split(this->file_path_, "/");
+        std::vector<std::string> split_upload_dir = string_split(this->location_.upload_dir, "/");
+
+        size_t equal_paths_segments = compare_split_paths(split_file_path, split_upload_dir);
+
+        if (equal_paths_segments != split_upload_dir.size())
+            throw HttpMethod::Exception(403);
 
 	    if (this->location_.upload_dir.size() == 0)
 	        throw HttpMethod::Exception(403);

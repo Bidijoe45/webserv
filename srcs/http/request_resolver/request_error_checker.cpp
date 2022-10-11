@@ -22,6 +22,8 @@ namespace ws
 				throw RequestHandler::Exception(501);
 			case HttpRequest::BODY_TOO_LARGE:
 			    throw RequestHandler::Exception(413);
+			case HttpRequest::URI_TOO_LONG:
+			    throw RequestHandler::Exception(414);
 			default:
 				throw RequestHandler::Exception(400);
 		}

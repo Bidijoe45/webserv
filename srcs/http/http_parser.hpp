@@ -7,6 +7,8 @@
 #include "../server/data_buffer.hpp"
 #include "unchunker.hpp"
 
+#define URI_MAX_LENGTH 8000
+
 namespace ws
 {
 	class HttpParser

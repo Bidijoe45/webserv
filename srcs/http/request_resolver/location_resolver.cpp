@@ -1,4 +1,7 @@
 #include "location_resolver.hpp"
+#include "../../utils/string_utils.hpp"
+
+#include <iostream>
 
 namespace ws
 {
@@ -35,32 +38,23 @@ namespace ws
         size_t splitted_location_i = 0;
         size_t hightes_score = 0;
 
+        if (this->locations_.begin() != this->locations_.end())
+            location = *this->locations_.begin();
+
         for (; location_i < this->locations_.size(); location_i++)
         {
-            size_t score = this->compare_locations(split_uri_path, this->splitted_locations_[location_i]);
-            if (score > hightes_score)
+            size_t score = compare_split_paths(split_uri_path, this->splitted_locations_[location_i]);
+
+            if (this->splitted_locations_[location_i].size() == 0 && hightes_score == 0)
                 location = Location(this->locations_[location_i]);
+
+            if (score > hightes_score)
+            {
+                location = Location(this->locations_[location_i]);
+                hightes_score = score;
+            }
         }
-        
+
         return location;
-    }
-    
-    size_t LocationResolver::compare_locations(const std::vector<std::string> &vec1, const std::vector<std::string> &vec2)
-    {
-        size_t size = (vec1.size() < vec2.size()) ? vec1.size() : vec2.size();
-        size_t equal_segments = 0;
-
-         if (vec2.size() == 0)
-             equal_segments += 1;
-        
-         for (size_t i=0; i < size; i++)
-         {
-             if (vec1[i] == vec2[i])
-                 equal_segments += 2;
-             else
-                 return equal_segments;
-         }
-
-        return equal_segments;
     }
 }
