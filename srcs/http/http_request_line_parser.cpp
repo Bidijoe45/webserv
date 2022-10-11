@@ -27,7 +27,13 @@ namespace ws
     void HttpRequestLineParser::parse_method()
     {
     	size_t space_pos = this->line_.find_first_of(' ', this->pos_);
+
+        if (space_pos == std::string::npos)
+			throw std::runtime_error("Request Line Parser: <Space> was expected");
+
 		std::string method = this->line_.substr(this->pos_, space_pos);
+		if (method.size() == 0 || is_token(method) == false)
+			throw std::runtime_error("Request Line Parser: invalid method");
 
 		if (method == "GET")
 			this->request_line_.method = HTTP_METHOD_GET;
@@ -35,10 +41,8 @@ namespace ws
 			this->request_line_.method = HTTP_METHOD_POST;
 		else if (method == "DELETE")
 			this->request_line_.method = HTTP_METHOD_DELETE;
-		else {
+		else
 			this->request_line_.method = HTTP_METHOD_INVALID;
-			throw std::runtime_error("Request Line Parser: invalid method");
-		}
 
 		this->advance(method.size());
     }

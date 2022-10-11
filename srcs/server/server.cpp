@@ -110,10 +110,11 @@ namespace ws
 			this->listen_on(*it);
 
 		it = this->ports_.begin();
-		std::cout << "Server listening on:";
+/*		std::cout << "Server listening on:";
 		for (; it != ite; it++)
 			std::cout << " " << *it;
 		std::cout << std::endl;
+*/
 	}
 
 	std::vector<ServerSocket>::iterator Server::get_server_socket(int socket)
@@ -171,17 +172,17 @@ namespace ws
 							continue;
 						}
 
-						std::cout << "New connection" << std::endl;
+//						std::cout << "New connection" << std::endl;
 					}
 					else
 					{
 						Connection &conn = this->connections_[this->poll_[i].fd];
 						int bytes_read = conn.recv_data();
-						std::cout << "bytes_read: " << bytes_read << std::endl;
+//						std::cout << "bytes_read: " << bytes_read << std::endl;
 
 						if (bytes_read <= 0)
 						{
-							std::cout << "Connection: socket closed by client" << std::endl;
+//							std::cout << "Connection: socket closed by client" << std::endl;
 							delete_connection(conn);
 							delete_from_poll(i);
 							continue ;
