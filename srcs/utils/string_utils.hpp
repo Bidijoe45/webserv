@@ -18,4 +18,5 @@ namespace ws
 	std::string string_trim_right(const std::string &str, const std::string chars);
 	std::string string_trim(const std::string &str, const std::string chars);
 	bool str_is_numeric(const std::string &str);
+	size_t compare_split_paths(const std::vector<std::string> &path1, const std::vector<std::string> &path2);
 }
