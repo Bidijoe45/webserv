@@ -42,10 +42,14 @@ namespace ws
 		this->request_.request_line = request_line_parser.parse();
 
 		if (!request_line_parser.is_valid())
-			this->throw_with_error(HttpRequest::BAD_REQUEST, "Request: Invalid first line");
+			this->throw_with_error(HttpRequest::BAD_REQUEST, "Request: Invalid first line (BAD REQUEST)");
 
 		if (this->request_.request_line.http_version != "HTTP/1.1")
-			this->throw_with_error(HttpRequest::INVALID_METHOD, "Request: Invalid first line");
+			this->throw_with_error(HttpRequest::INVALID_METHOD, "Request: Invalid first line (INVALID METHOD)");
+
+		const std::string &absolute_path = this->request_.request_line.uri.absolute_path();
+		if (absolute_path.size() > URI_MAX_LENGTH)
+			this->throw_with_error(HttpRequest::URI_TOO_LONG, "Request: Invalid first line (URI TOO LONG)");
 
 		this->stage_ = HttpParser::HEADERS_BLOCK;
 	}
