@@ -125,7 +125,8 @@ namespace ws
 	{
 	    if ((this->line_pos_ + n) >= this->current_line_.size())
 			this->line_pos_ = std::string::npos;
-		this->line_pos_ += n;
+		else
+			this->line_pos_ += n;
 	}
 
 	void HttpHeaderParser::skipOWS()
