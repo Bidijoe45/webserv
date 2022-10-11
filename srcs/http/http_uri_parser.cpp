@@ -88,16 +88,6 @@ namespace ws
         this->line_pos_ += 1;
         str = this->line_.substr(this->line_pos_);
         this->uri_.query = str;
-        tokens = ws::string_split(str, "&");
-
-        it = tokens.begin();
-        ite = tokens.end();
-
-        for (; it != ite; it++)
-        {
-            key_value = string_split(*it, "=");
-            this->uri_.params.insert(std::make_pair(decode(key_value[0]), decode(key_value[1])));
-        }
     }
 
     HttpUri HttpUriParser::parse()
