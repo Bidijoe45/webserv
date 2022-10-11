@@ -23,8 +23,6 @@ namespace ws
     RequestHandlerPayload *LocationResolver::handle(RequestHandlerPayload *payload)
     {
         payload->location = resolve(this->request_->request_line.uri);
-
-        std::cout << "resolved location: " << payload->location.path << std::endl;
         
         if (payload->location.path.size() == 0)
             throw RequestHandler::Exception(404);

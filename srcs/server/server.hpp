@@ -11,6 +11,8 @@
 #include "../utils/env_map.hpp"
 #include "../utils/http_message_map.hpp"
 
+#define POLL_TIMEOUT -1
+
 namespace ws
 {
 
