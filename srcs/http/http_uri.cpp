@@ -32,8 +32,6 @@ namespace ws
             return false;
         if (lhs.is_absolute != rhs.is_absolute)
             return false;
-        if (lhs.params != rhs.params)
-            return false;
         return true;
     }
 

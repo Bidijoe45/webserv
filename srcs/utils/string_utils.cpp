@@ -160,4 +160,20 @@ namespace ws
 
 		return true;
 	}
+
+	size_t compare_split_paths(const std::vector<std::string> &path1, const std::vector<std::string> &path2)
+	{
+        size_t size = (path1.size() < path2.size()) ? path1.size() : path2.size();
+        size_t equal_segments = 0;
+
+        for (size_t i=0; i < size; i++)
+    	{
+         	if (path1[i] == path2[i])
+            	equal_segments += 1;
+         	else
+            	return equal_segments;
+     	}
+
+        return equal_segments;
+	}
 }

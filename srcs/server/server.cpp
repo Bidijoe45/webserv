@@ -151,7 +151,7 @@ namespace ws
 
 		while (running)
 		{
-			int poll_count = poll(&this->poll_[0], this->poll_.size(), -1);
+			int poll_count = poll(&this->poll_[0], this->poll_.size(), POLL_TIMEOUT);
 
 			if (poll_count == -1)
 				std::cout << "Error: polling failed" << std::endl;

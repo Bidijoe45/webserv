@@ -42,10 +42,14 @@ namespace ws
 		this->request_.request_line = request_line_parser.parse();
 
 		if (!request_line_parser.is_valid())
-			this->throw_with_error(HttpRequest::BAD_REQUEST, "Request: Invalid first line");
+			this->throw_with_error(HttpRequest::BAD_REQUEST, "Request: Invalid first line (BAD REQUEST)");
 
 		if (this->request_.request_line.http_version != "HTTP/1.1")
-			this->throw_with_error(HttpRequest::INVALID_VERSION, "Request: Invalid first line");
+			this->throw_with_error(HttpRequest::INVALID_VERSION, "Request: Invalid first line (INVALID VERSION)");
+
+		const std::string &absolute_path = this->request_.request_line.uri.absolute_path();
+		if (absolute_path.size() > URI_MAX_LENGTH)
+			this->throw_with_error(HttpRequest::URI_TOO_LONG, "Request: Invalid first line (URI TOO LONG)");
 
 		this->stage_ = HttpParser::HEADERS_BLOCK;
 	}
@@ -109,7 +113,7 @@ namespace ws
 	{
 		if (this->buff_.size() > 0 && this->expected_body_size_ > 0)
 		{
-			if (this->expected_body_size_ > this->max_body_size_)
+			if (this->max_body_size_ != 0 && this->expected_body_size_ > this->max_body_size_)
 				this->throw_with_error(HttpRequest::BODY_TOO_LARGE, "Request: body too large");
 			if (this->buff_.size() < this->expected_body_size_)
 				return;
