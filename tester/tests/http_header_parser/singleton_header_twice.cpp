@@ -9,8 +9,8 @@ int main()
 	// TEST 0
 	{
 		std::vector<std::string> header_block;
-		header_block.push_back("header_name: header_value");
-		header_block.push_back("header_name: another_header_value");
+		header_block.push_back("host: header_value");
+		header_block.push_back("host: another_header_value");
 		
 		ws::HttpHeaderParser header_parser(header_block);
 		ws::HttpHeaderMap headers = header_parser.parse_block();
