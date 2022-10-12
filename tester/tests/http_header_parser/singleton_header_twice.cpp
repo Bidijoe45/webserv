@@ -9,7 +9,8 @@ int main()
 	// TEST 0
 	{
 		std::vector<std::string> header_block;
-		header_block.push_back(": webserv");
+		header_block.push_back("header_name: header_value");
+		header_block.push_back("header_name: another_header_value");
 		
 		ws::HttpHeaderParser header_parser(header_block);
 		ws::HttpHeaderMap headers = header_parser.parse_block();
@@ -24,9 +25,9 @@ int main()
 	// TEST 1
 	{
 		std::vector<std::string> header_block;
-		header_block.push_back("");
-		header_block.push_back("");
-		header_block.push_back("");
+		header_block.push_back("header_name");
+		header_block.push_back("header_name: hola");
+		header_block.push_back("header_name:");
 		
 		ws::HttpHeaderParser header_parser(header_block);
 		ws::HttpHeaderMap headers = header_parser.parse_block();
@@ -34,21 +35,6 @@ int main()
 		if (header_parser.is_valid())
 		{
 			std::cout << "Failed test: 1" << std::endl;
-			return 1;
-		}
-	}
-
-	// TEST 2
-	{
-		std::vector<std::string> header_block;
-		header_block.push_back(":");
-		
-		ws::HttpHeaderParser header_parser(header_block);
-		ws::HttpHeaderMap headers = header_parser.parse_block();
-	
-		if (header_parser.is_valid())
-		{
-			std::cout << "Failed test: 2" << std::endl;
 			return 1;
 		}
 	}

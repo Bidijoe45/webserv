@@ -8,8 +8,8 @@ int main()
 {
 	std::vector<std::string> header_block;
 	header_block.push_back("host: webserv");
-	header_block.push_back("content-length:      10");
-	header_block.push_back("caca: hola");
+	header_block.push_back("content-length:10");
+	header_block.push_back("caca:   hola          aaaa");
 	header_block.push_back("transfEr-encoDing: chunked");
 	header_block.push_back("transfer-encoding: repe");
 	header_block.push_back("ContEnT-TYPE: \t\t   valido");
@@ -50,7 +50,7 @@ int main()
 	header_names.push_back("unknown2");
 	header_names.push_back("unknown3");
 
-	header_values.push_back("hola");
+	header_values.push_back("hola          aaaa");
 	header_values.push_back("10");
 	header_values.push_back("valido");
 	header_values.push_back("eñe");
