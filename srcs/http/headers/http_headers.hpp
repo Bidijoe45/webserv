@@ -106,6 +106,21 @@ namespace ws
 			void parse_value(const std::string &val);
 	};
 
+	struct HttpHeaderConnection : public HttpHeaderListBased
+	{
+		HttpHeaderConnection();
+		~HttpHeaderConnection();
+		HttpHeaderConnection(const HttpHeaderConnection &src);
+		void set_value(const std::string &value);
+		HttpHeaderConnection &operator+=(const std::string &rhs);
+
+		std::vector<std::string> options;
+
+		private:
+			void parse_value();
+			void parse_value(const std::string &val);
+	};
+
 	struct HttpHeaderUnknown : public HttpHeaderSingleton
 	{
 		HttpHeaderUnknown();

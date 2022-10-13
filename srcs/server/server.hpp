@@ -41,6 +41,7 @@ namespace ws
 			void delete_from_poll(size_t index);
 			std::vector<ServerSocket>::iterator get_server_socket(int socket);
 			void set_ports_from_settings();
+			bool check_connection_header(const HttpRequest &http_request);
 			
 			std::map<int, Connection> connections_;
 			std::vector<ServerSocket> server_sockets_;

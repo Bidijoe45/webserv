@@ -10,6 +10,8 @@
 #include <fcntl.h>
 #include <cstdio>
 #include <fstream>
+#include <vector>
+#include <algorithm>
 
 #include <iostream>
 #include <cstring>
@@ -22,6 +24,8 @@
 #include "server_socket.hpp"
 #include "../utils/content_type_map.hpp"
 #include "../http/request_resolver/request_resolver.hpp"
+#include "http_header_map.hpp"
+#include "http_headers.hpp"
 
 namespace ws
 {
@@ -182,14 +186,14 @@ namespace ws
 
 						if (bytes_read <= 0)
 						{
-//							std::cout << "Connection: socket closed by client" << std::endl;
+							std::cout << "Connection: socket closed by client" << std::endl;
 							delete_connection(conn);
 							delete_from_poll(i);
 							continue ;
 						}
 
 						this->on_new_request(conn);
-						if (conn.http_parser.must_close() == true)
+						if (conn.must_close == true)
 						{
 							std::cout << "Connection: socket closed by server" << std::endl;
 							delete_connection(conn);
@@ -202,6 +206,21 @@ namespace ws
 		}
 	}
 
+	bool Server::check_connection_header(const HttpRequest &http_request)
+	{
+		HttpHeaderMap::const_iterator connection_it = http_request.headers.find(HTTP_HEADER_CONNECTION);
+		if (connection_it == http_request.headers.end())
+			return false;
+		HttpHeaderConnection *connection_header = static_cast<HttpHeaderConnection*>(connection_it->second);
+		std::vector<std::string> connection_options = connection_header->options;
+		if (connection_options.size() == 0)
+			return false;
+		if (find(connection_options.begin(), connection_options.end(), "close") == connection_options.end())
+			return false;
+
+		return true;
+	}
+
 	void Server::on_new_request(Connection &connection)
 	{
 //		std::cout << "-- Raw Message by client --" << std::endl;
@@ -210,6 +229,7 @@ namespace ws
 //		std::cout << "-----------------------" << std::endl;
 		
 		connection.http_parser.parse(connection.buff);
+		connection.must_close = connection.http_parser.must_close();
 		connection.buff.clear();
 
 		if (connection.http_parser.get_stage() > HttpParser::HEADERS_BLOCK && connection.settings_set == false)
@@ -225,6 +245,14 @@ namespace ws
 	
 			RequestResolver request_resolver(connection.settings, http_request, this->env_, connection, this->content_types_, this->http_message_map_);
 			HttpResponse response = request_resolver.get_response();
+
+			connection.must_close = this->check_connection_header(http_request);
+			if (connection.must_close == true)
+			{
+				HttpHeaderConnection *connection_header = new HttpHeaderConnection();
+				connection_header->set_value("close");
+				response.headers.insert(connection_header);
+			}
 	
 			connection.buff.append(response.to_string());
 	
