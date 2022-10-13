@@ -26,6 +26,7 @@ struct Connection {
 	HttpParser http_parser;
 	ServerSettings settings;
 	bool settings_set;
+	bool must_close;
 };
 
 } //namespace ws

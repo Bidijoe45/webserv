@@ -27,6 +27,8 @@ namespace ws
 			return HTTP_HEADER_LOCATION;
 		else if (name == "transfer-encoding")
 			return HTTP_HEADER_TRANSFER_ENCODING;
+		else if (name == "connection")
+			return HTTP_HEADER_CONNECTION;
 		else
 			return HTTP_HEADER_UNKNOWN;
 	}
@@ -49,6 +51,10 @@ namespace ws
 				return "location";
 			case HTTP_HEADER_TRANSFER_ENCODING:
 				return "transfer-encoding";
+			case HTTP_HEADER_CONNECTION:
+				return "connection";
+			case HTTP_HEADER_UNKNOWN:
+				return "unknown";
 			default:
 				return "unknown";
 		}
@@ -72,6 +78,8 @@ namespace ws
 				return new HttpHeaderLocation(*static_cast<const HttpHeaderLocation*>(header));
 			case HTTP_HEADER_TRANSFER_ENCODING:
 				return new HttpHeaderTransferEncoding(*static_cast<const HttpHeaderTransferEncoding*>(header));
+			case HTTP_HEADER_CONNECTION:
+				return new HttpHeaderConnection(*static_cast<const HttpHeaderConnection*>(header));
 			default:
 				return new HttpHeaderUnknown(*static_cast<const HttpHeaderUnknown*>(header));
 		}
@@ -95,6 +103,8 @@ namespace ws
 				return new HttpHeaderLocation();
 			case HTTP_HEADER_TRANSFER_ENCODING:
 				return new HttpHeaderTransferEncoding();
+			case HTTP_HEADER_CONNECTION:
+				return new HttpHeaderConnection();
 			default:
 				return new HttpHeaderUnknown();
 		}
