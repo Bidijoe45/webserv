@@ -59,17 +59,6 @@ int main()
 		}
 	}
 
-	// TEST 5
-	{
-		ws::HttpHeaderContentLength content_length;
-		content_length.set_value(SIZE_MAX);
-		if (content_length.is_valid == false || content_length.content_length != SIZE_MAX)
-		{
-			std::cout << "Failed test: 5" << std::endl;
-			return 1;
-		}
-	}
-
     return 0;
 }
 	
