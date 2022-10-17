@@ -40,5 +40,14 @@ int main()
 		return 1;
 	}
 
+	// TEST 4
+	unchunker.reset();
+	unchunker.unchunk("wrongsize\r\nbody\r\n0\r\n\r\n");
+	if (unchunker.is_valid() == true || unchunker.get_stage() != ws::Unchunker::COMPLETED)
+	{
+		std::cout << "Failed test 4" << std::endl;
+		return 1;
+	}
+
     return 0;
 }

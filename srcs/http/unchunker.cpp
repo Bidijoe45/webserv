@@ -3,6 +3,7 @@
 #include <cstdlib>
 
 #include "unchunker.hpp"
+#include "string_utils.hpp"
 
 namespace ws
 {
@@ -26,6 +27,9 @@ namespace ws
 
 		size_t end_of_size_pos = line.find_first_of(" ;");
 		std::string hex_num = line.substr(0, end_of_size_pos);
+		if (is_string_hex(hex_num, hex_num.size()) == false)
+			throw std::runtime_error("Unchunker: invalid size chars");
+
 		this->chunk_size_ = strtoul(hex_num.c_str(), NULL, 16);
 
 		if (this->chunk_size_ == 0)
