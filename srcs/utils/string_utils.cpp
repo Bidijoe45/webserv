@@ -29,6 +29,16 @@ namespace ws
 		return true;
 	}
 
+	bool is_string_hex(const std::string &str, size_t len)
+	{
+		for (size_t i = 0; (str[i] && i < len); i++)
+		{
+			if (!isxdigit(str[i]))
+				return false;
+		}
+		return true;
+	}
+
 	std::vector<std::string> string_split(const std::string &str, const std::string &delim) {
     	std::vector<std::string> tokens;
 
