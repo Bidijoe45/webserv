@@ -36,5 +36,6 @@ struct HttpRequest
 };
 
 bool operator==(const HttpRequest &lhs, const HttpRequest &rhs); 
+bool operator!=(const HttpRequest &lhs, const HttpRequest &rhs); 
 
 } // namespace ws

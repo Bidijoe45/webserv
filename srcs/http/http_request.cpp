@@ -13,7 +13,8 @@ namespace ws
 		this->error = NO_ERROR;
 	}
 
-	bool operator==(const HttpRequest &lhs, const HttpRequest &rhs) {
+	bool operator==(const HttpRequest &lhs, const HttpRequest &rhs)
+	{
 		if (lhs.request_line != rhs.request_line)	
 			return false;
 		if (lhs.headers != rhs.headers)
@@ -24,6 +25,11 @@ namespace ws
 			return false;
 
 		return true;
+	}
+
+	bool operator!=(const HttpRequest &lhs, const HttpRequest &rhs)
+	{
+		return !(lhs == rhs);
 	}
 } // namespace ws
 

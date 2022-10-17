@@ -130,11 +130,30 @@ namespace ws
 
 	bool operator==(const HttpHeaderMap &lhs, const HttpHeaderMap &rhs)
 	{
-		return lhs.get_headers() == rhs.get_headers();
+		if (lhs.size() != rhs.size())
+			return false;
+
+		HttpHeaderMap::const_iterator lhs_it = lhs.begin();
+		HttpHeaderMap::const_iterator lhs_ite = lhs.end();
+		HttpHeaderMap::const_iterator rhs_it = rhs.begin();
+		HttpHeaderMap::const_iterator rhs_ite = rhs.end();
+
+		while (lhs_it != lhs_ite && rhs_it != rhs_ite)
+		{
+			if (lhs_it->first != rhs_it->first)
+				return false;
+			if (*(lhs_it->second) != *(rhs_it->second))
+				return false;
+
+			lhs_it++;
+			rhs_it++;
+		}
+
+		return true;
 	}
 
 	bool operator!=(const HttpHeaderMap &lhs, const HttpHeaderMap &rhs)
 	{
-		return lhs.get_headers() != rhs.get_headers();
+		return !(lhs == rhs);
 	}
 }

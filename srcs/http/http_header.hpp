@@ -53,4 +53,7 @@ namespace ws
 			virtual void parse_value() = 0;
 			virtual void parse_value(const std::string &val) = 0;
 	};
+
+	bool operator==(const HttpHeader &lhs, const HttpHeader &rhs);
+	bool operator!=(const HttpHeader &lhs, const HttpHeader &rhs);
 }

@@ -109,4 +109,21 @@ namespace ws
 				return new HttpHeaderUnknown();
 		}
 	}
+
+	bool operator==(const HttpHeader &lhs, const HttpHeader &rhs)
+	{
+		if (lhs.type != rhs.type)
+			return false;
+		if (lhs.value != rhs.value)
+			return false;
+		if (lhs.is_valid != rhs.is_valid)
+			return false;
+
+		return true;
+	}
+
+	bool operator!=(const HttpHeader &lhs, const HttpHeader &rhs)
+	{
+		return !(lhs == rhs);
+	}
 }
