@@ -1,5 +1,6 @@
 #include <string>
 #include <iostream>
+#include <cstdlib>
 
 #include "unchunker.hpp"
 
@@ -20,30 +21,17 @@ namespace ws
 		this->pos_ = 0;
 
 		std::string line = this->raw_body_buff_.get_next_line();
+		if (line.size() == 0)
+			throw std::runtime_error("Unchunker: empty size field");
+
 		size_t end_of_size_pos = line.find_first_of(" ;");
 		std::string hex_num = line.substr(0, end_of_size_pos);
-		try
-		{
-			this->chunk_size_ = std::stoul(hex_num, NULL, 16);
-		}
-		catch (const std::out_of_range &e)
-		{
-			std::string error_str = "Unchunker: ";
-			error_str.append(e.what());
-			throw std::runtime_error(error_str);
-		}
-		catch (const std::invalid_argument &e)
-		{
-			std::string error_str = "Unchunker: ";
-			error_str.append(e.what());
-			throw std::runtime_error(error_str);
-		}
+		this->chunk_size_ = strtoul(hex_num.c_str(), NULL, 16);
 
 		if (this->chunk_size_ == 0)
 			this->stage_ = TRAILER_SECTION;
 		else
 			this->stage_ = CHUNK_DATA;
-		
 	}
 
 	void Unchunker::parse_chunk_data()

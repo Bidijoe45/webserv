@@ -96,6 +96,34 @@ int main()
 		}
 	}
 
+	// TEST 8
+	{
+		std::vector<std::string> header_block;
+		header_block.push_back("Status: abc Not Implemented");
+		
+		ws::HttpHeaderParser header_parser(header_block);
+		ws::HttpHeaderMap headers = header_parser.parse_block();
+	
+		if (header_parser.is_valid())
+		{
+			std::cout << "Failed test: 8" << std::endl;
+			return 1;
+		}
+	}
+
+	// TEST 9
+	{
+		ws::HttpHeaderCGIStatus status;
+		status.set_value("200  OK");
+		if (status.is_valid == false
+			|| status.status_code != 200
+			|| status.reason_phrase != " OK")
+		{
+			std::cout << "Failed test: 9" << std::endl;
+			return 1;
+		}
+	}
+
     return 0;
 }
 	
