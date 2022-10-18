@@ -72,12 +72,12 @@ namespace ws
 
     	return tokens;
     }
-	std::string string_to_lower(const std::string &str, size_t len)
+	std::string string_to_lower(const std::string &str)
 	{
 		std::string	new_str;
 
 		new_str.resize(str.size());
-		for (int i = 0; (str[i] && i < len); i++)
+		for (int i = 0; str[i]; i++)
 			new_str[i] = tolower(str[i]);
 		return new_str;
 	}

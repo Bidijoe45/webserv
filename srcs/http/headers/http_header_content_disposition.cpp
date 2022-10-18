@@ -24,10 +24,16 @@ namespace ws
 
 	void HttpHeaderContentDisposition::parse_value()
 	{
+		if (this->value.size() == 0)
+			return;
+
 		std::vector<std::string> splitted_header = string_split(this->value, ";");
 		std::vector<std::string>::iterator it = splitted_header.begin();
 		std::vector<std::string>::iterator ite = splitted_header.end();
 		std::vector<std::string> splitted_param;
+
+		if (splitted_header.size() == 0)
+			return;
 
 		while (it != ite)
 		{
@@ -35,18 +41,23 @@ namespace ws
 			it++;
 		}
 
-		if (splitted_header.size() > 0)
-			this->content_type = splitted_header[0];
+		this->content_type = string_to_lower(splitted_header[0]);
 
-		it = splitted_header.begin() + 1;
-		while (it != ite)
+		if (splitted_header.size() > 1)
 		{
-			splitted_param = string_split(*it, "=");
-			if (*splitted_param.begin() == "name")
-				this->name = string_trim(*splitted_param.begin(), "\"");
-			else if (*splitted_param.begin() == "filename")
-				this->filename = string_trim(*(splitted_param.end() - 1), "\"");
-			it++;
+			it = splitted_header.begin() + 1;
+			while (it != ite)
+			{
+				splitted_param = string_split(*it, "=");
+				if (splitted_param.size() > 1)
+				{
+					if (string_to_lower(*splitted_param.begin()) == "name")
+						this->name = string_trim(*(splitted_param.begin() + 1), "\"");
+					else if (string_to_lower(*splitted_param.begin()) == "filename")
+						this->filename = string_trim(*(splitted_param.begin() + 1), "\"");
+				}
+				it++;
+			}
 		}
 	}
 

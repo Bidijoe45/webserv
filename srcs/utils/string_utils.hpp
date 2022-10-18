@@ -8,7 +8,7 @@ namespace ws
 	bool is_string_printable(const std::string &str, size_t len);
 	bool is_string_digit(const std::string &str, size_t len);
 	bool is_string_hex(const std::string &str, size_t len);
-	std::string string_to_lower(const std::string &std, size_t len);
+	std::string string_to_lower(const std::string &str);
 	bool is_token(const std::string &str);
 	bool is_obstext(const unsigned char &c);
 	std::vector<std::string> string_split(const std::string &str, const std::string &delim);
