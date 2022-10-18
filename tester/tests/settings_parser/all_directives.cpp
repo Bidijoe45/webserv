@@ -7,8 +7,7 @@ ws::Settings prepare_settings()
 {
     ws::Settings settings;
 
-
-    //Server settings 1
+//Server settings 1
     ws::ServerSettings ss;
     
     //Port
@@ -81,6 +80,9 @@ ws::Settings prepare_settings()
 
     //Server name
     ss2.server_name = "webserv2";
+	
+    //Client max body size
+    ss2.client_max_body_size = 0;
 
     //Locations
     

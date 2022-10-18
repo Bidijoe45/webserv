@@ -228,9 +228,12 @@ namespace ws
 //		std::cout << connection.buff.data << std::endl;
 //		std::cout << "-----------------------" << std::endl;
 		
-		connection.http_parser.parse(connection.buff);
-		connection.must_close = connection.http_parser.must_close();
-		connection.buff.clear();
+		connection.http_parser.append_to_buff(connection.buff);
+		connection.http_parser.must_close = false;
+		if (connection.http_parser.get_stage() == HttpParser::REQUEST_LINE)
+			connection.http_parser.parse_first_line();
+		if (connection.http_parser.get_stage() == HttpParser::HEADERS_BLOCK)
+			connection.http_parser.parse_headers();
 
 		if (connection.http_parser.get_stage() > HttpParser::HEADERS_BLOCK && connection.settings_set == false)
 		{
@@ -238,6 +241,14 @@ namespace ws
 			connection.http_parser.set_max_body_size(connection.settings.client_max_body_size);
 			connection.settings_set = true;
 		}
+
+		if (connection.http_parser.get_stage() == HttpParser::SIMPLE_BODY)
+			connection.http_parser.parse_body();
+		if (connection.http_parser.get_stage() == HttpParser::CHUNKED_BODY)
+			connection.http_parser.parse_chunked_body();
+
+		connection.must_close = connection.http_parser.must_close;
+		connection.buff.clear();
 
 		if (connection.http_parser.get_stage() == HttpParser::COMPLETED)
 		{
@@ -258,6 +269,7 @@ namespace ws
 	
 			connection.send_data();
 			connection.buff.clear();
+		//	connection.settings_set = false;
 
 			connection.http_parser.reset();
 		}
