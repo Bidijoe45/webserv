@@ -5,6 +5,8 @@
 #include "http_multipart_body.hpp"
 #include "http_header_map.hpp"
 
+#define MIN_N_CHARS_MULTIPART_BODY 16
+
 namespace ws
 {
     class HttpMultipartBodyParser

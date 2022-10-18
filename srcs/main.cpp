@@ -18,6 +18,9 @@
 #include "http/http_uri_parser.hpp"
 #include "settings/location.hpp"
 
+#include "http/http_multipart_body.hpp"
+#include "http/http_multipart_body_parser.hpp"
+
 void atExit() {
 	system("leaks webserv");
 }
@@ -28,69 +31,54 @@ static void close_handler(int sig, siginfo_t *siginfo, void *context)
 	printf ("Sending PID: %ld, UID: %ld\n", (long)siginfo->si_pid, (long)siginfo->si_uid);
 }
 
-int main(int argc, char **argv, char **env) {
-	struct sigaction act;
-	ws::Server server;
-
-	server.set_env(env);
-	
-//	atexit(&atExit);
-	memset (&act, 0, sizeof(act));
-	act.sa_sigaction = &close_handler;
-	act.sa_flags = SA_SIGINFO;
-
-	if (sigaction(SIGINT, &act, NULL) < 0) {
-		perror ("sigaction");
-		return 1;
-	}
-
-	server.run();
-
-	std::cout << "FIN del programa" << std::endl;
-}
-
-ws::HttpRequest prepare_request()
-{
-	ws::HttpRequest request;
-
-	request.request_line.method = ws::HTTP_METHOD_GET;
-
-	request.request_line.uri = ws::HttpUriParser("/hola/culo").parse();
-
-	return request;
-}
-
-ws::ServerSettings prepare_settings()
-{
-	ws::ServerSettings settings;
-
-	ws::Location location1;
-
-	location1.path = "/";
-
-	settings.locations.push_back(location1);
-
-	ws::Location location2;
-
-	location2.path = "/hola";
-	location2.methods.push_back(ws::HTTP_METHOD_GET);
-
-	settings.locations.push_back(location2);
-	
-	return settings;
-}
-
-// int main()
-// {
-// 	ws::HttpRequest request = prepare_request();
-// 	ws::ServerSettings settings = prepare_settings();
+// int main(int argc, char **argv, char **env) {
+// 	struct sigaction act;
+// 	ws::Server server;
 //
+// 	server.set_env(env);
+// 	
+// //	atexit(&atExit);
+// 	memset (&act, 0, sizeof(act));
+// 	act.sa_sigaction = &close_handler;
+// 	act.sa_flags = SA_SIGINFO;
 //
-// 	ws::Resolver resolver(settings, request);
+// 	if (sigaction(SIGINT, &act, NULL) < 0) {
+// 		perror ("sigaction");
+// 		return 1;
+// 	}
 //
-// 	ws::HttpResponse *response = resolver.get_response();
+// 	server.run();
 //
-// 	std::cout << response->to_string() << std::endl;
-//
-// 	delete response;
+// 	std::cout << "FIN del programa" << std::endl;
 // }
+
+std::string prepare_raw_body()
+{
+    std::string raw_body;
+
+    raw_body = 
+    "--boundary\r\n"
+    "Content-Type: text/plain\r\n\r\n"
+    "file 1 content"
+    "--boundary\r\n"
+    "Content-Disposition: form-data; name=\"datafile2\"; filename=\"file2.txt\"\r\n"
+    "Content-Type: image/gif\r\n\r\n"
+    "file 2 content"
+    "--boundary\r\n"
+    "Content-Disposition: form-data; name=\"datafile3\"; filename=\"file3.gif\"\r\n"
+    "Content-Type: image/gif\r\n\r\n"
+    "file 3 content"
+    "--boundary--\r\n";
+
+    return raw_body;
+}
+
+int main()
+{
+	ws::HttpMultipartBodyParser parser(prepare_raw_body(), "boundary");
+	ws::HttpMultipartBody parsed_body = parser.parse();
+
+	std::cout << "Valid: " << parser.is_valid() << std::endl;
+
+	return 0;
+}
