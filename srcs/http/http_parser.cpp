@@ -113,9 +113,11 @@ namespace ws
 	{
 		if (this->buff_.size() > 0 && this->expected_body_size_ > 0)
 		{
-			std::cout << "MAX_BODY: " << this->max_body_size_ << std::endl;
 			if (this->max_body_size_ != 0 && this->expected_body_size_ > this->max_body_size_)
+			{
+				this->must_close = true;
 				this->complete_with_error(HttpRequest::BODY_TOO_LARGE, "Request: body too large");
+			}
 			if (this->buff_.size() < this->expected_body_size_)
 				return;
 
