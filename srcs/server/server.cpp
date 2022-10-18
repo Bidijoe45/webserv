@@ -257,7 +257,9 @@ namespace ws
 			RequestResolver request_resolver(connection.settings, http_request, this->env_, connection, this->content_types_, this->http_message_map_);
 			HttpResponse response = request_resolver.get_response();
 
-			connection.must_close = this->check_connection_header(http_request);
+			if (connection.must_close == false)
+				connection.must_close = this->check_connection_header(http_request);
+
 			if (connection.must_close == true)
 			{
 				HttpHeaderConnection *connection_header = new HttpHeaderConnection();
@@ -269,7 +271,7 @@ namespace ws
 	
 			connection.send_data();
 			connection.buff.clear();
-		//	connection.settings_set = false;
+			connection.settings_set = false;
 
 			connection.http_parser.reset();
 		}
