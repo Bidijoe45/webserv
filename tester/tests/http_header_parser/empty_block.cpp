@@ -3,7 +3,6 @@
 #include <iostream>
 #include "../../../srcs/http/http_header_parser.hpp"
 #include "../../../srcs/http/http_header_map.hpp"
-#include "../../utils/tester_utils.hpp"
 
 int main()
 {

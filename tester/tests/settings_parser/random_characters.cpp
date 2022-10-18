@@ -1,4 +1,3 @@
-#include "../../utils/tester_utils.hpp"
 #include "../../../srcs/settings/parser/settings_parser.hpp"
 #include "../../../srcs/settings/settings.hpp"
 
@@ -12,7 +11,7 @@ int main() {
     std::cout << settings_parser.get_error_msg() << std::endl;
 
     if (settings_parser.is_valid())
-        return KO;
+        return 1;
 
-    return OK;
+    return 0;
 }
