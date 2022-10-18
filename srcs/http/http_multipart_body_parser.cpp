@@ -1,10 +1,11 @@
 #include <iostream>
 #include <string>
 
+#include "http_header.hpp"
 #include "http_multipart_body_parser.hpp"
 #include "../utils/string_utils.hpp"
 #include "http_header_parser.hpp"
-#include "data_buffer.hpp"
+#include "../server/data_buffer.hpp"
 
 namespace ws
 {
@@ -16,19 +17,31 @@ namespace ws
     {
         HttpMultipartBody body;
 
+        if (this->content_.size() < MIN_N_CHARS_MULTIPART_BODY)
+        {
+            this->valid_ = false;
+            return body;
+        }
+
         std::vector<std::string> segments = string_split(this->content_, "--" + this->boundary_);
 
-        // std::cout << "XXXXX" << std::endl;
-        //
-        // std::cout << "segments" << std::endl;
-        // for (size_t i=0; i < segments.size(); i++)
-        // {
-        //     std::cout << "XX" << std::endl;
-        //     std::cout << string_trim_left(segments[i], "\r\n") << std::endl;
-        //     std::cout << "XX" << std::endl;
-        // }
+        if (segments.size() <= 1)
+        {
+            this->valid_ = false;
+            return body;
+        }
+        
+        segments.back() = string_trim_right(segments.back(), "\r\n");
 
-        for (size_t i=0; i < segments.size() - 1; i++)
+        if (segments.back() != "--")
+        {
+            this->valid_ = false;
+            return body;
+        }
+
+        segments.erase(segments.end() - 1);
+
+        for (size_t i=0; i < segments.size(); i++)
         {
             HttpMultipartBodyPart multipart_body;
             DataBuffer buff(string_trim_left(segments[i], "\r\n"));
@@ -40,40 +53,34 @@ namespace ws
 			    header_block.push_back(segment_line);
 			    segment_line = buff.get_next_line();
 		    }
-        
+
 		    HttpHeaderParser headers_parser(header_block);
 		    HttpHeaderMap headers = headers_parser.parse_block();
+
+		    if (!headers_parser.is_valid())
+		    {
+                this->valid_ = false;
+                return body;
+		    }
+
+            HttpHeaderMap::iterator cd_header = headers.find(HTTP_HEADER_CONTENT_DISPOSITION);
+            if (cd_header == headers.end())
+            {
+                this->valid_ = false;
+                return body;
+            }
+
+            HttpHeaderMap::iterator ct_header = headers.find(HTTP_HEADER_CONTENT_TYPE);
+            if (ct_header == headers.end())
+            {
+                this->valid_ = false;
+                return body;
+            }
 
             multipart_body.header_map = headers;
             multipart_body.content = string_trim_right(buff.flush(buff.size()), "\r\n");
             body.parts.push_back(multipart_body);
         }
-
-        /*
-        std::cout << "XX-------------------XX" << std::endl;
-        for (size_t i=0; i < body.parts.size(); i++)
-        {
-            HttpMultipartBodyPart part = body.parts[i];
-            std::cout << "-- Part" << std::endl;
-
-            std::cout << "--- Headers" << std::endl;
-            HttpHeaderMap::iterator hit = part.header_map.begin();
-            HttpHeaderMap::iterator hite = part.header_map.end();
-            while (hit != hite)
-            {
-                std::cout << hit->first << std::endl;
-                hit++;
-            }
-            std::cout << "--- ------" << std::endl;
-
-            std::cout << "--- Content" << std::endl;
-            std::cout << part.content << std::endl;
-            std::cout << "--- ------" << std::endl;
-
-            std::cout << "-- ----" << std::endl;
-        }
-        std::cout << "XX-------------------XX" << std::endl;
-        */
 
         return body;
     }
