@@ -50,7 +50,7 @@ namespace ws
 		if (header_name == "")
 			throw std::runtime_error("Header Parser: empty header name");
 
-		header_name = string_to_lower(header_name, header_name.size());
+		header_name = string_to_lower(header_name);
 
 		if (!is_token(header_name))
 			throw std::runtime_error("Header Parser: invalid header name characters");

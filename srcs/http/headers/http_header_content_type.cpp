@@ -31,28 +31,34 @@ namespace ws
 		std::vector<std::string>::iterator ite = splitted_header.end();
 		std::vector<std::string> splitted_param;
 
+		if (splitted_header.size() == 0)
+			return;
+
 		while (it != ite)
 		{
 			*it = string_trim(*it, " ");
 			it++;
 		}
 
-		if (splitted_header.size() > 0)
-			this->content_type = splitted_header[0];
+		this->content_type = string_to_lower(splitted_header[0]);
 
-		it = splitted_header.begin() + 1;
-		while (it != ite)
+		if (splitted_header.size() > 1)
 		{
-			splitted_param = string_split(*it, "=");
-			if (splitted_param.size() > 0)
+			it = splitted_header.begin() + 1;
+			while (it != ite)
 			{
-				std::string key = *splitted_param.begin();
-				std::string value = string_trim(*(splitted_param.end() - 1), "\"");
-				this->parameters.insert(std::make_pair(key, value));
+				splitted_param = string_split(*it, "=");
+				if (splitted_param.size() > 0)
+				{
+					std::string key = *splitted_param.begin();
+					std::string value = "";
+					if (splitted_param.size() > 1)
+						value = string_trim(*(splitted_param.end() - 1), "\"");
+					this->parameters.insert(std::make_pair(key, value));
+				}
+				it++;
 			}
-			it++;
 		}
-
 	}
 
 	void HttpHeaderContentType::set_value(const std::string &value)

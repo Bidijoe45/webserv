@@ -29,7 +29,7 @@ namespace ws
 		if (colon_pos != std::string::npos)
 		{
 			this->host = this->value.substr(0, colon_pos);
-			this->host = string_to_lower(this->host, this->host.size());
+			this->host = string_to_lower(this->host);
 
 			std::string port = this->value.substr(colon_pos + 1);
 			if (is_string_digit(port, port.size()) == false)

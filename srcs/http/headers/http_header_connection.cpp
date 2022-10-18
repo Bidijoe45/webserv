@@ -29,7 +29,7 @@ namespace ws
 		while (it != ite)
 		{
 			*it = string_trim(*it, " \t");
-			*it = string_to_lower(*it, it->size());
+			*it = string_to_lower(*it);
 			it++;
 		}
 

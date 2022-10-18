@@ -177,6 +177,7 @@ namespace ws
 		this->request_.reset();
 		this->stage_ = HttpParser::REQUEST_LINE;
 		this->expected_body_size_ = 0;
+		this->max_body_size_ = 0;
 		this->transfer_codings_.clear();
 		this->unchunker_.reset();
 	}
