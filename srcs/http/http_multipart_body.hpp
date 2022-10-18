@@ -15,4 +15,7 @@ namespace ws
     {
         std::vector<HttpMultipartBodyPart> parts;
     };
+
+    bool operator==(const HttpMultipartBodyPart &lhs, const HttpMultipartBodyPart &rhs);
+    bool operator==(const HttpMultipartBody &lhs, const HttpMultipartBody &rhs);
 }
