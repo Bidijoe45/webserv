@@ -1,4 +1,3 @@
-#include "../../utils/tester_utils.hpp"
 #include "../../utils/settings_tests_utils.hpp"
 #include "../../../srcs/settings/parser/settings_parser.hpp"
 #include "../../../srcs/settings/settings.hpp"
@@ -108,7 +107,7 @@ int main(int argc, char **argv, char **envp) {
     if (!settings_parser.is_valid())
     {
         std::cout << settings_parser.get_error_msg() << std::endl;
-        return KO;
+        return 1;
     }
     
     std::cout << "-- Expected settings --" << std::endl;
@@ -117,7 +116,7 @@ int main(int argc, char **argv, char **envp) {
     print_settings(parsed_settings);
 
     if (expected_settings == parsed_settings)
-        return OK;
+        return 0;
 
-    return KO;
+    return 1;
 }
