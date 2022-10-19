@@ -1,5 +1,6 @@
 #include <string>
 #include <iostream>
+#include <cstdlib>
 
 #include "http_headers.hpp"
 #include "string_utils.hpp"
@@ -39,7 +40,7 @@ namespace ws
 				return;
 			}
 			if (port != "")
-				this->port = std::stoul(port);
+				this->port = strtoul(port.c_str(), NULL, 10);
 		}
 		else
 			this->host = this->value.substr(0);

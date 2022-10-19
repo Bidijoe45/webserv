@@ -2,13 +2,12 @@
 #include <string>
 #include <iostream>
 
-#include "../../../srcs/http/http_parser.hpp"
 #include "../../../srcs/http/http_request.hpp"
-#include "../../../srcs/server/data_buffer.hpp"
 #include "../../../srcs/http/http_request_line_parser.hpp"
 #include "../../../srcs/http/http_header_parser.hpp"
-
-#include "../../../srcs/http/http_header_map.hpp"
+#include "../../../srcs/server/connection.hpp"
+#include "../../../srcs/server/server.hpp"
+#include "../../../srcs/settings/parser/settings_parser.hpp"
 
 ws::HttpRequest generate_model_request()
 {
@@ -31,15 +30,28 @@ ws::HttpRequest generate_model_request()
 
 int main()
 {
+	ws::Connection connection;
+	connection.port = 3000;
+
+	ws::Server server;
+
+	ws::SettingsParser settings_parser("./tests/http_request_parser/server.conf");
+	server.set_settings(settings_parser.parse());
+	if (!settings_parser.is_valid())
 	{
-		ws::HttpParser http_parser;
-		ws::DataBuffer buff("GET / HTTP/1.1\r\nHost: webserv\r\nTransfer-encoding: chunked\r\n\r\n3\r\nHel\r\n2\r\nlo\r\n0\r\n\r\n");
-		http_parser.parse(buff);
+		std::cout << "server config file invalid: " << settings_parser.get_error_msg() << std::endl;
+		return 1;
+	}
+
+	{
+		connection.buff.append("GET / HTTP/1.1\r\nHost: webserv\r\nTransfer-encoding: chunked\r\n\r\n3\r\nHel\r\n2\r\nlo\r\n0\r\n\r\n");
+		server.parse_request(connection);
+
 		ws::HttpRequest model_request = generate_model_request();
-		ws::HttpRequest http_request = http_parser.get_request();
+		ws::HttpRequest http_request = connection.http_parser.get_request();
 	
 		// TEST 0
-		if (http_parser.get_stage() != ws::HttpParser::COMPLETED)
+		if (connection.http_parser.get_stage() != ws::HttpParser::COMPLETED)
 		{
 			std::cout << "Failed test 0" << std::endl;
 			return 1;
@@ -62,7 +74,7 @@ int main()
 		}
 	
 		// TEST 2
-		if (http_parser.must_close() != false)
+		if (connection.http_parser.must_close != false)
 		{
 			std::cout << "Failed test 2" << std::endl;
 			return 1;
@@ -70,15 +82,17 @@ int main()
 	}
 
 	{	
-		ws::HttpParser http_parser;
+		connection.buff.clear();
+		connection.http_parser.reset();
 		// both content-length and transfer-encoding headers (remove both, unchunk normally and close connection)
-		ws::DataBuffer buff("GET / HTTP/1.1\r\nHost: webserv\r\nContent-length: 10\r\nTransfer-encoding: chunked\r\n\r\n3\r\nHel\r\n2\r\nlo\r\n0\r\n\r\n");
-		http_parser.parse(buff);
+		connection.buff.append("GET / HTTP/1.1\r\nHost: webserv\r\nContent-length: 10\r\nTransfer-encoding: chunked\r\n\r\n3\r\nHel\r\n2\r\nlo\r\n0\r\n\r\n");
+		server.parse_request(connection);
+
 		ws::HttpRequest model_request = generate_model_request();
-		ws::HttpRequest http_request = http_parser.get_request();
+		ws::HttpRequest http_request = connection.http_parser.get_request();
 	
 		// TEST 3
-		if (http_parser.get_stage() != ws::HttpParser::COMPLETED)
+		if (connection.http_parser.get_stage() != ws::HttpParser::COMPLETED)
 		{
 			std::cout << "Failed test 3" << std::endl;
 			return 1;
@@ -101,7 +115,7 @@ int main()
 		}
 	
 		// TEST 5
-		if (http_parser.must_close() != true)
+		if (connection.http_parser.must_close != true)
 		{
 			std::cout << "Failed test 5" << std::endl;
 			return 1;
