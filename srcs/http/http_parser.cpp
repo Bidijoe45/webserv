@@ -20,7 +20,7 @@
 namespace ws
 {
 
-	HttpParser::HttpParser() : stage_(HttpParser::REQUEST_LINE), buff_pos_(0), expected_body_size_(0), must_close_(false), max_body_size_(0) {}
+	HttpParser::HttpParser() : stage_(HttpParser::REQUEST_LINE), buff_pos_(0), expected_body_size_(0), must_close(false), max_body_size_(0) {}
 
 	void HttpParser::parse_first_line()
 	{
@@ -42,14 +42,14 @@ namespace ws
 		this->request_.request_line = request_line_parser.parse();
 
 		if (!request_line_parser.is_valid())
-			this->throw_with_error(HttpRequest::BAD_REQUEST, "Request: Invalid first line (BAD REQUEST)");
+			this->complete_with_error(HttpRequest::BAD_REQUEST, "Request: Invalid first line (BAD REQUEST)");
 
 		if (this->request_.request_line.http_version != "HTTP/1.1")
-			this->throw_with_error(HttpRequest::INVALID_VERSION, "Request: Invalid first line (INVALID VERSION)");
+			this->complete_with_error(HttpRequest::INVALID_VERSION, "Request: Invalid first line (INVALID VERSION)");
 
 		const std::string &absolute_path = this->request_.request_line.uri.absolute_path();
 		if (absolute_path.size() > URI_MAX_LENGTH)
-			this->throw_with_error(HttpRequest::URI_TOO_LONG, "Request: Invalid first line (URI TOO LONG)");
+			this->complete_with_error(HttpRequest::URI_TOO_LONG, "Request: Invalid first line (URI TOO LONG)");
 
 		this->stage_ = HttpParser::HEADERS_BLOCK;
 	}
@@ -78,9 +78,9 @@ namespace ws
 		this->request_.headers = header_parser.parse_block();
 
 		if (!header_parser.is_valid())
-			this->throw_with_error(HttpRequest::BAD_REQUEST, "Request: Invalid header block");
+			this->complete_with_error(HttpRequest::BAD_REQUEST, "Request: Invalid header block");
 		if (this->request_.headers.find(HTTP_HEADER_HOST) == this->request_.headers.end())
-			this->throw_with_error(HttpRequest::BAD_REQUEST, "Request: missing Host header");
+			this->complete_with_error(HttpRequest::BAD_REQUEST, "Request: missing Host header");
 
 		HttpHeaderMap::iterator transfer_encoding_it = this->request_.headers.find(HTTP_HEADER_TRANSFER_ENCODING);
 		if (transfer_encoding_it != this->request_.headers.end())
@@ -103,8 +103,8 @@ namespace ws
 			this->stage_ = HttpParser::COMPLETED;
 			if (this->buff_.size() > 0)
 			{
-				this->must_close_ = true;
-				this->throw_with_error(HttpRequest::LENGTH_REQUIRED, "Request: body present but missing content-length");
+				this->must_close = true;
+				this->complete_with_error(HttpRequest::LENGTH_REQUIRED, "Request: body present but missing content-length");
 			}
 		}
 	}
@@ -114,7 +114,10 @@ namespace ws
 		if (this->buff_.size() > 0 && this->expected_body_size_ > 0)
 		{
 			if (this->max_body_size_ != 0 && this->expected_body_size_ > this->max_body_size_)
-				this->throw_with_error(HttpRequest::BODY_TOO_LARGE, "Request: body too large");
+			{
+				this->must_close = true;
+				this->complete_with_error(HttpRequest::BODY_TOO_LARGE, "Request: body too large");
+			}
 			if (this->buff_.size() < this->expected_body_size_)
 				return;
 
@@ -127,18 +130,18 @@ namespace ws
 	{
 		if (this->transfer_codings_.back() != "chunked")
 		{
-			this->must_close_ = true;
-			this->throw_with_error(HttpRequest::BAD_REQUEST, "Request: last transfer coding must be chunked");
+			this->must_close = true;
+			this->complete_with_error(HttpRequest::BAD_REQUEST, "Request: last transfer coding must be chunked");
 		}
 
 		if (this->transfer_codings_.size() != 1)
-			this->throw_with_error(HttpRequest::NOT_IMPLEMENTED, "Request: unimplemented transfer coding or more than one chunked");
+			this->complete_with_error(HttpRequest::NOT_IMPLEMENTED, "Request: unimplemented transfer coding or more than one chunked");
 
 		HttpHeaderMap::iterator content_length = this->request_.headers.find(HTTP_HEADER_CONTENT_LENGTH);
 		if (content_length != this->request_.headers.end())
 		{
 			this->request_.headers.erase(content_length);
-			this->must_close_ = true;
+			this->must_close = true;
 		}
 
 		std::string raw_body = this->buff_.flush(this->buff_.size());
@@ -149,8 +152,8 @@ namespace ws
 			this->request_.body = this->unchunker_.get_unchunked_body();
 			if (this->unchunker_.is_valid() == false)
 			{
-				this->must_close_ = true;
-				this->throw_with_error(HttpRequest::BAD_REQUEST, "Request: invalid chunked body");
+				this->must_close = true;
+				this->complete_with_error(HttpRequest::BAD_REQUEST, "Request: invalid chunked body");
 			}
 		}
 	}
@@ -158,6 +161,11 @@ namespace ws
 	void HttpParser::set_max_body_size(size_t max_body_size)
 	{
 		this->max_body_size_ = max_body_size;
+	}
+
+	void HttpParser::append_to_buff(const DataBuffer &buff)
+	{
+		this->buff_.append(buff.data); 
 	}
 
 	const HttpRequest &HttpParser::get_request() const
@@ -182,37 +190,11 @@ namespace ws
 		this->unchunker_.reset();
 	}
 
-	bool HttpParser::must_close() const
-	{
-		return this->must_close_;
-	}
-
-	void HttpParser::throw_with_error(HttpRequest::RequestError error, const std::string &msg)
+	void HttpParser::complete_with_error(HttpRequest::RequestError error, const std::string &msg)
 	{
 		this->request_.error = error;
-		throw std::runtime_error(msg);
-	}
-
-	void HttpParser::parse(const DataBuffer &new_buff)
-	{
-		this->buff_.append(new_buff.data); 
-		this->must_close_ = false;
-		try
-		{
-			if (this->stage_ == HttpParser::REQUEST_LINE)
-				this->parse_first_line();
-			if (this->stage_ == HttpParser::HEADERS_BLOCK)
-				this->parse_headers();
-			if (this->stage_ == HttpParser::SIMPLE_BODY)
-				this->parse_body();
-			if (this->stage_ == HttpParser::CHUNKED_BODY)
-				this->parse_chunked_body();
-		}
-		catch(const std::runtime_error& e)
-		{
-			this->stage_ = HttpParser::COMPLETED;
-			std::cout << e.what() << std::endl;
-		}
+		std::cout << msg << std::endl;
+		this->stage_ = HttpParser::COMPLETED;
 	}
 
 } // namespace ws

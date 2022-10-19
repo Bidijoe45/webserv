@@ -175,14 +175,12 @@ namespace ws
 							std::cout << "Connection: cannot accept new client connection" << std::endl;
 							continue;
 						}
-
-//						std::cout << "New connection" << std::endl;
+						std::cout << "New connection" << std::endl;
 					}
 					else
 					{
 						Connection &conn = this->connections_[this->poll_[i].fd];
 						int bytes_read = conn.recv_data();
-//						std::cout << "bytes_read: " << bytes_read << std::endl;
 
 						if (bytes_read <= 0)
 						{
@@ -221,16 +219,14 @@ namespace ws
 		return true;
 	}
 
-	void Server::on_new_request(Connection &connection)
+	void Server::parse_request(Connection &connection)
 	{
-//		std::cout << "-- Raw Message by client --" << std::endl;
-//		std::fstream log_file("./log_file");
-//		std::cout << connection.buff.data << std::endl;
-//		std::cout << "-----------------------" << std::endl;
-		
-		connection.http_parser.parse(connection.buff);
-		connection.must_close = connection.http_parser.must_close();
-		connection.buff.clear();
+		connection.http_parser.append_to_buff(connection.buff);
+		connection.http_parser.must_close = false;
+		if (connection.http_parser.get_stage() == HttpParser::REQUEST_LINE)
+			connection.http_parser.parse_first_line();
+		if (connection.http_parser.get_stage() == HttpParser::HEADERS_BLOCK)
+			connection.http_parser.parse_headers();
 
 		if (connection.http_parser.get_stage() > HttpParser::HEADERS_BLOCK && connection.settings_set == false)
 		{
@@ -239,6 +235,23 @@ namespace ws
 			connection.settings_set = true;
 		}
 
+		if (connection.http_parser.get_stage() == HttpParser::SIMPLE_BODY)
+			connection.http_parser.parse_body();
+		if (connection.http_parser.get_stage() == HttpParser::CHUNKED_BODY)
+			connection.http_parser.parse_chunked_body();
+	}
+
+	void Server::on_new_request(Connection &connection)
+	{
+//		std::cout << "-- Raw Message by client --" << std::endl;
+//		std::fstream log_file("./log_file");
+//		std::cout << connection.buff.data << std::endl;
+//		std::cout << "-----------------------" << std::endl;
+		
+		this->parse_request(connection);
+		connection.must_close = connection.http_parser.must_close;
+		connection.buff.clear();
+
 		if (connection.http_parser.get_stage() == HttpParser::COMPLETED)
 		{
 			HttpRequest http_request = connection.http_parser.get_request();
@@ -246,7 +259,9 @@ namespace ws
 			RequestResolver request_resolver(connection.settings, http_request, this->env_, connection, this->content_types_, this->http_message_map_);
 			HttpResponse response = request_resolver.get_response();
 
-			connection.must_close = this->check_connection_header(http_request);
+			if (connection.must_close == false)
+				connection.must_close = this->check_connection_header(http_request);
+
 			if (connection.must_close == true)
 			{
 				HttpHeaderConnection *connection_header = new HttpHeaderConnection();
@@ -258,6 +273,7 @@ namespace ws
 	
 			connection.send_data();
 			connection.buff.clear();
+			connection.settings_set = false;
 
 			connection.http_parser.reset();
 		}
