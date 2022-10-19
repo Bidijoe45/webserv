@@ -7,6 +7,11 @@ namespace ws
     RequestHandlerPayload *FilePathResolver::handle(RequestHandlerPayload *payload)
     {
         std::string file_path = this->get_file_path(payload);
+        FileSystem root_dir(payload->location.root);
+
+        if (!root_dir.is_valid() || !root_dir.is_dir())
+            throw RequestHandler::Exception(500);
+
         FileSystem file(file_path);
 
         if (file.is_dir() && payload->location.index.size() > 0)
