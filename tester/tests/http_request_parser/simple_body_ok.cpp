@@ -18,11 +18,11 @@ ws::HttpRequest generate_model_request()
 
 	std::vector<std::string> header_block;
 	header_block.push_back("Host: webserv");
-	header_block.push_back("Connection: close");
+	header_block.push_back("Content-length: 5");
 	ws::HttpHeaderParser header_parser(header_block);
 	http_request.headers = header_parser.parse_block();
 
-	http_request.body = "";
+	http_request.body = "Hello";
 
 	http_request.error = ws::HttpRequest::NO_ERROR;
 
@@ -33,7 +33,6 @@ int main()
 {
 	ws::Connection connection;
 	connection.port = 3000;
-	connection.buff.append("GET / HTTP/1.1\r\nHost: webserv\r\nConnection: close\r\n\r\n");
 
 	ws::Server server;
 
@@ -45,6 +44,7 @@ int main()
 		return 1;
 	}
 
+	connection.buff.append("GET / HTTP/1.1\r\nHost: webserv\r\nContent-length: 5\r\n\r\nHello");
 	server.parse_request(connection);
 
 	ws::HttpRequest model_request = generate_model_request();
@@ -62,13 +62,14 @@ int main()
 	{
 		std::cout << "Failed test 1: ";
 		if (http_request.request_line != model_request.request_line)
-			std::cout << "|request line differs|" << std::endl;
+			std::cout << "|request line differs|";
 		if (http_request.headers != model_request.headers)
-			std::cout << "|headers differ|" << std::endl;
+			std::cout << "|headers differ|";
 		if (http_request.body != model_request.body)
-			std::cout << "|body differs|" << std::endl;
+			std::cout << "|body differs|";
 		if (http_request.error != model_request.error)
-			std::cout << "|error differs|" << std::endl;
+			std::cout << "|error differs|";
+		std::cout << std::endl;
 		return 1;
 	}
 

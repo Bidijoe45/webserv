@@ -1,6 +1,7 @@
-#include "../../../srcs/http/http_parser.hpp"
 #include "../../../srcs/http/http_request.hpp"
-#include "../../../srcs/server/data_buffer.hpp"
+#include "../../../srcs/server/connection.hpp"
+#include "../../../srcs/server/server.hpp"
+#include "../../../srcs/settings/parser/settings_parser.hpp"
 
 ws::HttpRequest generate_model_request()
 {
@@ -10,15 +11,28 @@ ws::HttpRequest generate_model_request()
 
 int main()
 {
-	ws::HttpParser http_parser;
-	ws::DataBuffer buff("");
-	http_parser.parse(buff);
+	ws::Connection connection;
+	connection.port = 3000;
+	connection.buff.append("");
+
+	ws::Server server;
+
+	ws::SettingsParser settings_parser("./tests/http_request_parser/server.conf");
+	server.set_settings(settings_parser.parse());
+	if (!settings_parser.is_valid())
+	{
+		std::cout << "server config file invalid: " << settings_parser.get_error_msg() << std::endl;
+		return 1;
+	}
+
+	server.parse_request(connection);
+
 	ws::HttpRequest model_request = generate_model_request();
-	ws::HttpRequest http_request = http_parser.get_request();
+	ws::HttpRequest http_request = connection.http_parser.get_request();
 
 	if (http_request.error != ws::HttpRequest::NO_ERROR)
         return 1;
-	if (http_parser.get_stage() != ws::HttpParser::REQUEST_LINE)
+	if (connection.http_parser.get_stage() != ws::HttpParser::REQUEST_LINE)
 		return 1;
 	if (!(http_request == model_request))
 		return 1;

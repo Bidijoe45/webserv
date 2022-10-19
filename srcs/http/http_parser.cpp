@@ -42,14 +42,23 @@ namespace ws
 		this->request_.request_line = request_line_parser.parse();
 
 		if (!request_line_parser.is_valid())
+		{
 			this->complete_with_error(HttpRequest::BAD_REQUEST, "Request: Invalid first line (BAD REQUEST)");
+			return;
+		}
 
 		if (this->request_.request_line.http_version != "HTTP/1.1")
+		{
 			this->complete_with_error(HttpRequest::INVALID_VERSION, "Request: Invalid first line (INVALID VERSION)");
+			return;
+		}
 
 		const std::string &absolute_path = this->request_.request_line.uri.absolute_path();
 		if (absolute_path.size() > URI_MAX_LENGTH)
+		{
 			this->complete_with_error(HttpRequest::URI_TOO_LONG, "Request: Invalid first line (URI TOO LONG)");
+			return;
+		}
 
 		this->stage_ = HttpParser::HEADERS_BLOCK;
 	}
@@ -78,9 +87,15 @@ namespace ws
 		this->request_.headers = header_parser.parse_block();
 
 		if (!header_parser.is_valid())
+		{
 			this->complete_with_error(HttpRequest::BAD_REQUEST, "Request: Invalid header block");
+			return;
+		}
 		if (this->request_.headers.find(HTTP_HEADER_HOST) == this->request_.headers.end())
+		{
 			this->complete_with_error(HttpRequest::BAD_REQUEST, "Request: missing Host header");
+			return;
+		}
 
 		HttpHeaderMap::iterator transfer_encoding_it = this->request_.headers.find(HTTP_HEADER_TRANSFER_ENCODING);
 		if (transfer_encoding_it != this->request_.headers.end())
@@ -105,6 +120,7 @@ namespace ws
 			{
 				this->must_close = true;
 				this->complete_with_error(HttpRequest::LENGTH_REQUIRED, "Request: body present but missing content-length");
+				return;
 			}
 		}
 	}
@@ -117,6 +133,7 @@ namespace ws
 			{
 				this->must_close = true;
 				this->complete_with_error(HttpRequest::BODY_TOO_LARGE, "Request: body too large");
+				return;
 			}
 			if (this->buff_.size() < this->expected_body_size_)
 				return;
@@ -132,10 +149,14 @@ namespace ws
 		{
 			this->must_close = true;
 			this->complete_with_error(HttpRequest::BAD_REQUEST, "Request: last transfer coding must be chunked");
+			return;
 		}
 
 		if (this->transfer_codings_.size() != 1)
+		{
 			this->complete_with_error(HttpRequest::NOT_IMPLEMENTED, "Request: unimplemented transfer coding or more than one chunked");
+			return;
+		}
 
 		HttpHeaderMap::iterator content_length = this->request_.headers.find(HTTP_HEADER_CONTENT_LENGTH);
 		if (content_length != this->request_.headers.end())
@@ -154,6 +175,7 @@ namespace ws
 			{
 				this->must_close = true;
 				this->complete_with_error(HttpRequest::BAD_REQUEST, "Request: invalid chunked body");
+				return;
 			}
 		}
 	}

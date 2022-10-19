@@ -299,6 +299,11 @@ namespace ws
 	{
 		this->env_.set_from(env);
 	}
+	
+	void Server::set_settings(const Settings &settings)
+	{
+		this->settings_ = settings;
+	}
 
 	void Server::delete_connection(const Connection &connection)
 	{
