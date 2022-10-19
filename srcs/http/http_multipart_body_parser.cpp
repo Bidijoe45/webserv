@@ -70,13 +70,6 @@ namespace ws
                 return body;
             }
 
-            HttpHeaderMap::iterator ct_header = headers.find(HTTP_HEADER_CONTENT_TYPE);
-            if (ct_header == headers.end())
-            {
-                this->valid_ = false;
-                return body;
-            }
-
             multipart_body.header_map = headers;
             multipart_body.content = string_trim_right(buff.flush(buff.size()), "\r\n");
             body.parts.push_back(multipart_body);
