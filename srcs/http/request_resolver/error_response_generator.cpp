@@ -62,6 +62,9 @@ namespace ws
 		if (!file.is_valid())
 			return this->create_default_error_page();
 
+		if (file.get_file_extension() != "html")
+		    return this->create_default_error_page();
+
 		return file.get_content();
 	}
 }
