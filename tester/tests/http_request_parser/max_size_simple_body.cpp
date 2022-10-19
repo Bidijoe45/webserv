@@ -23,14 +23,14 @@ int main()
 		std::cout << "server config file invalid: " << settings_parser.get_error_msg() << std::endl;
 		return 1;
 	}
-	
-	connection.buff.append("GET / HTTP/1.1\r\nhost: webserv\r\nConnection: close\r\n\r\nesto es un body pero no hay content-length!");
+
+	connection.buff.append("GET / HTTP/1.1\r\nHost: webserv\r\nContent-length: 65\r\n\r\naqui hay mas de 30 bytes aunque deberia fallar antes de contarlos");
 	server.parse_request(connection);
 
 	ws::HttpRequest http_request = connection.http_parser.get_request();
 
 	// TEST 0
-	if (http_request.error != ws::HttpRequest::LENGTH_REQUIRED)
+	if (http_request.error != ws::HttpRequest::BODY_TOO_LARGE)
 	{
 		std::cout << "Failed test 0" << std::endl;
 		return 1;

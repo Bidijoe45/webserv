@@ -36,8 +36,8 @@ if __name__ == "__main__":
     chunk_size = int(sys.argv[1])
     delay = float(sys.argv[2])
 #    line = "GET / HTTP/1.1\r\nHost: localhost\r\n\r\n"
-#    line = "GET / HTTP/1.1\r\nHost: localhost\r\n\r\nHello world!"
-    line = "POST / HTTP/1.1\r\nHost: localhost\r\nContent-type: text/html\r\nContent-length: 12\r\n\r\nHello world!"
+    line = "GET / HTTP/1.1\r\nHost: localhost\r\n\r\nHello world!"
+#    line = "POST / HTTP/1.1\r\nHost: localhost\r\nContent-type: text/html\r\nContent-length: 12\r\n\r\nHello world!"
 #    line = "POST / HTTP/1.1\r\nHost: localhost\r\nContent-type: text/html\r\nContent-length: 122\r\n\r\nHello world!"
 #    line = "POST /formula1/formula.php HTTP/1.1\r\nHost: localhost\r\nContent-type: text/html\r\nContent-length: 12\r\n\r\nHello world!"
 #    line = "POST /formula1/formula.php HTTP/1.1\r\nHost: localhost\r\nContent-Type: multipart/form-data; boundary=---------------------------304573777018669010322921142749\r\nContent-Length: 361\r\n\r\n-----------------------------304573777018669010322921142749\r\nContent-Disposition: form-data; name=\"form_file_name\"; filename=\"hola.txt\"\r\nContent-Type: text/plain\r\n\r\nque taaaaal\n\r\n-----------------------------304573777018669010322921142749\r\nContent-Disposition: form-data; name=\"send\"\r\n\r\nSend form\r\n-----------------------------304573777018669010322921142749--\r\n"
