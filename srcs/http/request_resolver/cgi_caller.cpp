@@ -24,6 +24,9 @@ namespace ws
 		payload->response.headers = cgi.get_header_map();
 		payload->response.body = cgi.get_body();
 
+		if (payload->response.status_code >= 500)
+		    throw RequestHandler::Exception(500);
+
         return payload;
     }
 

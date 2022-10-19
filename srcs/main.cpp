@@ -50,5 +50,6 @@ static void close_handler(int sig, siginfo_t *siginfo, void *context)
  	server.run();
 
  	std::cout << "FIN del programa" << std::endl;
- }
 
+	return 0;
+}

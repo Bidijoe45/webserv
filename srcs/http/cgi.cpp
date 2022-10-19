@@ -68,7 +68,7 @@ namespace ws
 		Executer cgi_executer(this->executable_, this->file_path_, this->env_, this->request_.body);
 		try
 		{
-			this->execution_output_ = cgi_executer.exec_with_timeout(5, SIGTERM); 
+			this->execution_output_ = cgi_executer.exec_with_timeout(CGI_TIMEOUT_SECONDS, SIGTERM); 
 			if (this->execution_output_.size() == 0)
 				throw std::runtime_error("CGI: no output from cgi");
 			this->output_buff_ = DataBuffer(this->execution_output_);
