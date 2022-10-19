@@ -55,6 +55,11 @@ namespace ws
             }
         
             std::string file_path = this->location_.upload_dir + header_cd->filename;
+            FileSystem upload_dir(this->location_.upload_dir);
+
+            if (!upload_dir.is_valid() || !upload_dir.is_dir())
+                throw HttpMethod::Exception(500);
+
             FileSystem file(file_path);
 
             if (!file.is_open())
