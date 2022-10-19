@@ -10,6 +10,8 @@
 #include "../server/data_buffer.hpp"
 #include "../server/connection.hpp"
 
+#define CGI_TIMEOUT_SECONDS 5
+
 namespace ws {
 
     class CGI
