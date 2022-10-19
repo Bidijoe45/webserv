@@ -8,7 +8,7 @@
 
 namespace ws
 {
-	Connection::Connection() : settings_set(false), must_close(false) {}
+	Connection::Connection() : socket(0), port(0), settings_set(false), must_close(false) {}
 
 	Connection::~Connection() {}
 
