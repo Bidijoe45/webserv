@@ -24,19 +24,21 @@ namespace ws
 			};
 
 			HttpParser();
-			void parse(const DataBuffer &new_buff);
-			const HttpRequest &get_request() const;
-			Stage get_stage() const;
-			void reset();
-			bool must_close() const;
-			void set_max_body_size(size_t max_body_size);
-
-		private:
 			void parse_first_line();
 			void parse_headers();
 			void parse_body();
 			void parse_chunked_body();
-			void throw_with_error(HttpRequest::RequestError error, const std::string &msg);
+
+			const HttpRequest &get_request() const;
+			Stage get_stage() const;
+			void reset();
+			void append_to_buff(const DataBuffer &buff);
+			void set_max_body_size(size_t max_body_size);
+
+			bool must_close;
+
+		private:
+			void complete_with_error(HttpRequest::RequestError error, const std::string &msg);
 
 			DataBuffer buff_;
 			size_t buff_pos_;
@@ -46,7 +48,6 @@ namespace ws
 			size_t max_body_size_;
 			std::vector<std::string> transfer_codings_;
 			Unchunker unchunker_;
-			bool must_close_;
 	};
 	
 } // namespace ws
