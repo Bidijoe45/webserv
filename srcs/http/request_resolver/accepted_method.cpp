@@ -2,7 +2,7 @@
 
 namespace ws
 {
-    AcceptedMethod::AcceptedMethod(HttpRequest *request, ServerSettings *settings)
+    AcceptedMethod::AcceptedMethod(HttpRequest *request)
         : RequestHandler(), request_(request) {}
 
     RequestHandlerPayload *AcceptedMethod::handle(RequestHandlerPayload *payload)

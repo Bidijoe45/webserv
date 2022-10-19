@@ -14,8 +14,8 @@ namespace ws {
 struct Connection {
 	Connection();
 	~Connection();
-	int send_data();
-	int recv_data();
+	size_t send_data();
+	size_t recv_data();
 	std::string get_ip_address();
 
 	int socket;

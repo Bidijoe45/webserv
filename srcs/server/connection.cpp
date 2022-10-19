@@ -12,30 +12,30 @@ namespace ws
 
 	Connection::~Connection() {}
 
-	int Connection::send_data()
+	size_t Connection::send_data()
 	{
-		int total = 0;
-		int bytesleft = this->buff.size();
-		int n;
+		size_t total = 0;
+		size_t bytesleft = this->buff.size();
+		size_t n;
 
-		while(total < this->buff.size())
+		while (total < this->buff.size())
 		{
 			n = send(this->socket, &buff.data[total], bytesleft, 0);
-			if (n == -1)
+			if (n == (size_t)-1)
 				break;
 			total += n;
 			bytesleft -= n;
 		}
 
-		return (n == -1) ? -1 : total;
+		return (n == (size_t)-1) ? -1 : total;
 	}
 
-	int Connection::recv_data()
+	size_t Connection::recv_data()
 	{
 		char buff[10240];
-		int total_read = 0;
+		size_t total_read = 0;
 		size_t buffer_size = 10240;
-		int read = buffer_size;
+		size_t read = buffer_size;
 
 		memset(&buff, 0, buffer_size);
 
@@ -47,7 +47,7 @@ namespace ws
 				this->buff.append(buff, read);
 		}	
 
-		return (read == -1 ? -1 : total_read);
+		return (read == (size_t)-1 ? -1 : total_read);
 	}
 
 	std::string Connection::get_ip_address()

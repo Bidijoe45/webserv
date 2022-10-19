@@ -8,7 +8,7 @@ namespace ws
 {
     FileSystem::FileSystem() : is_valid_(false) {}
 
-    FileSystem::FileSystem(const std::string &file_path) : is_valid_(false), path_is_dir_(false)
+    FileSystem::FileSystem(const std::string &file_path) : path_is_dir_(false), is_valid_(false)
     {
         this->open(file_path);
     }

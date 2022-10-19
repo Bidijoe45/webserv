@@ -10,7 +10,7 @@
 namespace ws
 {
     HttpMultipartBodyParser::HttpMultipartBodyParser(const std::string &body_content, const std::string &boundary)
-        : valid_(true), content_(body_content), boundary_(boundary)
+        : content_(body_content), boundary_(boundary), valid_(true)
     {}
 
     HttpMultipartBody HttpMultipartBodyParser::parse()

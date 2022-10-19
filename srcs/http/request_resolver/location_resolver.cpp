@@ -35,7 +35,6 @@ namespace ws
         std::vector<std::string> split_uri_path = string_split(uri.path, "/");
         Location location;
         size_t location_i = 0;
-        size_t splitted_location_i = 0;
         size_t hightes_score = 0;
 
         if (this->locations_.begin() != this->locations_.end())

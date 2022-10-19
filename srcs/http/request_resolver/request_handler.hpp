@@ -14,7 +14,7 @@ namespace ws
             class Exception : public std::exception {
                 public:
                     Exception(size_t error_code);
-                    const char *what();
+                    const char *what() const throw();
                     size_t get_error_code();
 
                 private:

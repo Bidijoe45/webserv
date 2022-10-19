@@ -70,7 +70,7 @@ namespace ws
 		char	buff[64];
 		while ((ret = read(fd, buff, 64)) > 0)
 			output.append(buff, ret);
-		if (ret == -1)
+		if (ret == (size_t)-1)
 			throw std::runtime_error(get_error_string(READ_ERROR));
 		return output;
 	}

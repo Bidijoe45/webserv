@@ -43,7 +43,7 @@ class SettingsParser {
 		std::string settings_file_;
 		std::vector<Token> tokens_;
 		size_t n_tokens_;
-		int pos_;
+		size_t pos_;
 		Token current_token_;
 		Settings settings_;
 		bool valid_file_;

@@ -20,7 +20,7 @@ RM			= rm -rf
 MKDIR		= mkdir -p
 ERRIGNORE	= 2>/dev/null
 
-COMMON		=
+COMMON		= -Wall -Wextra -Werror
 CXXFLAGS	?= $(INCLUDES) -std=c++98 $(COMMON)
 LDFLAGS		?= $(COMMON)
 SANITIZE	= -g3 -fsanitize=address
