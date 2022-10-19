@@ -175,14 +175,12 @@ namespace ws
 							std::cout << "Connection: cannot accept new client connection" << std::endl;
 							continue;
 						}
-
-//						std::cout << "New connection" << std::endl;
+						std::cout << "New connection" << std::endl;
 					}
 					else
 					{
 						Connection &conn = this->connections_[this->poll_[i].fd];
 						int bytes_read = conn.recv_data();
-//						std::cout << "bytes_read: " << bytes_read << std::endl;
 
 						if (bytes_read <= 0)
 						{
@@ -221,13 +219,8 @@ namespace ws
 		return true;
 	}
 
-	void Server::on_new_request(Connection &connection)
+	void Server::parse_request(Connection &connection)
 	{
-//		std::cout << "-- Raw Message by client --" << std::endl;
-//		std::fstream log_file("./log_file");
-//		std::cout << connection.buff.data << std::endl;
-//		std::cout << "-----------------------" << std::endl;
-		
 		connection.http_parser.append_to_buff(connection.buff);
 		connection.http_parser.must_close = false;
 		if (connection.http_parser.get_stage() == HttpParser::REQUEST_LINE)
@@ -246,7 +239,16 @@ namespace ws
 			connection.http_parser.parse_body();
 		if (connection.http_parser.get_stage() == HttpParser::CHUNKED_BODY)
 			connection.http_parser.parse_chunked_body();
+	}
 
+	void Server::on_new_request(Connection &connection)
+	{
+//		std::cout << "-- Raw Message by client --" << std::endl;
+//		std::fstream log_file("./log_file");
+//		std::cout << connection.buff.data << std::endl;
+//		std::cout << "-----------------------" << std::endl;
+		
+		this->parse_request(connection);
 		connection.must_close = connection.http_parser.must_close;
 		connection.buff.clear();
 
