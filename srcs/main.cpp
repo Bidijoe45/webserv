@@ -28,9 +28,16 @@ void atExit() {
 static void close_handler(int sig, siginfo_t *siginfo, void *context)
 {
 	ws::Server::running = false;
+	(void)sig;
+	(void)siginfo;
+	(void)context;
 }
 
- int main(int argc, char **argv, char **env) {
+ int main(int argc, char **argv, char **env)
+{
+	(void)argc;
+	(void)argv;
+
  	struct sigaction act;
  	ws::Server server;
 

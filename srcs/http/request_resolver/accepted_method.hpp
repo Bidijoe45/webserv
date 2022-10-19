@@ -8,12 +8,10 @@ namespace ws
     class AcceptedMethod : public RequestHandler
     {
         public:
-            AcceptedMethod(HttpRequest *request, ServerSettings *settings);
+            AcceptedMethod(HttpRequest *request);
             RequestHandlerPayload *handle(RequestHandlerPayload *payload);
 
         private:
             HttpRequest *request_;
-            ServerSettings *settings_;
-
     };
 }

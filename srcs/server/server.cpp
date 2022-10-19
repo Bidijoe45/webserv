@@ -163,7 +163,7 @@ namespace ws
 				break ;
 			}
 
-			for (int i=0; i < this->poll_.size() && this->running; i++)
+			for (size_t i=0; i < this->poll_.size() && this->running; i++)
 			{
 				if (this->poll_[i].revents & POLLIN)
 				{

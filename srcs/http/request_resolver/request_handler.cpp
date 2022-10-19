@@ -20,7 +20,7 @@ namespace ws
 
     RequestHandler::Exception::Exception(size_t error_code) : error_code_(error_code) {}
 
-    const char *RequestHandler::Exception::what()
+    const char *RequestHandler::Exception::what() const throw()
     {
         return "Request Handler Exception";
     }

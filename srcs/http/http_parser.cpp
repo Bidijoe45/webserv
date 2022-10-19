@@ -20,7 +20,7 @@
 namespace ws
 {
 
-	HttpParser::HttpParser() : stage_(HttpParser::REQUEST_LINE), buff_pos_(0), expected_body_size_(0), must_close(false), max_body_size_(0) {}
+	HttpParser::HttpParser() : must_close(false), buff_pos_(0), stage_(HttpParser::REQUEST_LINE), expected_body_size_(0), max_body_size_(0) {}
 
 	void HttpParser::parse_first_line()
 	{

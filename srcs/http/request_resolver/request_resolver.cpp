@@ -48,7 +48,7 @@ namespace ws
         RequestErrorChecker request_error_checker(this->request_);
         SupportedMethods supported_method(&this->request_);
         LocationResolver location_resolver(&this->request_, this->settings_.locations);
-        AcceptedMethod accepted_method(&this->request_, &this->settings_);
+        AcceptedMethod accepted_method(&this->request_);
         RedirectResolver redirect_resolver;
         FilePathResolver file_path_resolver(&this->request_);
         CGICaller cgi_caller(&this->request_, &this->env_map_, &this->connection_);

@@ -5,7 +5,7 @@
 
 namespace ws
 {
-    ServerSettings Settings::resolve_settings_hostname(const HttpRequest &request, int port)
+    ServerSettings Settings::resolve_settings_hostname(const HttpRequest &request, size_t port)
     {
         ServerSettings settings;
         bool settings_set = false;

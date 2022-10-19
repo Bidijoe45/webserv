@@ -10,9 +10,7 @@
 
 namespace ws
 {
-    HttpUriParser::HttpUriParser(const std::string &uri) : line_(uri), line_pos_(0), error_(HTTP_URI_VALID)
-    {
-    }
+    HttpUriParser::HttpUriParser(const std::string &uri) : error_(HTTP_URI_VALID), line_(uri), line_pos_(0) {}
 
     void HttpUriParser::parse_scheme()
     {

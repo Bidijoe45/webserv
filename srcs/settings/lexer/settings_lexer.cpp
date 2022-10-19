@@ -112,7 +112,6 @@ namespace ws
 
 	Token SettingsLexer::make_value() {
 		std::string value;
-		TOKEN_TYPE value_type;
 
 		while (this->current_char_ != -1 && !std::isspace(this->current_char_) && this->current_char_ != '{'
 				&& this->current_char_ != '}' && this->current_char_ != ';') {
