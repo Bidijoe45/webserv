@@ -1,6 +1,7 @@
 #include "http_post_method.hpp"
 #include "../http_request.hpp"
 
+#include <iostream>
 namespace ws
 {
     HttpPostMethod::HttpPostMethod(HttpRequest *request, const Location &location, const std::string &file_path, const ContentTypeMap &content_type_map)
