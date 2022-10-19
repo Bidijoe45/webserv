@@ -28,7 +28,6 @@ void atExit() {
 static void close_handler(int sig, siginfo_t *siginfo, void *context)
 {
 	ws::Server::running = false;
-	printf ("Sending PID: %ld, UID: %ld\n", (long)siginfo->si_pid, (long)siginfo->si_uid);
 }
 
  int main(int argc, char **argv, char **env) {
