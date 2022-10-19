@@ -39,8 +39,8 @@ namespace ws
 
 	Server::~Server()
 	{
-		//TODO: cerrar los sockets del servidor
-		//TODO: cerrar los sockets de las conexiones tambien jeje
+		for (size_t i=0; i < poll_.size(); i++)
+			close(poll_[i].fd);
 	}
 
 	Connection Server::accept_new_connection(int socket, int port) {
@@ -114,11 +114,11 @@ namespace ws
 			this->listen_on(*it);
 
 		it = this->ports_.begin();
-/*		std::cout << "Server listening on:";
+
+		std::cout << "Server listening on:";
 		for (; it != ite; it++)
 			std::cout << " " << *it;
 		std::cout << std::endl;
-*/
 	}
 
 	std::vector<ServerSocket>::iterator Server::get_server_socket(int socket)
@@ -153,14 +153,17 @@ namespace ws
 	{
 		this->set_server_sockets_to_poll();
 
-		while (running)
+		while (this->running)
 		{
 			int poll_count = poll(&this->poll_[0], this->poll_.size(), POLL_TIMEOUT);
 
 			if (poll_count == -1)
-				std::cout << "Error: polling failed" << std::endl;
+			{
+				this->running = false;
+				break ;
+			}
 
-			for (int i=0; i < this->poll_.size(); i++)
+			for (int i=0; i < this->poll_.size() && this->running; i++)
 			{
 				if (this->poll_[i].revents & POLLIN)
 				{
@@ -175,7 +178,7 @@ namespace ws
 							std::cout << "Connection: cannot accept new client connection" << std::endl;
 							continue;
 						}
-						std::cout << "New connection" << std::endl;
+						std::cout << "New connection from " << new_conn.get_ip_address() << std::endl;
 					}
 					else
 					{
@@ -184,7 +187,7 @@ namespace ws
 
 						if (bytes_read <= 0)
 						{
-							std::cout << "Connection: socket closed by client" << std::endl;
+							std::cout << "Connection: socket closed by client " << conn.get_ip_address() << std::endl;
 							delete_connection(conn);
 							delete_from_poll(i);
 							continue ;
@@ -259,6 +262,10 @@ namespace ws
 			RequestResolver request_resolver(connection.settings, http_request, this->env_, connection, this->content_types_, this->http_message_map_);
 			HttpResponse response = request_resolver.get_response();
 
+			std::cout << connection.get_ip_address()
+				<< " -- Req: " << http_request.request_line.method_to_string() << " " << http_request.request_line.uri.absolute_path()
+				<< " -- Res: " << response.status_code << " " << response.status_msg << std::endl;
+ 
 			if (connection.must_close == false)
 				connection.must_close = this->check_connection_header(http_request);
 
