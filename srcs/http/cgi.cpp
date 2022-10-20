@@ -94,13 +94,8 @@ namespace ws
 	void CGI::parse_execution_output()
 	{
 		this->response_headers_ = this->parse_headers();
-		if (this->response_headers_.find(HttpHeader::header_type_to_string(HTTP_HEADER_CONTENT_TYPE))!= this->response_headers_.end())
-		{
+		if (this->response_headers_.find(HTTP_HEADER_CONTENT_TYPE) != this->response_headers_.end())
 			this->response_body_ = this->parse_body();
-			HttpHeaderContentLength *content_length_header = new HttpHeaderContentLength(); 
-			content_length_header->set_value(this->response_body_.size());
-			this->response_headers_.insert(content_length_header);
-		}
 	}
 
 	HttpHeaderMap CGI::parse_headers()

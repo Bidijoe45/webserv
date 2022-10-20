@@ -23,7 +23,7 @@ namespace ws
         }
         else
         {
-            std::string content_type = resolve_file_extension_content_type(file.get_file_extension());
+            std::string content_type = this->resolve_file_extension_content_type(file.get_file_extension());
             this->response_.body = file.get_content();
             this->response_.generate_content_type_header(content_type);
         }

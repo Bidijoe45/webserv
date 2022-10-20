@@ -1,3 +1,4 @@
+#include <iostream>
 #include "cgi_caller.hpp"
 
 namespace ws
@@ -23,6 +24,9 @@ namespace ws
 		payload->response.status_msg = cgi.get_status_msg();
 		payload->response.headers = cgi.get_header_map();
 		payload->response.body = cgi.get_body();
+
+		if (payload->response.headers.find(HTTP_HEADER_CONTENT_LENGTH) == payload->response.headers.end())
+			payload->response.generate_content_length_header();
 
 		if (payload->response.status_code >= 500)
 		    throw RequestHandler::Exception(500);
