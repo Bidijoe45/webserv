@@ -1,6 +1,8 @@
 #include <iostream>
 #include "cgi_caller.hpp"
 
+#include <iostream>
+
 namespace ws
 {
     CGICaller::CGICaller(HttpRequest *request, EnvMap *env_map, Connection *connection)
@@ -37,6 +39,8 @@ namespace ws
     std::string CGICaller::get_uri_file_extension(const std::string &file_path)
     {
 		size_t dot_pos = file_path.find_last_of('.');
+		if (dot_pos == std::string::npos)
+		    return "";
 		std::string file_extension = file_path.substr(dot_pos);
 
 		return file_extension;
@@ -48,6 +52,9 @@ namespace ws
 			return "";
 
         std::string file_extension = this->get_uri_file_extension(file_path);
+        if (file_extension.size() == 0)
+            return "";
+
 		std::vector<CGISettings>::const_iterator it = location.cgis.begin();
 		std::vector<CGISettings>::const_iterator ite = location.cgis.end();
 

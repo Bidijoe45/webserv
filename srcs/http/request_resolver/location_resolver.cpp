@@ -1,8 +1,6 @@
 #include "location_resolver.hpp"
 #include "../../utils/string_utils.hpp"
 
-#include <iostream>
-
 namespace ws
 {
 
@@ -35,22 +33,24 @@ namespace ws
         std::vector<std::string> split_uri_path = string_split(uri.path, "/");
         Location location;
         size_t location_i = 0;
-        size_t hightes_score = 0;
+        size_t highest_score = 0;
 
-        if (this->locations_.begin() != this->locations_.end())
-            location = *this->locations_.begin();
+        if (this->locations_.size() == 0)
+            throw RequestHandler::Exception(403);
+
+        location = *this->locations_.begin();
 
         for (; location_i < this->locations_.size(); location_i++)
         {
             size_t score = compare_split_paths(split_uri_path, this->splitted_locations_[location_i]);
 
-            if (this->splitted_locations_[location_i].size() == 0 && hightes_score == 0)
+            if (this->splitted_locations_[location_i].size() == 0 && highest_score == 0)
                 location = Location(this->locations_[location_i]);
 
-            if (score > hightes_score)
+            if (score > highest_score)
             {
                 location = Location(this->locations_[location_i]);
-                hightes_score = score;
+                highest_score = score;
             }
         }
 
