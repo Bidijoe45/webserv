@@ -20,6 +20,7 @@ namespace ws {
 		size_t find(const std::string &str, size_t pos) const;
 		std::string get_next_line(std::string delim = "\r\n");
 		size_t size() const;
+		size_t max_size() const;
 
 		std::string data;
 	};

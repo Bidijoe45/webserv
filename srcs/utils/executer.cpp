@@ -66,11 +66,11 @@ namespace ws
 	std::string Executer::get_exec_output(int fd)
 	{
 		std::string	output;
-		size_t	ret;
+		ssize_t	ret;
 		char	buff[64];
 		while ((ret = read(fd, buff, 64)) > 0)
 			output.append(buff, ret);
-		if (ret == (size_t)-1)
+		if (ret == -1)
 			throw std::runtime_error(get_error_string(READ_ERROR));
 		return output;
 	}

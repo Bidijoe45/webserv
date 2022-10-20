@@ -183,7 +183,7 @@ namespace ws
 					else
 					{
 						Connection &conn = this->connections_[this->poll_[i].fd];
-						int bytes_read = conn.recv_data();
+						ssize_t bytes_read = conn.recv_data();
 
 						if (bytes_read <= 0)
 						{
@@ -278,7 +278,11 @@ namespace ws
 	
 			connection.buff.append(response.to_string());
 	
-			connection.send_data();
+			if (connection.send_data() == (size_t)-1)
+			{
+				connection.must_close = true;
+				std::cout << "Something went wrong while sending data" << std::endl;
+			}
 			connection.buff.clear();
 			connection.settings_set = false;
 

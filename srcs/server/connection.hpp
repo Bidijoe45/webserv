@@ -9,13 +9,15 @@
 #include "data_buffer.hpp"
 #include "../settings/server_settings.hpp"
 
+#define RECV_BUFF_SIZE 10024
+
 namespace ws {
 
 struct Connection {
 	Connection();
 	~Connection();
 	size_t send_data();
-	size_t recv_data();
+	ssize_t recv_data();
 	std::string get_ip_address();
 
 	int socket;

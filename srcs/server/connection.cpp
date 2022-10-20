@@ -16,38 +16,31 @@ namespace ws
 	{
 		size_t total = 0;
 		size_t bytesleft = this->buff.size();
-		size_t n;
+		ssize_t n;
 
 		while (total < this->buff.size())
 		{
 			n = send(this->socket, &buff.data[total], bytesleft, 0);
-			if (n == (size_t)-1)
+			if (n == -1)
 				break;
 			total += n;
 			bytesleft -= n;
 		}
 
-		return (n == (size_t)-1) ? -1 : total;
+		return (n == -1) ? -1 : total;
 	}
 
-	size_t Connection::recv_data()
+	ssize_t Connection::recv_data()
 	{
-		char buff[10240];
-		size_t total_read = 0;
-		size_t buffer_size = 10240;
-		size_t read = buffer_size;
+		char buff[RECV_BUFF_SIZE];
+		ssize_t read = 0;
 
-		memset(&buff, 0, buffer_size);
+		memset(&buff, 0, RECV_BUFF_SIZE);
+		read = recv(this->socket, buff, RECV_BUFF_SIZE, 0);
+		if (read != -1)
+			this->buff.append(buff, read);
 
-		while (read == buffer_size)
-		{
-			read = recv(this->socket, buff, buffer_size, 0); 
-			total_read += read;	
-			if (read > 0)
-				this->buff.append(buff, read);
-		}	
-
-		return (read == (size_t)-1 ? -1 : total_read);
+		return read;
 	}
 
 	std::string Connection::get_ip_address()
