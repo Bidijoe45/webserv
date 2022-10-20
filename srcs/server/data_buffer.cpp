@@ -68,4 +68,9 @@ namespace ws {
 		return this->data.size();
 	}
 
+	size_t DataBuffer::max_size() const
+	{
+		return this->data.max_size();
+	}
+
 }
