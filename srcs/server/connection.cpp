@@ -12,22 +12,15 @@ namespace ws
 
 	Connection::~Connection() {}
 
-	size_t Connection::send_data()
+	ssize_t Connection::send_data()
 	{
-		size_t total = 0;
-		size_t bytesleft = this->buff.size();
-		ssize_t n;
+		ssize_t sent;
 
-		while (total < this->buff.size())
-		{
-			n = send(this->socket, &buff.data[total], bytesleft, 0);
-			if (n == -1)
-				break;
-			total += n;
-			bytesleft -= n;
-		}
+		sent = send(this->socket, buff.data.c_str(), this->buff.size(), 0);
+		if (sent != -1)
+			this->buff.flush(sent);
 
-		return (n == -1) ? -1 : total;
+		return sent;
 	}
 
 	ssize_t Connection::recv_data()
@@ -37,7 +30,7 @@ namespace ws
 
 		memset(&buff, 0, RECV_BUFF_SIZE);
 		read = recv(this->socket, buff, RECV_BUFF_SIZE, 0);
-		if (read != -1)
+		if (read > 0)
 			this->buff.append(buff, read);
 
 		return read;
