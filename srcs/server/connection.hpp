@@ -18,13 +18,14 @@ struct Connection {
 	~Connection();
 	ssize_t send_data();
 	ssize_t recv_data();
-	std::string get_ip_address();
+	const std::string get_ip_address() const;
 
 	int socket;
 	int port;
 	socklen_t addr_len;
 	struct sockaddr_storage addr;
-	DataBuffer buff;
+	DataBuffer recv_buff;
+	DataBuffer send_buff;
 	HttpParser http_parser;
 	ServerSettings settings;
 	bool settings_set;
