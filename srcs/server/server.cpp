@@ -12,6 +12,7 @@
 #include <fstream>
 #include <vector>
 #include <algorithm>
+#include <poll.h>
 
 #include <iostream>
 #include <cstring>
@@ -110,6 +111,7 @@ namespace ws
 		std::vector<int>::iterator it = this->ports_.begin();
 		std::vector<int>::iterator ite = this->ports_.end();
 
+		//FIXME: no comprobamos el return de listen_on para errores
 		for (; it != ite; it++)
 			this->listen_on(*it);
 
@@ -163,29 +165,46 @@ namespace ws
 				break ;
 			}
 
-			for (size_t i=0; i < this->poll_.size() && this->running; i++)
+			for (size_t i = 0; i < this->poll_.size() && this->running; i++)
 			{
-				if (this->poll_[i].revents & POLLIN)
+				std::vector<ServerSocket>::iterator ss_it = this->get_server_socket(this->poll_[i].fd);
+				if (this->poll_[i].revents & POLLIN && ss_it != this->server_sockets_.end())
 				{
-					std::vector<ServerSocket>::iterator ss_it = this->get_server_socket(this->poll_[i].fd);
-					if (ss_it != this->server_sockets_.end())
+					Connection new_conn = this->accept_new_connection(this->poll_[i].fd, (*ss_it).port);
+					this->add_to_poll(new_conn);
+					if (new_conn.socket == -1)
 					{
-						Connection new_conn = this->accept_new_connection(this->poll_[i].fd, (*ss_it).port);
-						this->add_to_poll(new_conn);
+						std::cout << "Connection: cannot accept new client connection" << std::endl;
+						continue;
+					}
+					std::cout << "New connection from " << new_conn.get_ip_address() << std::endl;
+				}
+				else
+				{
+					Connection &conn = this->connections_[this->poll_[i].fd];
 
-						if (new_conn.socket == -1)
+					if (this->poll_[i].revents & POLLOUT && conn.buff.size() > 0)
+					{
+						ssize_t bytes_sent = conn.send_data();
+						if (bytes_sent == -1)
 						{
-							std::cout << "Connection: cannot accept new client connection" << std::endl;
+							std::cout << "Connection: send error with client " << conn.get_ip_address() << std::endl;
+							delete_connection(conn);
+							delete_from_poll(i);
 							continue;
 						}
-						std::cout << "New connection from " << new_conn.get_ip_address() << std::endl;
 					}
-					else
+					else if (this->poll_[i].revents & POLLIN)
 					{
-						Connection &conn = this->connections_[this->poll_[i].fd];
 						ssize_t bytes_read = conn.recv_data();
-
-						if (bytes_read <= 0)
+						if (bytes_read == -1)
+						{
+							std::cout << "Connection: read error with client " << conn.get_ip_address() << std::endl;
+							delete_connection(conn);
+							delete_from_poll(i);
+							continue ;
+						}
+						else if (bytes_read == 0)
 						{
 							std::cout << "Connection: socket closed by client " << conn.get_ip_address() << std::endl;
 							delete_connection(conn);
@@ -194,9 +213,10 @@ namespace ws
 						}
 
 						this->on_new_request(conn);
+
 						if (conn.must_close == true)
 						{
-							std::cout << "Connection: socket closed by server" << std::endl;
+							std::cout << "Connection: socket closed by server with " << conn.get_ip_address() << std::endl;
 							delete_connection(conn);
 							delete_from_poll(i);
 							continue ;
@@ -246,11 +266,6 @@ namespace ws
 
 	void Server::on_new_request(Connection &connection)
 	{
-//		std::cout << "-- Raw Message by client --" << std::endl;
-//		std::fstream log_file("./log_file");
-//		std::cout << connection.buff.data << std::endl;
-//		std::cout << "-----------------------" << std::endl;
-		
 		this->parse_request(connection);
 		connection.must_close = connection.http_parser.must_close;
 		connection.buff.clear();
@@ -277,15 +292,8 @@ namespace ws
 			}
 	
 			connection.buff.append(response.to_string());
-	
-			if (connection.send_data() == (size_t)-1)
-			{
-				connection.must_close = true;
-				std::cout << "Something went wrong while sending data" << std::endl;
-			}
-			connection.buff.clear();
-			connection.settings_set = false;
 
+			connection.settings_set = false;
 			connection.http_parser.reset();
 		}
 	}
@@ -294,7 +302,7 @@ namespace ws
 	{
 		struct pollfd new_poll;
 		new_poll.fd = new_connection.socket;
-		new_poll.events = POLLIN;
+		new_poll.events = POLLIN | POLLOUT;
 
 		this->poll_.push_back(new_poll);
 	}
