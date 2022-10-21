@@ -39,6 +39,7 @@ namespace ws
 			int listen_on(int port);
 			void listen_all();
 			void set_server_sockets_to_poll();
+			void close_connection(const Connection &conn, size_t index, std::string msg);
 			void delete_connection(const Connection &connection);
 			void delete_from_poll(size_t index);
 			std::vector<ServerSocket>::iterator get_server_socket(int socket);

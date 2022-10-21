@@ -162,7 +162,7 @@ namespace ws
 			if (poll_count == -1)
 			{
 				this->running = false;
-				break ;
+				break;
 			}
 
 			for (size_t i = 0; i < this->poll_.size() && this->running; i++)
@@ -183,44 +183,35 @@ namespace ws
 				{
 					Connection &conn = this->connections_[this->poll_[i].fd];
 
-					if (this->poll_[i].revents & POLLOUT && conn.buff.size() > 0)
-					{
-						ssize_t bytes_sent = conn.send_data();
-						if (bytes_sent == -1)
-						{
-							std::cout << "Connection: send error with client " << conn.get_ip_address() << std::endl;
-							delete_connection(conn);
-							delete_from_poll(i);
-							continue;
-						}
-					}
-					else if (this->poll_[i].revents & POLLIN)
+					if (this->poll_[i].revents & POLLIN && conn.send_buff.size() == 0)
 					{
 						ssize_t bytes_read = conn.recv_data();
 						if (bytes_read == -1)
 						{
-							std::cout << "Connection: read error with client " << conn.get_ip_address() << std::endl;
-							delete_connection(conn);
-							delete_from_poll(i);
-							continue ;
+							this->close_connection(conn, i, "Connection: read error");
+							continue;
 						}
 						else if (bytes_read == 0)
 						{
-							std::cout << "Connection: socket closed by client " << conn.get_ip_address() << std::endl;
-							delete_connection(conn);
-							delete_from_poll(i);
-							continue ;
+							this->close_connection(conn, i, "Connection: socket closed by client");
+							continue;
 						}
 
 						this->on_new_request(conn);
-
-						if (conn.must_close == true)
+					}
+					if (this->poll_[i].revents & POLLOUT && conn.send_buff.size() > 0)
+					{
+						ssize_t bytes_sent = conn.send_data();
+						if (bytes_sent == -1)
 						{
-							std::cout << "Connection: socket closed by server with " << conn.get_ip_address() << std::endl;
-							delete_connection(conn);
-							delete_from_poll(i);
-							continue ;
+							this->close_connection(conn, i, "Connection: send error");
+							continue;
 						}
+					}
+					if (conn.must_close == true)
+					{
+						this->close_connection(conn, i, "Connection: socket closed by server");
+						continue;
 					}
 				}
 			}
@@ -244,7 +235,7 @@ namespace ws
 
 	void Server::parse_request(Connection &connection)
 	{
-		connection.http_parser.append_to_buff(connection.buff);
+		connection.http_parser.append_to_buff(connection.recv_buff);
 		connection.http_parser.must_close = false;
 		if (connection.http_parser.get_stage() == HttpParser::REQUEST_LINE)
 			connection.http_parser.parse_first_line();
@@ -268,7 +259,7 @@ namespace ws
 	{
 		this->parse_request(connection);
 		connection.must_close = connection.http_parser.must_close;
-		connection.buff.clear();
+		connection.recv_buff.clear();
 
 		if (connection.http_parser.get_stage() == HttpParser::COMPLETED)
 		{
@@ -291,7 +282,7 @@ namespace ws
 				response.headers.insert(connection_header);
 			}
 	
-			connection.buff.append(response.to_string());
+			connection.send_buff.append(response.to_string());
 
 			connection.settings_set = false;
 			connection.http_parser.reset();
@@ -327,6 +318,13 @@ namespace ws
 	{
 		this->poll_[index] = this->poll_[this->poll_.size() - 1];
 		this->poll_.erase(this->poll_.end() - 1);
+	}
+
+	void Server::close_connection(const Connection &conn, size_t index, std::string msg)
+	{
+		std::cout << msg << ". Client IP: " << conn.get_ip_address() << std::endl;
+		this->delete_connection(conn);
+		this->delete_from_poll(index);
 	}
 
 	void Server::set_ports_from_settings()

@@ -16,9 +16,9 @@ namespace ws
 	{
 		ssize_t sent;
 
-		sent = send(this->socket, buff.data.c_str(), this->buff.size(), 0);
+		sent = send(this->socket, this->send_buff.data.c_str(), this->send_buff.size(), 0);
 		if (sent != -1)
-			this->buff.flush(sent);
+			this->send_buff.flush(sent);
 
 		return sent;
 	}
@@ -31,25 +31,25 @@ namespace ws
 		memset(&buff, 0, RECV_BUFF_SIZE);
 		read = recv(this->socket, buff, RECV_BUFF_SIZE, 0);
 		if (read > 0)
-			this->buff.append(buff, read);
+			this->recv_buff.append(buff, read);
 
 		return read;
 	}
 
-	std::string Connection::get_ip_address()
+	const std::string Connection::get_ip_address() const
 	{
 		std::string ip_str;
 
 		if (this->addr.ss_family == AF_INET)
 		{
-			struct sockaddr_in *sa = reinterpret_cast<struct sockaddr_in *>(&this->addr);
+			const struct sockaddr_in *sa = reinterpret_cast<const struct sockaddr_in *>(&this->addr);
 			char ip[INET_ADDRSTRLEN];
 			inet_ntop(AF_INET, &(sa->sin_addr), ip, INET_ADDRSTRLEN);
 			ip_str = ip;
 		}
 		else if (this->addr.ss_family == AF_INET6)
 		{
-			struct sockaddr_in6 *sa6 = reinterpret_cast<struct sockaddr_in6 *>(&this->addr);
+			const struct sockaddr_in6 *sa6 = reinterpret_cast<const struct sockaddr_in6 *>(&this->addr);
 			char ip[INET6_ADDRSTRLEN];
 			inet_ntop(AF_INET6, &(sa6->sin6_addr), ip, INET6_ADDRSTRLEN);
 			ip_str = ip;
