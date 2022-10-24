@@ -37,6 +37,5 @@ webserv
 webserv_test
 build
 .DS_Store
-server.conf
 *.swp
 tester/bin
