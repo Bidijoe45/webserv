@@ -111,9 +111,15 @@ namespace ws
 		std::vector<int>::iterator it = this->ports_.begin();
 		std::vector<int>::iterator ite = this->ports_.end();
 
-		//FIXME: no comprobamos el return de listen_on para errores
 		for (; it != ite; it++)
-			this->listen_on(*it);
+		{
+			if (this->listen_on(*it) != 0)
+			{
+				std::cout << "Could not listen on port: " << *it << std::endl;
+				exit(1);
+			}
+		}
+		
 
 		it = this->ports_.begin();
 

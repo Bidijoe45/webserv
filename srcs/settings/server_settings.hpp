@@ -18,7 +18,6 @@ struct ServerSettings {
     size_t client_max_body_size;
     std::vector<ErrorPage> error_pages;
     std::vector<Location> locations;
-    //TODO: CGI
 };
 
 bool operator==(const ServerSettings &lhs, const ServerSettings &rhs);

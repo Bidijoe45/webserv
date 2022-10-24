@@ -21,10 +21,6 @@
 #include "http/http_multipart_body.hpp"
 #include "http/http_multipart_body_parser.hpp"
 
-void atExit() {
-	system("leaks webserv");
-}
-
 static void close_handler(int sig, siginfo_t *siginfo, void *context)
 {
 	ws::Server::running = false;
@@ -43,7 +39,6 @@ static void close_handler(int sig, siginfo_t *siginfo, void *context)
 
  	server.set_env(env);
  	
- //	atexit(&atExit);
  	memset (&act, 0, sizeof(act));
  	act.sa_sigaction = &close_handler;
  	act.sa_flags = SA_SIGINFO;

@@ -72,8 +72,6 @@ namespace ws
 
         FileSystem file(this->file_path_);
         
-        //TODO:
-        //Esto se podria llevar al modulo FilePathResolver?
 	    if (!file.is_valid())
 		    throw HttpMethod::Exception(201);
 
