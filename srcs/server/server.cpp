@@ -70,7 +70,7 @@ namespace ws
 		hints.ai_socktype = SOCK_STREAM;
 		hints.ai_flags = AI_PASSIVE;
 		if ((rv = getaddrinfo(NULL, port_str, &hints, &ai)) != 0) {
-			fprintf(stderr, "selectserver: %s\n", gai_strerror(rv));
+			std::cout << "Error: get address info" << std::endl;
 			exit(1);
 		}
 		

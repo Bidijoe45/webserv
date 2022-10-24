@@ -44,7 +44,7 @@ static void close_handler(int sig, siginfo_t *siginfo, void *context)
  	act.sa_flags = SA_SIGINFO;
 
  	if (sigaction(SIGINT, &act, NULL) < 0) {
- 		perror ("sigaction");
+		std::cout << "Error: Sigaction init failed" << std::endl;
  		return 1;
  	}
 
