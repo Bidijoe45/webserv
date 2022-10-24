@@ -30,3 +30,12 @@
 *.exe
 *.out
 *.app
+
+# Custom
+.vscode
+webserv
+webserv_test
+build
+.DS_Store
+*.swp
+tester/bin
