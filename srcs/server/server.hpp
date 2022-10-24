@@ -30,6 +30,7 @@ namespace ws
 			void on_new_request(Connection &connection);
 			void add_to_poll(Connection new_connection);
 			void set_env(char **env);
+			void set_config_file(const std::string &config_file);
 			void set_settings(const Settings &settings);
 			void parse_request(Connection &connection);
 
@@ -52,6 +53,7 @@ namespace ws
 			std::vector<struct pollfd> poll_;
 			Settings settings_;
 			EnvMap env_; 
+			std::string config_file_;
 			ContentTypeMap content_types_;
 			HttpMessageMap http_message_map_;
 

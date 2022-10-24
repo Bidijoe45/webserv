@@ -269,6 +269,7 @@ namespace ws
 
 		if (connection.http_parser.get_stage() == HttpParser::COMPLETED)
 		{
+
 			HttpRequest http_request = connection.http_parser.get_request();
 	
 			RequestResolver request_resolver(connection.settings, http_request, this->env_, connection, this->content_types_, this->http_message_map_);
@@ -307,6 +308,11 @@ namespace ws
 	void Server::set_env(char **env)
 	{
 		this->env_.set_from(env);
+	}
+
+	void Server::set_config_file(const std::string &config_file)
+	{
+		this->config_file_ = config_file;
 	}
 	
 	void Server::set_settings(const Settings &settings)
@@ -353,7 +359,7 @@ namespace ws
 			return;
 		}
 
-		SettingsParser settings_parser("./server.conf");
+		SettingsParser settings_parser(this->config_file_);
 
 		this->settings_ = settings_parser.parse();
 

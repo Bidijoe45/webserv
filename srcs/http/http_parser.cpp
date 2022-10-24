@@ -127,7 +127,7 @@ namespace ws
 
 	void HttpParser::parse_body()
 	{
-		if (this->buff_.size() > 0 && this->expected_body_size_ > 0)
+		if (this->expected_body_size_ > 0)
 		{
 			if (this->max_body_size_ != 0 && this->expected_body_size_ > this->max_body_size_)
 			{

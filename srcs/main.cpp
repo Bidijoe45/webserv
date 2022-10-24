@@ -29,7 +29,7 @@ static void close_handler(int sig, siginfo_t *siginfo, void *context)
 	(void)context;
 }
 
- int main(int argc, char **argv, char **env)
+int main(int argc, char **argv, char **env)
 {
 	(void)argc;
 	(void)argv;
@@ -38,6 +38,13 @@ static void close_handler(int sig, siginfo_t *siginfo, void *context)
  	ws::Server server;
 
  	server.set_env(env);
+	
+	std::string config_file;
+	if (argc < 2)
+		config_file = "server.conf";
+	else
+		config_file = argv[1];
+	server.set_config_file(config_file);
  	
  	memset (&act, 0, sizeof(act));
  	act.sa_sigaction = &close_handler;
@@ -49,8 +56,6 @@ static void close_handler(int sig, siginfo_t *siginfo, void *context)
  	}
 
  	server.run();
-
- 	std::cout << "FIN del programa" << std::endl;
 
 	return 0;
 }
