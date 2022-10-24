@@ -80,7 +80,7 @@ namespace ws
         if (file.is_dir() && this->location_.autoindex == true)
         {
             this->response_.body = this->generate_autoindex(file); 
-            this->response_.generate_content_type_header("text/html");
+            this->response_.generate_content_type_header("text/html; charset=utf-8");
         }
         else if (file.is_dir() && this->location_.autoindex == false)
         {
