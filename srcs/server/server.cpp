@@ -97,7 +97,7 @@ namespace ws
 
 		freeaddrinfo(ai);
 
-		if (listen(server_socket.socket, 10) == -1) {
+		if (listen(server_socket.socket, LISTEN_BACKLOG) == -1) {
 			return -1;
 		}
 
