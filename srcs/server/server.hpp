@@ -12,7 +12,7 @@
 #include "../utils/http_message_map.hpp"
 
 #define POLL_TIMEOUT 50
-#define LISTEN_BACKLOG SOMAXCONN
+#define LISTEN_BACKLOG 30 
 
 namespace ws
 {
